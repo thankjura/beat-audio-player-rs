@@ -1,0 +1,13 @@
+[package]
+name = "beat-autio-player"
+version = "0.1.0"
+edition = "2021"
+
+
+[dependencies]
+gstreamer = { version = "^0.19.2", features = ["v1_20"] }
+gstreamer-player = { version = "^0.19.2", features = ["v1_20"] }
+gtk = { version = "^0.5.2", package = "gtk4", features = ["v4_8"] }
+
+[build-dependencies]
+glib-build-tools = "0.16.3"
