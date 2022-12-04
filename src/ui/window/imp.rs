@@ -1,6 +1,7 @@
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
+use crate::ui::footer::BeatFooter;
 use crate::ui::header::BeatHeader;
 
 
@@ -9,6 +10,12 @@ use crate::ui::header::BeatHeader;
 pub struct BeatWindow {
     #[template_child]
     pub header: TemplateChild<BeatHeader>,
+
+    #[template_child(id = "body")]
+    pub body: TemplateChild<gtk::Box>,
+
+    #[template_child]
+    pub footer: TemplateChild<BeatFooter>,
 }
 
 

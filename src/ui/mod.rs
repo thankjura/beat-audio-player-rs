@@ -1,3 +1,5 @@
-pub mod header;
-pub mod window;
-pub mod main;
+mod window;
+mod header;
+mod footer;
+
+pub use crate::ui::window::BeatWindow;

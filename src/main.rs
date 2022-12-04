@@ -1,24 +1,26 @@
 mod ui;
-mod player;
+mod app;
 
 use gstreamer_player::gst;
 use gtk::prelude::*;
 use gtk::Application;
-use crate::player::player::BeatPlayer;
+use crate::app::BeatApp;
+use crate::ui::BeatWindow;
 
 const APP_ID: &str = "ru.slie.beat";
 
 fn init(app: &Application) {
-    let player = BeatPlayer::build();
-    let path = "/home/jura/Music/test.ogg";
-    player.set_uri(path);
-    let _ = player.play();
+    // let mut beat_app = BeatApp::new();
+    // if let Some(playlist_pos) = beat_app.open_one("/home/jura/Music/test.ogg", true) {
+    //     beat_app.set_position(&playlist_pos);
+    //     beat_app.play();
+    // }
+    //
+    // app.connect_shutdown(move |_| {
+    //     &beat_app.destroy();
+    // });
 
-    app.connect_shutdown(move |_| {
-        let _ = &player.destroy();
-    });
-
-    let window = crate::ui::main::build_ui(app);
+    let window = BeatWindow::new(app);
 
     //window.show();
     window.present();

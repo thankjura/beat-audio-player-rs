@@ -1,6 +1,6 @@
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use gtk::{glib, CompositeTemplate};
+use gtk::{glib, CompositeTemplate, FileChooserDialog, ResponseType};
 
 
 #[derive(Default, CompositeTemplate)]
@@ -34,6 +34,36 @@ impl ObjectImpl for BeatHeader {
     }
 }
 
+impl BeatHeader {
+    fn choose_files(&self, keep_tab: bool) {
+        let dialog = FileChooserDialog::new(
+            Some("Open folder"),
+            gtk::Window::NONE,
+            gtk::FileChooserAction::Open,
+            &[("Open", ResponseType::Ok), ("Cancel", ResponseType::Cancel)],
+        );
+        dialog.set_select_multiple(true);
+        //dialog.set_modal(true);
+
+        let audio_filter = gtk::FileFilter::new();
+        audio_filter.add_mime_type("audio/*");
+        audio_filter.add_mime_type("inode/directory");
+        audio_filter.set_name(Some("Audio files or directory"));
+        dialog.add_filter(&audio_filter);
+
+        dialog.connect_response(move |d: &FileChooserDialog, response: ResponseType| {
+            if response == ResponseType::Ok {
+                let file = d.file().unwrap();
+                let path = file.path().unwrap();
+                println!("{:#?}", path);
+            }
+
+            d.close();
+        });
+
+        dialog.show();
+    }
+}
 
 impl WidgetImpl for BeatHeader {}
 
@@ -41,7 +71,8 @@ impl WidgetImpl for BeatHeader {}
 impl BeatHeader {
     #[template_callback]
     fn on_open_files(&self, _button: &gtk::Button) {
-
+        println!("show dialog");
+        self.choose_files(false);
     }
 
     #[template_callback]
@@ -51,7 +82,8 @@ impl BeatHeader {
 
     #[template_callback]
     fn on_add_files(&self, _button: &gtk::Button) {
-
+        println!("show dialog");
+        self.choose_files(true);
     }
 
     #[template_callback]
