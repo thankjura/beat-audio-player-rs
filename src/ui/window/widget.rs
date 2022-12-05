@@ -1,23 +1,26 @@
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
-use crate::ui::footer::BeatFooter;
-use crate::ui::header::BeatHeader;
+use crate::ui::window::tab::Tab;
 
 
 #[derive(Default, CompositeTemplate)]
 #[template(file = "../../../resources/ui/window.ui")]
 pub struct BeatWindow {
     #[template_child]
-    pub header: TemplateChild<BeatHeader>,
+    pub header: TemplateChild<gtk::HeaderBar>,
 
     #[template_child(id = "body")]
     pub body: TemplateChild<gtk::Box>,
 
-    #[template_child]
-    pub footer: TemplateChild<BeatFooter>,
-}
+    #[template_child(id = "footer")]
+    pub footer: TemplateChild<gtk::Box>,
 
+    #[template_child(id = "notebook")]
+    pub notebook: TemplateChild<gtk::Notebook>,
+
+    pub tabs: Vec<Tab>
+}
 
 #[glib::object_subclass]
 impl ObjectSubclass for BeatWindow {
@@ -27,6 +30,7 @@ impl ObjectSubclass for BeatWindow {
 
     fn class_init(klass: &mut Self::Class) {
         klass.bind_template();
+        klass.bind_template_callbacks();
     }
 
     fn instance_init(obj: &glib::subclass::InitializingObject<Self>) {
@@ -38,6 +42,10 @@ impl ObjectImpl for BeatWindow {
     fn constructed(&self) {
         // Call "constructed" on parent
         self.parent_constructed();
+
+        self.notebook.connect_switch_page(move |widget, tab, idx| {
+            println!("Switched tabs");
+        });
         // // Connect to "clicked" signal of `button`
         // self.button.connect_clicked(move |button| {
         //     // Set the label to "Hello World!" after the button has been clicked on

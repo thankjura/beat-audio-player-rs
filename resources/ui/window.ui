@@ -5,26 +5,193 @@
     <property name="default_width">800</property>
     <property name="default_height">400</property>
     <child type="titlebar">
-      <object class="BeatHeader" id="header" />
+      <object class="GtkHeaderBar" id="header">
+        <property name="vexpand">1</property>
+        <child>
+          <object class="GtkButton" id="_button_open_files">
+            <property name="focusable">1</property>
+            <property name="receives-default">1</property>
+            <signal name="clicked" handler="on_open_files" swapped="yes"/>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">folder-open-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="end">
+          <object class="GtkVolumeButton" id="_button_volume">
+            <property name="focus-on-click">0</property>
+            <property name="focusable">1</property>
+            <property name="orientation">vertical</property>
+            <property name="receives-default">1</property>
+            <property name="value">100</property>
+            <signal name="value-changed" handler="on_volume_changed" swapped="yes"/>
+            <child internal-child="plus_button">
+              <object class="GtkButton">
+                <property name="focusable">1</property>
+                <property name="halign">center</property>
+                <property name="receives-default">1</property>
+                <property name="valign">center</property>
+                <property name="visible">0</property>
+              </object>
+            </child>
+            <child internal-child="minus_button">
+              <object class="GtkButton">
+                <property name="focusable">1</property>
+                <property name="halign">center</property>
+                <property name="receives-default">1</property>
+                <property name="valign">center</property>
+                <property name="visible">0</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="end">
+          <object class="GtkToggleButton" id="_button_shuffle">
+            <property name="focusable">1</property>
+            <property name="receives-default">1</property>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">media-playlist-shuffle-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="end">
+          <object class="GtkToggleButton" id="_button_repeat">
+            <property name="focusable">1</property>
+            <property name="receives-default">1</property>
+            <child>
+              <object class="GtkImage" id="_button_repeat_img">
+                <property name="icon-name">media-playlist-repeat-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="_button_add_files">
+            <property name="focusable">1</property>
+            <property name="receives-default">1</property>
+            <signal name="clicked" handler="on_add_files" swapped="yes"/>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">value-increase-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="_button_stop">
+            <property name="focusable">1</property>
+            <property name="receives-default">1</property>
+            <signal name="clicked" handler="on_stop" swapped="yes"/>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">media-playback-stop-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="_button_play">
+            <property name="focusable">1</property>
+            <property name="receives-default">1</property>
+            <signal name="clicked" handler="on_play" swapped="yes"/>
+            <child>
+              <object class="GtkImage" id="_button_play_img">
+                <property name="icon-name">media-playback-start-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="_button_prev">
+            <property name="focusable">1</property>
+            <property name="receives-default">1</property>
+            <signal name="clicked" handler="on_prev" swapped="yes"/>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">media-skip-backward-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="_button_next">
+            <property name="focusable">1</property>
+            <property name="receives-default">1</property>
+            <signal name="clicked" handler="on_next" swapped="yes"/>
+            <child>
+              <object class="GtkImage">
+                <property name="icon-name">media-skip-forward-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
     </child>
     <child>
       <object class="GtkBox" id="body">
         <property name="orientation">vertical</property>
         <child>
-          <placeholder/>
+          <object class="GtkAdjustment" id="_progress">
+            <property name="upper">100</property>
+            <property name="step_increment">1</property>
+            <property name="page_increment">10</property>
+          </object>
+          <object class="GtkBox">
+            <child>
+              <object class="GtkLabel" id="_current_position">
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin_top">6</property>
+                <property name="margin_bottom">6</property>
+                <property name="label" translatable="1">label</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkScale" id="_progress_bar">
+                <property name="hexpand">1</property>
+                <property name="focusable">1</property>
+                <property name="valign">center</property>
+                <property name="adjustment">_progress</property>
+                <property name="round_digits">1</property>
+                <property name="value_pos">right</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="_duration">
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin_top">6</property>
+                <property name="margin_bottom">6</property>
+                <property name="label" translatable="1">label</property>
+              </object>
+            </child>
+          </object>
         </child>
         <child>
           <object class="GtkNotebook" id="notebook">
             <property name="vexpand">1</property>
             <property name="focusable">1</property>
             <property name="show_tabs">0</property>
+<!--            <child>-->
+<!--              <placeholder/>-->
+<!--            </child>-->
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox" id="footer">
+            <property name="height_request">32</property>
+            <property name="spacing">5</property>
+            <child>
+              <placeholder/>
+            </child>
             <child>
               <placeholder/>
             </child>
           </object>
-        </child>
-        <child>
-          <object class="BeatFooter" id="footer" />
         </child>
       </object>
     </child>

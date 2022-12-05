@@ -1,10 +1,11 @@
 mod ui;
 mod app;
 
+use std::borrow::BorrowMut;
 use gstreamer_player::gst;
 use gtk::prelude::*;
+use gtk::subclass::prelude::*;
 use gtk::Application;
-use crate::app::BeatApp;
 use crate::ui::BeatWindow;
 
 const APP_ID: &str = "ru.slie.beat";
@@ -21,6 +22,7 @@ fn init(app: &Application) {
     // });
 
     let window = BeatWindow::new(app);
+    window.imp().add_tab();
 
     //window.show();
     window.present();

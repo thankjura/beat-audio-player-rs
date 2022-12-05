@@ -1,5 +1,4 @@
 mod window;
-mod header;
-mod footer;
+mod playlist;
 
 pub use crate::ui::window::BeatWindow;
