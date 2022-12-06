@@ -1,9 +1,7 @@
 mod ui;
 mod player;
 
-use gstreamer_player::gst;
 use gtk::prelude::*;
-use gtk::subclass::prelude::*;
 use gtk::Application;
 use crate::ui::BeatWindow;
 
@@ -21,13 +19,13 @@ fn init(app: &Application) {
     // });
 
     let window = BeatWindow::new(app);
-    window.imp().add_tab("New tab");
+    window.open_path("/home/jura/Music/Король и Шут/2001 - Как в старой сказке/11. Двухголовый отпрыск.m4a");
+    window.open_path("/home/jura/Music/test.ogg");
     //window.show();
     window.present();
 }
 
 fn main() {
-    gst::init().unwrap();
     gtk::init().unwrap();
 
     let app = Application::builder().application_id(APP_ID).build();

@@ -19,6 +19,8 @@ pub struct BeatPlayer {
 
 impl BeatPlayer {
     pub fn build() -> Self {
+        gst::init().unwrap();
+
         let pipeline = Pipeline::default();
         let file_src = gst::ElementFactory::make("filesrc").build().unwrap();
         let decode_bin = gst::ElementFactory::make("decodebin").build().unwrap();
@@ -36,7 +38,7 @@ impl BeatPlayer {
         pipeline.add_many(&elements).unwrap();
         file_src.link(&decode_bin).unwrap();
         audio_convert.link(&spectrum).unwrap();
-        spectrum.link(&volume);
+        spectrum.link(&volume).unwrap();
         volume.link(&sink).unwrap();
 
         let sink_pad = audio_convert.static_pad("sink").unwrap();

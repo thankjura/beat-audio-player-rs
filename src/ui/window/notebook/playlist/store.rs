@@ -1,0 +1,37 @@
+use gtk::{glib, gio};
+use gtk::prelude::*;
+use crate::ui::window::notebook::playlist::track::Track;
+
+
+#[derive(Debug)]
+pub struct PlayListStore {
+    store: gio::ListStore,
+    selector: gtk::SingleSelection,
+}
+
+
+impl PlayListStore {
+    pub fn new() -> Self {
+        let store = gio::ListStore::new(glib::BoxedAnyObject::static_type());
+        let selector = gtk::SingleSelection::new(Some(&store));
+
+        Self {
+            store,
+            selector
+        }
+    }
+
+    pub fn selector(&self) -> &gtk::SingleSelection {
+        &self.selector
+    }
+
+    pub fn add_row(&self, track: Track) {
+        self.store.append(&glib::BoxedAnyObject::new(track));
+    }
+}
+
+impl Default for PlayListStore {
+    fn default() -> Self {
+        Self::new()
+    }
+}

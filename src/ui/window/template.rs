@@ -1,12 +1,11 @@
-use std::cell::RefCell;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
-use crate::ui::window::tab::Tab;
+use crate::ui::window::notebook::BeatNotebook;
 
 #[derive(Default, CompositeTemplate)]
 #[template(file = "../../../resources/ui/window.ui")]
-pub struct BeatWindow {
+pub struct BeatWindowTemplate {
     #[template_child]
     pub header: TemplateChild<gtk::HeaderBar>,
 
@@ -17,13 +16,11 @@ pub struct BeatWindow {
     pub footer: TemplateChild<gtk::Box>,
 
     #[template_child(id = "notebook")]
-    pub notebook: TemplateChild<gtk::Notebook>,
-
-    pub tabs: RefCell<Vec<Tab>>,
+    pub notebook: TemplateChild<BeatNotebook>,
 }
 
 #[glib::object_subclass]
-impl ObjectSubclass for BeatWindow {
+impl ObjectSubclass for BeatWindowTemplate {
     const NAME: &'static str = "BeatWindow";
     type Type = super::BeatWindow;
     type ParentType = gtk::ApplicationWindow;
@@ -38,25 +35,25 @@ impl ObjectSubclass for BeatWindow {
     }
 }
 
-impl ObjectImpl for BeatWindow {
+impl ObjectImpl for BeatWindowTemplate {
     fn constructed(&self) {
         // Call "constructed" on parent
         self.parent_constructed();
 
-        self.notebook.connect_switch_page(move |_widget, _tab, _idx| {
-            println!("Switched tabs");
-        });
-        // // Connect to "clicked" signal of `button`
-        // self.button.connect_clicked(move |button| {
-        //     // Set the label to "Hello World!" after the button has been clicked on
-        //     button.set_label("Hello World!");
-        // });
+        self.notebook.get().imp().add_tab("new");
+
+    }
+
+    fn dispose(&self) {
+        while let Some(child) = self.obj().first_child() {
+            child.unparent();
+        }
     }
 }
 
 
-impl WidgetImpl for BeatWindow {}
+impl WidgetImpl for BeatWindowTemplate {}
 
-impl WindowImpl for BeatWindow {}
+impl WindowImpl for BeatWindowTemplate {}
 
-impl ApplicationWindowImpl for BeatWindow {}
+impl ApplicationWindowImpl for BeatWindowTemplate {}

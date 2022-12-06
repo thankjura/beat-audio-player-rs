@@ -1,4 +1,5 @@
-use crate::ui::playlist::PlayList;
+use gtk::ScrolledWindow;
+use crate::ui::window::notebook::playlist::{PlayList, Track};
 
 #[derive(Debug, Default)]
 pub struct Tab {
@@ -21,7 +22,11 @@ impl Tab {
         &self.label
     }
 
-    pub fn playlist(&self) -> &PlayList {
-        &self.playlist
+    pub fn scrollbox(&self) -> &ScrolledWindow {
+        self.playlist.scrollbox()
+    }
+
+    pub fn add_track(&self, track: Track) {
+        self.playlist.store().add_row(track);
     }
 }

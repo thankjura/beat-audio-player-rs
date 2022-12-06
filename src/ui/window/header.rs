@@ -1,10 +1,9 @@
-use std::any::Any;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{FileChooserDialog, ResponseType};
-use crate::ui::window::widget::BeatWindow;
+use crate::ui::window::template::BeatWindowTemplate;
 
-impl BeatWindow {
+impl BeatWindowTemplate {
     fn choose_files(&self, _keep_tab: bool) {
         let binding = self.instance();
         let w = binding.as_ref();
@@ -39,9 +38,10 @@ impl BeatWindow {
 }
 
 #[gtk::template_callbacks]
-impl BeatWindow {
+impl BeatWindowTemplate {
     #[template_callback]
     fn on_open_files(&self, _button: &gtk::Button) {
+
         self.choose_files(false);
     }
 
