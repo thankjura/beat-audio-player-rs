@@ -1,7 +1,6 @@
 mod ui;
-mod app;
+mod player;
 
-use std::borrow::BorrowMut;
 use gstreamer_player::gst;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
@@ -22,8 +21,7 @@ fn init(app: &Application) {
     // });
 
     let window = BeatWindow::new(app);
-    window.imp().add_tab();
-
+    window.imp().add_tab("New tab");
     //window.show();
     window.present();
 }

@@ -1,8 +1,8 @@
+use std::cell::RefCell;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
 use crate::ui::window::tab::Tab;
-
 
 #[derive(Default, CompositeTemplate)]
 #[template(file = "../../../resources/ui/window.ui")]
@@ -19,7 +19,7 @@ pub struct BeatWindow {
     #[template_child(id = "notebook")]
     pub notebook: TemplateChild<gtk::Notebook>,
 
-    pub tabs: Vec<Tab>
+    pub tabs: RefCell<Vec<Tab>>,
 }
 
 #[glib::object_subclass]
@@ -43,7 +43,7 @@ impl ObjectImpl for BeatWindow {
         // Call "constructed" on parent
         self.parent_constructed();
 
-        self.notebook.connect_switch_page(move |widget, tab, idx| {
+        self.notebook.connect_switch_page(move |_widget, _tab, _idx| {
             println!("Switched tabs");
         });
         // // Connect to "clicked" signal of `button`

@@ -2,6 +2,7 @@ mod notebook;
 mod header;
 mod widget;
 mod tab;
+mod files;
 
 use gtk::{gio, glib};
 

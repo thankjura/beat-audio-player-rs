@@ -1,6 +1,4 @@
-use std::cell::Ref;
-use gtk::{glib, gio, Inscription};
-use gtk::glib::BoxedAnyObject;
+use gtk::{glib, gio};
 use gtk::prelude::*;
 
 

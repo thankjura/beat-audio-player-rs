@@ -1,6 +1,5 @@
 use std::cell::Ref;
-use gtk::{Adjustment, Align, Inscription, ScrolledWindow};
-use gtk::ffi::GtkAdjustment;
+use gtk::{Inscription, ScrolledWindow};
 use gtk::glib::BoxedAnyObject;
 use uuid::Uuid;
 use gtk::prelude::*;
