@@ -1,9 +1,9 @@
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{FileChooserDialog, ResponseType};
-use crate::ui::window::template::BeatWindowTemplate;
+use crate::ui::window::imp::BeatWindowImp;
 
-impl BeatWindowTemplate {
+impl BeatWindowImp {
     fn choose_files(&self, _keep_tab: bool) {
         let binding = self.instance();
         let w = binding.as_ref();
@@ -38,7 +38,7 @@ impl BeatWindowTemplate {
 }
 
 #[gtk::template_callbacks]
-impl BeatWindowTemplate {
+impl BeatWindowImp {
     #[template_callback]
     fn on_open_files(&self, _button: &gtk::Button) {
 

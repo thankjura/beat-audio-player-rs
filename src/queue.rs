@@ -1,14 +1,10 @@
 use std::borrow::Borrow;
 use std::cell::RefCell;
-use std::mem::transmute;
-use std::ops::Deref;
 use std::rc::Rc;
 use crate::player::BeatPlayer;
 use crate::ui::{BeatNotebook, TrackRef};
-use gtk::subclass::prelude::*;
 
 pub struct QueueManager {
-    //current_playlist: Vec<&'a PlayList>
     player: BeatPlayer,
     notebook: RefCell<Option<Rc<BeatNotebook>>>
 }

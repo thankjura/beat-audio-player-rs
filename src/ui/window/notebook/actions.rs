@@ -1,8 +1,8 @@
 use std::rc::Rc;
 use crate::ui::window::notebook::tab::Tab;
-use crate::ui::window::notebook::template::BeatNotebookTemplate;
+use crate::ui::window::notebook::imp::BeatNotebookImp;
 
-impl BeatNotebookTemplate {
+impl BeatNotebookImp {
     pub fn toggle_show_tabs(&self) {
         if self.notebook.n_pages() > 1 {
             self.notebook.set_show_tabs(true);

@@ -1,6 +1,4 @@
-use std::borrow::Borrow;
 use std::cell::Ref;
-use std::ops::Deref;
 use gtk::{glib, gio};
 use gtk::glib::BoxedAnyObject;
 use gtk::prelude::*;

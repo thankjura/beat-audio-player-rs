@@ -1,4 +1,4 @@
-mod template;
+mod imp;
 mod header;
 mod actions;
 mod notebook;
@@ -6,7 +6,7 @@ mod notebook;
 use gtk::{gio, glib};
 
 glib::wrapper! {
-    pub struct BeatWindow(ObjectSubclass<template::BeatWindowTemplate>)
+    pub struct BeatWindow(ObjectSubclass<imp::BeatWindowImp>)
         @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow,
         @implements gio::ActionMap, gio::ActionGroup, gtk::ConstraintTarget, gtk::Native, gtk::Root;
 }

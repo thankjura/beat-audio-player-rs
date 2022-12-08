@@ -7,7 +7,7 @@ use crate::ui::window::notebook::BeatNotebook;
 
 #[derive(Default, CompositeTemplate)]
 #[template(file = "../../../resources/ui/window.ui")]
-pub struct BeatWindowTemplate {
+pub struct BeatWindowImp {
     #[template_child]
     pub header: TemplateChild<gtk::HeaderBar>,
 
@@ -25,7 +25,7 @@ pub struct BeatWindowTemplate {
 }
 
 #[glib::object_subclass]
-impl ObjectSubclass for BeatWindowTemplate {
+impl ObjectSubclass for BeatWindowImp {
     const NAME: &'static str = "BeatWindow";
     type Type = super::BeatWindow;
     type ParentType = gtk::ApplicationWindow;
@@ -40,7 +40,7 @@ impl ObjectSubclass for BeatWindowTemplate {
     }
 }
 
-impl ObjectImpl for BeatWindowTemplate {
+impl ObjectImpl for BeatWindowImp {
     fn constructed(&self) {
         // Call "constructed" on parent
         self.parent_constructed();
@@ -56,8 +56,8 @@ impl ObjectImpl for BeatWindowTemplate {
 }
 
 
-impl WidgetImpl for BeatWindowTemplate {}
+impl WidgetImpl for BeatWindowImp {}
 
-impl WindowImpl for BeatWindowTemplate {}
+impl WindowImpl for BeatWindowImp {}
 
-impl ApplicationWindowImpl for BeatWindowTemplate {}
+impl ApplicationWindowImpl for BeatWindowImp {}

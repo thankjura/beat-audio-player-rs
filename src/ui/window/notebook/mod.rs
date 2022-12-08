@@ -1,11 +1,9 @@
 mod tab;
-mod template;
+mod imp;
 mod actions;
 mod playlist;
 
 use std::borrow::Cow;
-use std::cell::Ref;
-use std::ops::Deref;
 use gstreamer::glib::VariantTy;
 use gtk::glib;
 use gtk::glib::{FromVariant, Variant};
@@ -13,11 +11,9 @@ use gtk::prelude::ToVariant;
 use gtk::subclass::prelude::*;
 pub use playlist::Track;
 use crate::StaticVariantType;
-use crate::ui::window::notebook::playlist::PlayList;
-use crate::ui::window::notebook::tab::Tab;
 
 glib::wrapper! {
-    pub struct BeatNotebook(ObjectSubclass<template::BeatNotebookTemplate>)
+    pub struct BeatNotebook(ObjectSubclass<imp::BeatNotebookImp>)
         @extends gtk::Widget;
 }
 

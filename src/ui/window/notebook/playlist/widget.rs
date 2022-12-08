@@ -62,7 +62,7 @@ impl PlayList {
                 let notebook = notebook.downcast::<gtk::Notebook>();
                 if notebook.is_ok() {
                     let notebook = &notebook.unwrap();
-                    if let (Some(page)) = notebook.current_page() {
+                    if let Some(page) = notebook.current_page() {
                         view.activate_action("win.track_activate", Some(&TrackRef::new(page, row_index).to_variant())).unwrap();
                     }
 
