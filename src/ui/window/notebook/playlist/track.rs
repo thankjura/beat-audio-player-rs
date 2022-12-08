@@ -16,6 +16,21 @@ pub struct Track {
 
 }
 
+impl Clone for Track {
+    fn clone(&self) -> Self {
+        Self {
+            filename: self.filename.to_string(),
+            path: self.path.to_string(),
+            album: self.album.clone(),
+            title: self.title.clone(),
+            artist: self.artist.clone(),
+            year: self.year.clone(),
+            duration: self.duration.clone(),
+            duration_str: self.duration_str.clone(),
+        }
+    }
+}
+
 impl Track {
     pub fn new(file: &Path) -> Self {
         if let Ok(tag) = Tag::new().read_from_path(file) {
@@ -74,5 +89,9 @@ impl Track {
 
         self.duration_str.replace(format!("{}:{:02}", minutes, seconds));
         self.duration.replace(duration);
+    }
+
+    pub fn path(&self) -> &str {
+        &self.path
     }
 }

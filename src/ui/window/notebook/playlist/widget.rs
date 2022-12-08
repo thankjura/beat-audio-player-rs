@@ -1,10 +1,10 @@
 use std::cell::Ref;
-use gtk::{Inscription, ScrolledWindow};
+use gtk::{Inscription, Notebook, ScrolledWindow};
 use gtk::glib::BoxedAnyObject;
-use uuid::Uuid;
 use gtk::prelude::*;
 use crate::ui::window::notebook::playlist::store::PlayListStore;
 use crate::ui::window::notebook::playlist::track::Track;
+use crate::ui::window::notebook::TrackRef;
 
 #[derive(Debug, Default)]
 pub struct PlayList {
@@ -54,20 +54,30 @@ impl PlayList {
         view.append_column(&col1);
         view.append_column(&col2);
 
+
         scrollbox.set_child(Some(&view));
 
+        view.connect_activate(|view, row_index| {
+            if let Some(notebook) = view.ancestor(Notebook::static_type()) {
+                let notebook = notebook.downcast::<gtk::Notebook>();
+                if notebook.is_ok() {
+                    let notebook = &notebook.unwrap();
+                    if let (Some(page)) = notebook.current_page() {
+                        view.activate_action("win.track_activate", Some(&TrackRef::new(page, row_index).to_variant())).unwrap();
+                    }
+
+                }
+
+            }
+
+        });
 
         Self {
             uuid,
             scrollbox,
             view,
-            store
+            store,
         }
-    }
-
-    pub fn new() -> Self {
-        let uuid = Uuid::new_v4().to_string();
-        PlayList::new_with_uuid(&uuid)
     }
 
     pub fn scrollbox(&self) -> &ScrolledWindow {

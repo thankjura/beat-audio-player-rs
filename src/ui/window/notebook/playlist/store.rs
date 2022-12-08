@@ -1,4 +1,8 @@
+use std::borrow::Borrow;
+use std::cell::Ref;
+use std::ops::Deref;
 use gtk::{glib, gio};
+use gtk::glib::BoxedAnyObject;
 use gtk::prelude::*;
 use crate::ui::window::notebook::playlist::track::Track;
 
@@ -27,6 +31,16 @@ impl PlayListStore {
 
     pub fn add_row(&self, track: Track) {
         self.store.append(&glib::BoxedAnyObject::new(track));
+    }
+
+    pub fn get_row(&self, index: u32) -> Option<Track> {
+        if let Some(item) = self.selector.model().unwrap().item(index) {
+            let entry = item.downcast::<BoxedAnyObject>().unwrap();
+            let r: Ref<Track> = entry.borrow();
+            return Some(r.clone());
+        }
+
+        None
     }
 }
 

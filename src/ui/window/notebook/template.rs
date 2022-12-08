@@ -4,8 +4,6 @@ use gtk::subclass::prelude::*;
 use gtk::glib;
 use gtk::prelude::*;
 use crate::ui::window::notebook::tab::Tab;
-//use crate::ui::notebook::BeatNotebook;
-//use crate::ui::notebook::tab::Tab;
 
 #[derive(Default, Debug)]
 pub struct BeatNotebookTemplate {
@@ -30,9 +28,6 @@ impl ObjectImpl for BeatNotebookTemplate {
         self.parent_constructed();
         let obj = self.obj();
         self.notebook.set_parent(&*obj);
-        self.notebook.connect_switch_page(move |_widget, _tab, _idx| {
-            println!("Switched tabs");
-        });
     }
 
     fn dispose(&self) {

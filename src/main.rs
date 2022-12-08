@@ -1,7 +1,9 @@
 mod ui;
 mod player;
+mod queue;
 
 use gtk::prelude::*;
+use gtk::subclass::prelude::*;
 use gtk::Application;
 use crate::ui::BeatWindow;
 
@@ -19,8 +21,11 @@ fn init(app: &Application) {
     // });
 
     let window = BeatWindow::new(app);
+    window.setup_actions();
     window.open_path("/home/jura/Music/Король и Шут/2001 - Как в старой сказке/11. Двухголовый отпрыск.m4a");
     window.open_path("/home/jura/Music/test.ogg");
+    window.imp().notebook.imp().add_tab("second");
+    window.open_path("/home/jura/Music/Король и Шут/2001 - Как в старой сказке/11. Двухголовый отпрыск.m4a");
     //window.show();
     window.present();
 }

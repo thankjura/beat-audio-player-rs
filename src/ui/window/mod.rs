@@ -1,6 +1,5 @@
 mod template;
 mod header;
-//mod notebook;
 mod actions;
 mod notebook;
 
@@ -8,7 +7,8 @@ use gtk::{gio, glib};
 
 glib::wrapper! {
     pub struct BeatWindow(ObjectSubclass<template::BeatWindowTemplate>)
-        @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow, @implements gio::ActionMap, gio::ActionGroup;
+        @extends gtk::Widget, gtk::Window, gtk::ApplicationWindow,
+        @implements gio::ActionMap, gio::ActionGroup, gtk::ConstraintTarget, gtk::Native, gtk::Root;
 }
 
 impl BeatWindow {
@@ -16,3 +16,7 @@ impl BeatWindow {
         glib::Object::new(&[("application", app)])
     }
 }
+
+
+pub use notebook::BeatNotebook;
+pub use notebook::TrackRef;

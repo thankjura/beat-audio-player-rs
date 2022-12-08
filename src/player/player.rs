@@ -1,5 +1,5 @@
 use std::time::Duration;
-use gstreamer::{Bus, Element, Pipeline, State};
+use gstreamer::{Bus, Element, Pipeline, State, StateChangeError, StateChangeSuccess};
 use gstreamer::prelude::{ElementExtManual, GstBinExtManual};
 use gstreamer_player::gst;
 use gst::prelude::*;
@@ -17,8 +17,15 @@ pub struct BeatPlayer {
 }
 
 
+impl Default for BeatPlayer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+
 impl BeatPlayer {
-    pub fn build() -> Self {
+    pub fn new() -> Self {
         gst::init().unwrap();
 
         let pipeline = Pipeline::default();
@@ -72,6 +79,10 @@ impl BeatPlayer {
         self.file_src.set_property_from_str("location", uri);
     }
 
+    pub fn stop(&self) -> Result<StateChangeSuccess, StateChangeError> {
+        self.pipeline.set_state(State::Null)
+    }
+
     pub fn play(&self) -> Result<(), ()> {
         match self.file_src.property_value("location").get::<&str>() {
             Ok(_) => {
@@ -90,8 +101,8 @@ impl BeatPlayer {
         }
     }
 
-    pub fn pause(&self) {
-        //self.player.
+    pub fn pause(&self) -> Result<StateChangeSuccess, StateChangeError> {
+        self.pipeline.set_state(State::Paused)
     }
 
     pub fn set_volume(&self, value: f64) {

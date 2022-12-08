@@ -4,7 +4,7 @@ use crate::ui::window::notebook::playlist::{PlayList, Track};
 #[derive(Debug, Default)]
 pub struct Tab {
     label: gtk::Label,
-    playlist: PlayList
+    playlist: PlayList,
 }
 
 impl Tab {
@@ -28,5 +28,9 @@ impl Tab {
 
     pub fn add_track(&self, track: Track) {
         self.playlist.store().add_row(track);
+    }
+
+    pub fn playlist(&self) -> &PlayList {
+        return &self.playlist;
     }
 }
