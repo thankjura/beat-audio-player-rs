@@ -30,6 +30,10 @@ impl Tab {
         self.playlist.store().add_row(track);
     }
 
+    pub fn has_tracks(&self) -> bool {
+        self.playlist.store().has_tracks()
+    }
+
     pub fn playlist(&self) -> &PlayList {
         return &self.playlist;
     }

@@ -40,6 +40,10 @@ impl PlayListStore {
 
         None
     }
+
+    pub fn has_tracks(&self) -> bool {
+        self.selector.n_items() > 0
+    }
 }
 
 impl Default for PlayListStore {

@@ -6,9 +6,9 @@ edition = "2021"
 [dependencies]
 gstreamer = { version = "^0.19.2", features = ["v1_20"] }
 gstreamer-player = { version = "^0.19.2", features = ["v1_20"] }
-gtk = { version = "^0.5.2", package = "gtk4", features = ["v4_8"] }
-audiotags = "0.4.1"
-num-integer = "0.1.45"
+gtk = { version = "^0.5.3", package = "gtk4", features = ["v4_8"] }
+audiotags = "^0.4.1"
+num-integer = "^0.1.45"
 
 
 [dependencies.uuid]

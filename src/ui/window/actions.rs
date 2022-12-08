@@ -1,18 +1,9 @@
 use gtk::subclass::prelude::*;
-use std::path::Path;
 use gtk::gio::SimpleAction;
 use gtk::prelude::*;
-use crate::ui::window::notebook::{Track, TrackRef};
+use crate::ui::window::notebook::TrackRef;
 
 impl super::BeatWindow {
-    pub fn open_path(&self, path: &str) {
-        let path = Path::new(path);
-        if path.is_file() {
-            let tab = self.imp().notebook.imp().selected_tab();
-            tab.add_track(Track::new(path));
-        }
-    }
-
     pub fn setup_actions(&self) {
         let action = SimpleAction::new("track_activate", Some(&TrackRef::static_variant_type()));
         let q = self.imp().queue_manager.clone();

@@ -3,7 +3,14 @@ mod header;
 mod actions;
 mod notebook;
 
+use std::rc::Rc;
 use gtk::{gio, glib};
+use gtk::subclass::prelude::ObjectSubclassIsExt;
+use crate::ui::window::notebook::Tab;
+
+pub use notebook::BeatNotebook;
+pub use notebook::TrackRef;
+pub use notebook::Track;
 
 glib::wrapper! {
     pub struct BeatWindow(ObjectSubclass<imp::BeatWindowImp>)
@@ -15,8 +22,9 @@ impl BeatWindow {
     pub fn new<P: glib::IsA<gtk::Application>>(app: &P) -> Self {
         glib::Object::new(&[("application", app)])
     }
+
+    pub fn selected_tab(&self) -> Rc<Tab> {
+        self.imp().notebook.imp().selected_tab()
+    }
 }
 
-
-pub use notebook::BeatNotebook;
-pub use notebook::TrackRef;

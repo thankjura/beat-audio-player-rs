@@ -10,6 +10,7 @@ use gtk::glib::{FromVariant, Variant};
 use gtk::prelude::ToVariant;
 use gtk::subclass::prelude::*;
 pub use playlist::Track;
+pub use tab::Tab;
 use crate::StaticVariantType;
 
 glib::wrapper! {

@@ -18,18 +18,6 @@ impl Default for BeatAppImp {
     }
 }
 
-impl BeatAppImp {
-    // pub fn window(&self) -> Option<Rc<BeatWindow>> {
-    //
-    //     let w = self.window.borrow().deref();
-    //
-    //     if let Some(win) = w.get() {
-    //         return Some(win.clone());
-    //     }
-    //
-    //     None
-    // }
-}
 
 #[glib::object_subclass]
 impl ObjectSubclass for BeatAppImp {

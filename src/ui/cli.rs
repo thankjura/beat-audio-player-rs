@@ -20,11 +20,31 @@ pub fn make_cli(app: &BeatApp) {
 
     app.set_option_context_parameter_string(Some("files"));
 
-    app.connect_command_line(move |app, _acl| {
+    app.connect_command_line(move |app, command_line| {
         if let None = app.window() {
             app.activate();
         };
-        println!("command");
+
+        let options = command_line.options_dict();
+        let mut append = false;
+
+        if let Ok(val) = options.lookup::<bool>("append") {
+            if let Some(val) = val {
+                append = true;
+            }
+        }
+
+        let files = &command_line.arguments()[1..];
+        if !files.is_empty() {
+            let mut paths = vec![];
+            for p in files {
+                if let Some(p) = p.to_str() {
+                    paths.push(p);
+                }
+            }
+            app.open_path(&paths, append);
+        }
+
         0
     });
 }

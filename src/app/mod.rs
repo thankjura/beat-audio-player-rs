@@ -1,9 +1,11 @@
 mod imp;
 
+use std::path::Path;
 use std::rc::Rc;
 use gtk::{gio, glib};
 use gtk::subclass::prelude::*;
 use crate::BeatWindow;
+use crate::ui::Track;
 
 
 glib::wrapper! {
@@ -28,5 +30,18 @@ impl BeatApp {
         };
 
         None
+    }
+
+    pub fn open_path(&self, paths: &Vec<&str>, append: bool) {
+        let mut tab = self.window().unwrap().selected_tab();
+        if !append && tab.has_tracks() {
+            tab = self.window().unwrap().imp().notebook.imp().add_tab("new");
+        }
+        for path in paths {
+            let path = Path::new(path);
+            if path.is_file() {
+                tab.add_track(Track::new(path));
+            }
+        }
     }
 }
