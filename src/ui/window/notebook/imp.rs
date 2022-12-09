@@ -1,7 +1,10 @@
 use std::cell::RefCell;
 use std::rc::Rc;
+use gstreamer::glib::subclass::{InitializingObject, InitializingType};
 use gtk::subclass::prelude::*;
-use gtk::glib;
+use gtk::{gio, glib};
+use gtk::glib::once_cell::sync::Lazy;
+use gtk::glib::subclass::Signal;
 use gtk::prelude::*;
 use crate::ui::window::notebook::tab::Tab;
 

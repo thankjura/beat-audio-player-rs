@@ -12,5 +12,13 @@ impl super::BeatWindow {
             q.play(track_ref);
         });
         self.add_action(&action);
+
+
+
+        // let close_action = SimpleAction::new("tab.close", None);
+        // close_action.connect_activate(|a, b| {
+        //     println!("aaaa");
+        // });
+        // self.add_action(&close_action);
     }
 }
