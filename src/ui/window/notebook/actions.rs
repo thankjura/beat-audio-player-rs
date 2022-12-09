@@ -30,10 +30,16 @@ impl BeatNotebookImp {
             if let Some(notebook) = tab.widget().ancestor(BeatNotebook::static_type()) {
                 let notebook = notebook.downcast::<BeatNotebook>();
                 if let Ok(notebook) = &notebook {
+                    let tabs_count = notebook.imp().tabs.borrow().len();
+
                     let value = notebook.imp().tabs.borrow().iter().position(|item| Rc::ptr_eq(item, &tab));
                     if let Some(value) = value {
-                        notebook.imp().notebook.remove_page(Some(u32::try_from(value).unwrap()));
-                        notebook.imp().tabs.borrow_mut().remove(value);
+                        if tabs_count > 1 {
+                            notebook.imp().notebook.remove_page(Some(u32::try_from(value).unwrap()));
+                            notebook.imp().tabs.borrow_mut().remove(value);
+                        } else {
+                            tab.clear_tab();
+                        }
                     }
                 }
             }

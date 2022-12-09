@@ -44,6 +44,10 @@ impl PlayListStore {
     pub fn has_tracks(&self) -> bool {
         self.selector.n_items() > 0
     }
+
+    pub fn clear(&self) {
+        self.store.remove_all();
+    }
 }
 
 impl Default for PlayListStore {

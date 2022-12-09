@@ -1,3 +1,4 @@
+use std::borrow::Borrow;
 use std::rc::Rc;
 use gtk::prelude::*;
 use gtk::{gdk, gio, glib, ScrolledWindow};
@@ -83,5 +84,10 @@ impl Tab {
 
     pub fn playlist(&self) -> &PlayList {
         return &self.playlist;
+    }
+
+    pub fn clear_tab(&self) {
+        self.label.set_label("new");
+        self.playlist.store().borrow().clear();
     }
 }
