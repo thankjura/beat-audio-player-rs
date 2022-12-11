@@ -1,17 +1,16 @@
+use lofty::{Accessor, AudioFile, ItemKey, Probe};
 use std::path::Path;
-use audiotags::Tag;
-use num_integer::Integer;
 
 
 #[derive(Debug)]
 pub struct Track {
+    filepath: String,
     filename: String,
-    path: String,
     album: Option<String>,
     title: Option<String>,
     artist: Option<String>,
     year: Option<String>,
-    duration: Option<u32>,
+    duration: Option<u64>,
     duration_str: Option<String>,
 
 }
@@ -19,8 +18,8 @@ pub struct Track {
 impl Clone for Track {
     fn clone(&self) -> Self {
         Self {
+            filepath: self.filepath.to_string(),
             filename: self.filename.to_string(),
-            path: self.path.to_string(),
             album: self.album.clone(),
             title: self.title.clone(),
             artist: self.artist.clone(),
@@ -33,28 +32,43 @@ impl Clone for Track {
 
 impl Track {
     pub fn new(file: &Path) -> Self {
-        if let Ok(tag) = Tag::new().read_from_path(file) {
-            Self {
-                path: file.to_str().unwrap().to_string(),
-                filename: file.file_name().unwrap().to_str().unwrap().to_string(),
-                album: tag.album_title().map(|s| s.to_string()),
-                title: tag.title().map(|s| s.to_string()),
-                artist: tag.artist().map(|s| s.to_string()),
-                year: tag.year().map(|y| y.to_string()),
-                duration: None,
-                duration_str: None
-            }
-        } else {
-            Self {
-                path: file.to_str().unwrap().to_string(),
-                filename: file.file_name().unwrap().to_str().unwrap().to_string(),
-                album: None,
-                title: None,
-                artist: None,
-                year: None,
-                duration: None,
-                duration_str: None
-            }
+        let filepath = &file.to_str().unwrap().to_string();
+        let filename = &file.file_name().unwrap().to_str().unwrap().to_string();
+
+        if let Ok(tagged_file) = Probe::open(file).unwrap().read() {
+            let tag = match tagged_file.primary_tag() {
+                Some(primary_tag) => Some(primary_tag),
+                None => tagged_file.first_tag(),
+            };
+
+            if let Some(tag) = tag {
+                let properties = tagged_file.properties();
+                let duration = properties.duration();
+                let seconds = duration.as_secs() % 60;
+
+                return Self {
+                    filepath: filepath.to_string(),
+                    filename: filename.to_string(),
+                    album: tag.get_string(&ItemKey::AlbumTitle).map(|s| s.to_string()),
+                    title: tag.get_string(&ItemKey::TrackTitle).map(|s| s.to_string()),
+                    artist: tag.get_string(&ItemKey::TrackArtist).map(|s| s.to_string()),
+                    year: tag.year().map(|y| y.to_string()),
+                    duration: Some(duration.as_secs()),
+                    duration_str: Some(format!("{}:{:02}", (duration.as_secs() - seconds) / 60, seconds)),
+                };
+            };
+        }
+
+
+        Self {
+            filepath: filepath.to_string(),
+            filename: filename.to_string(),
+            album: None,
+            title: None,
+            artist: None,
+            year: None,
+            duration: None,
+            duration_str: None,
         }
     }
 
@@ -63,8 +77,8 @@ impl Track {
             "filename" => {
                 Some(&self.filename)
             },
-            "path" => {
-                Some(&self.path)
+            "filepath" => {
+                Some(&self.filepath)
             },
             "album" => {
                 self.album.as_deref()
@@ -84,14 +98,14 @@ impl Track {
         }
     }
 
-    pub fn set_duration(&mut self, duration: u32) {
-        let (minutes, seconds) = &duration.div_rem(&60);
+    // pub fn set_duration(&mut self, duration: u32) {
+    //     let (minutes, seconds) = &duration.div_rem(&60);
+    //
+    //     self.duration_str.replace(format!("{}:{:02}", minutes, seconds));
+    //     self.duration.replace(duration);
+    // }
 
-        self.duration_str.replace(format!("{}:{:02}", minutes, seconds));
-        self.duration.replace(duration);
-    }
-
-    pub fn path(&self) -> &str {
-        &self.path
+    pub fn filepath(&self) -> &str {
+        &self.filepath
     }
 }

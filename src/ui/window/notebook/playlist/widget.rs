@@ -67,9 +67,7 @@ impl PlayList {
                     }
 
                 }
-
             }
-
         });
 
         Self {

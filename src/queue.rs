@@ -36,7 +36,7 @@ impl QueueManager {
         let notebook = binding.borrow().as_ref().unwrap().as_ref();
         if let Some(track) = notebook.get_track(&tack_ref) {
             self.player.stop();
-            self.player.set_uri(track.path());
+            self.player.set_uri(track.filepath());
             self.player.play();
             println!("{:#?}", track);
         }
