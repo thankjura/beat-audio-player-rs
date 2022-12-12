@@ -1,4 +1,6 @@
 use std::rc::Rc;
+use gstreamer::{MessageView, State};
+use gstreamer::prelude::ElementExt;
 use gtk::prelude::{AdjustmentExt, ObjectExt};
 use gtk::subclass::prelude::*;
 use crate::app::imp::BeatAppImp;
@@ -25,5 +27,23 @@ impl BeatAppImp {
         window.imp().progress.get().connect_value_changed(move |adj| {
             player.set_position(adj.value());
         });
+
+        let player = self.player.clone();
+        let bus = player.pipeline.bus().unwrap();
+        bus.add_signal_watch();
+
+        bus.connect_message(Some("state-changed"), move |_bus, msg| {
+            if let MessageView::StateChanged(value) = msg.view() {
+                if let Some(src) = msg.src() {
+                    if src != player.pipeline {
+                        return;
+                    }
+                }
+                if let State::Playing = value.current() {
+                    println!("Start plaing");
+                };
+            };
+        });
+
     }
 }

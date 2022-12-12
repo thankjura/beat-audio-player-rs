@@ -1,6 +1,7 @@
 mod imp;
 mod header;
 mod notebook;
+mod progress;
 
 use std::rc::Rc;
 use gtk::{gio, glib};

@@ -1,19 +1,17 @@
-use std::time::Duration;
-use gstreamer::{Bus, Element, Pipeline, State, StateChangeError, StateChangeSuccess};
+use gstreamer::{Element, Pipeline, State};
 use gstreamer::prelude::{ElementExtManual, GstBinExtManual};
 use gstreamer_player::gst;
 use gst::prelude::*;
-use gtk::glib;
 
 
 pub struct BeatPlayer {
-    pipeline: Pipeline,
+    pub pipeline: Pipeline,
     file_src: Element,
     volume: Element,
     decode_bin: Element,
     sink: Element,
     spectrum: Element,
-    bus: Bus,
+    //pub bus: Bus,
 }
 
 
@@ -54,15 +52,15 @@ impl BeatPlayer {
             src_pad.link(&sink_pad).unwrap();
         });
 
-        let bus = pipeline.bus().unwrap();
-        bus.add_signal_watch();
-        bus.connect("message::stream-start", true, |_| {
-            glib::timeout_add(Duration::from_secs(1), || {
-                println!("Stream started");
-                Continue(true)
-            });
-            None
-        });
+        //let bus = pipeline.bus().unwrap();
+        //bus.add_signal_watch();
+
+        // bus.connect("message::stream-start", true, |_| {
+        //     glib::timeout_add(Duration::from_secs(1), || {
+        //         Continue(true)
+        //     });
+        //     None
+        // });
 
         BeatPlayer {
             pipeline,
@@ -71,38 +69,33 @@ impl BeatPlayer {
             decode_bin,
             sink,
             spectrum,
-            bus,
+            //bus,
         }
     }
 
     pub fn set_uri(&self, uri: &str) {
+        self.stop();
         self.file_src.set_property_from_str("location", uri);
     }
 
-    pub fn stop(&self) -> Result<StateChangeSuccess, StateChangeError> {
-        self.pipeline.set_state(State::Null)
+    pub fn stop(&self) {
+        if let Err(_) = self.pipeline.set_state(State::Null) {
+            println!("Can't stop playing");
+        }
     }
 
-    pub fn play(&self) -> Result<(), ()> {
-        match self.file_src.property_value("location").get::<&str>() {
-            Ok(_) => {
-                match self.pipeline.set_state(State::Playing) {
-                    Ok(_) => {
-                        Ok(())
-                    },
-                    Err(_) => {
-                        Err(())
-                    }
-                }
-            }
-            Err(_) => {
-                Err(())
+    pub fn play(&self) {
+        if let Ok(_) = self.file_src.property_value("location").get::<&str>() {
+            if let Err(_) = self.pipeline.set_state(State::Playing) {
+                println!("Can't play it");
             }
         }
     }
 
-    pub fn pause(&self) -> Result<StateChangeSuccess, StateChangeError> {
-        self.pipeline.set_state(State::Paused)
+    pub fn pause(&self) {
+        if let Err(_) = self.pipeline.set_state(State::Paused) {
+            println!("Can't pause");
+        }
     }
 
     pub fn set_volume(&self, value: f64) {
@@ -111,7 +104,7 @@ impl BeatPlayer {
 
     pub fn destroy(&self) {
         self.pipeline.set_state(State::Null).unwrap();
-        self.bus.remove_signal_watch();
+        self.pipeline.bus().unwrap().remove_signal_watch();
     }
 
     pub fn set_position(&self, progress: f64) {
