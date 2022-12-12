@@ -135,7 +135,7 @@
       <object class="GtkBox" id="body">
         <property name="orientation">vertical</property>
         <child>
-          <object class="GtkAdjustment" id="_progress">
+          <object class="GtkAdjustment" id="progress">
             <property name="upper">100</property>
             <property name="step_increment">1</property>
             <property name="page_increment">10</property>
@@ -151,11 +151,11 @@
               </object>
             </child>
             <child>
-              <object class="GtkScale" id="_progress_bar">
+              <object class="GtkScale" id="progress_bar">
                 <property name="hexpand">1</property>
                 <property name="focusable">1</property>
                 <property name="valign">center</property>
-                <property name="adjustment">_progress</property>
+                <property name="adjustment">progress</property>
                 <property name="round_digits">1</property>
                 <property name="value_pos">right</property>
               </object>

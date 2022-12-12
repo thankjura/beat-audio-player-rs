@@ -1,9 +1,7 @@
-use std::ops::Index;
 use std::rc::Rc;
 use gtk::{gio, glib};
 use gtk::prelude::{ActionMapExt, Cast, StaticType, WidgetExt};
 use gtk::subclass::prelude::ObjectSubclassIsExt;
-use crate::BeatWindow;
 use crate::ui::BeatNotebook;
 use crate::ui::window::notebook::tab::Tab;
 use crate::ui::window::notebook::imp::BeatNotebookImp;
@@ -60,5 +58,9 @@ impl BeatNotebookImp {
         };
 
         self.add_tab("new")
+    }
+
+    pub fn selected_tab_id(&self) -> Option<u32> {
+        self.notebook.current_page()
     }
 }

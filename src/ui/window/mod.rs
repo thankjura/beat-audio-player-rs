@@ -1,6 +1,5 @@
 mod imp;
 mod header;
-mod actions;
 mod notebook;
 
 use std::rc::Rc;

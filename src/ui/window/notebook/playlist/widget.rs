@@ -1,10 +1,11 @@
 use std::cell::Ref;
-use gtk::{Inscription, Notebook, ScrolledWindow};
+use gtk::{Inscription, ScrolledWindow};
 use gtk::glib::BoxedAnyObject;
 use gtk::prelude::*;
+use gtk::subclass::prelude::ObjectSubclassIsExt;
+use crate::ui::BeatNotebook;
 use crate::ui::window::notebook::playlist::store::PlayListStore;
 use crate::ui::window::notebook::playlist::track::Track;
-use crate::ui::window::notebook::TrackRef;
 
 #[derive(Debug, Default)]
 pub struct PlayList {
@@ -54,18 +55,16 @@ impl PlayList {
         view.append_column(&col1);
         view.append_column(&col2);
 
-
         scrollbox.set_child(Some(&view));
 
-        view.connect_activate(|view, row_index| {
-            if let Some(notebook) = view.ancestor(Notebook::static_type()) {
-                let notebook = notebook.downcast::<gtk::Notebook>();
+        view.connect_activate(move |view, row_index| {
+            if let Some(notebook) = view.ancestor(BeatNotebook::static_type()) {
+                let notebook = notebook.downcast::<BeatNotebook>();
                 if notebook.is_ok() {
                     let notebook = &notebook.unwrap();
-                    if let Some(page) = notebook.current_page() {
-                        view.activate_action("win.track_activate", Some(&TrackRef::new(page, row_index).to_variant())).unwrap();
+                    if let Some(page) = notebook.imp().selected_tab_id() {
+                        notebook.emit_by_name::<()>("track-activated", &[&page, &row_index]);
                     }
-
                 }
             }
         });

@@ -11,7 +11,6 @@ pub struct PlayListStore {
     selector: gtk::SingleSelection,
 }
 
-
 impl PlayListStore {
     pub fn new() -> Self {
         let store = gio::ListStore::new(glib::BoxedAnyObject::static_type());

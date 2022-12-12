@@ -2,8 +2,6 @@ use std::borrow::Borrow;
 use std::rc::Rc;
 use gtk::prelude::*;
 use gtk::{gdk, gio, glib, ScrolledWindow};
-use gtk::subclass::prelude::ObjectSubclassIsExt;
-use crate::BeatWindow;
 use crate::ui::window::notebook::playlist::{PlayList, Track};
 
 #[derive(Debug)]
@@ -37,15 +35,8 @@ impl Tab {
         let menu_model = gio::MenuModel::from(menu_data);
 
         let menu = gtk::PopoverMenu::builder().menu_model(&menu_model).build();
-        //menu.connect_menu_model_notify()
-
-        // menu.connect("tab.close", true, |a| {
-        //     println!("Yes1");
-        //     None
-        // });
 
         let label = gtk::Label::new(Some("Rename"));
-
 
         widget.append(&menu);
         let menu = Rc::new(menu);

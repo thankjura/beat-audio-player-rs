@@ -113,4 +113,11 @@ impl BeatPlayer {
         self.pipeline.set_state(State::Null).unwrap();
         self.bus.remove_signal_watch();
     }
+
+    pub fn set_position(&self, progress: f64) {
+        if let Some(duration) = self.pipeline.query_duration::<gst::ClockTime>() {
+            let seek_value = ((duration.seconds() as f64 / 100.0) * progress) as u64;
+            self.pipeline.seek_simple(gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,  seek_value * gst::ClockTime::SECOND);
+        }
+    }
 }

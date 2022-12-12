@@ -12,7 +12,6 @@ pub struct Track {
     year: Option<String>,
     duration: Option<u64>,
     duration_str: Option<String>,
-
 }
 
 impl Clone for Track {

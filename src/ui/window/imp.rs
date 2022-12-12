@@ -1,8 +1,6 @@
-use std::rc::Rc;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
-use crate::queue::QueueManager;
 use crate::ui::window::notebook::BeatNotebook;
 
 #[derive(Default, CompositeTemplate)]
@@ -20,8 +18,8 @@ pub struct BeatWindowImp {
     #[template_child(id = "notebook")]
     pub notebook: TemplateChild<BeatNotebook>,
 
-    //pub actions: RefCell<Vec<SimpleAction>>,
-    pub queue_manager: Rc<QueueManager>,
+    #[template_child(id = "progress")]
+    pub progress: TemplateChild<gtk::Adjustment>,
 }
 
 #[glib::object_subclass]
@@ -44,8 +42,8 @@ impl ObjectImpl for BeatWindowImp {
     fn constructed(&self) {
         // Call "constructed" on parent
         self.parent_constructed();
-        let nb = Rc::new(self.notebook.get());
-        self.queue_manager.set_notebook(nb);
+        //let nb = Rc::new(self.notebook.get());
+        //self.queue_manager.set_notebook(nb);
     }
 
     fn dispose(&self) {
@@ -54,7 +52,6 @@ impl ObjectImpl for BeatWindowImp {
         }
     }
 }
-
 
 impl WidgetImpl for BeatWindowImp {}
 
