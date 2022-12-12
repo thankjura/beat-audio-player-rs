@@ -35,6 +35,14 @@ impl BeatWindowImp {
 
         dialog.show();
     }
+
+    pub fn set_playing_icon(&self, value: bool) {
+        if value {
+            self.button_play_img.get().set_from_icon_name(Some("media-playback-pause-symbolic"))
+        } else {
+            self.button_play_img.get().set_from_icon_name(Some("media-playback-start-symbolic"));
+        }
+    }
 }
 
 #[gtk::template_callbacks]

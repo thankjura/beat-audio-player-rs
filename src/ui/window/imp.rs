@@ -18,10 +18,19 @@ pub struct BeatWindowImp {
     pub notebook: TemplateChild<BeatNotebook>,
 
     #[template_child(id = "progress")]
-    pub progress: TemplateChild<gtk::Adjustment>,
+    pub progress: TemplateChild<gtk::Scale>,
+
+    #[template_child(id = "adjustment")]
+    pub adjustment: TemplateChild<gtk::Adjustment>,
 
     #[template_child(id = "button_play_img")]
     pub button_play_img: TemplateChild<gtk::Image>,
+
+    #[template_child(id = "current_position")]
+    pub current_position_label: TemplateChild<gtk::Label>,
+
+    #[template_child(id = "duration")]
+    pub duration_label: TemplateChild<gtk::Label>,
 }
 
 #[glib::object_subclass]
@@ -48,18 +57,12 @@ impl ObjectImpl for BeatWindowImp {
                 Signal::builder("stop").build(),
                 Signal::builder("next").build(),
                 Signal::builder("prev").build(),
-                Signal::builder("vol-changed").param_types([f64::static_type()]).build(),
+                Signal::builder("volume-changed").param_types([f64::static_type()]).build(),
                 Signal::builder("open-path").param_types([Vec::<String>::static_type()]).build(),
             ]
         });
 
         SIGNALS.as_ref()
-    }
-
-    fn dispose(&self) {
-        while let Some(child) = self.obj().first_child() {
-            child.unparent();
-        }
     }
 }
 

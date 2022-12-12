@@ -2,6 +2,7 @@ mod ui;
 mod player;
 mod queue;
 mod app;
+mod structs;
 
 use gtk::prelude::*;
 use crate::ui::BeatWindow;

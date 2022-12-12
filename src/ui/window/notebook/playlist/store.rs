@@ -2,7 +2,7 @@ use std::cell::Ref;
 use gtk::{glib, gio};
 use gtk::glib::BoxedAnyObject;
 use gtk::prelude::*;
-use crate::ui::window::notebook::playlist::track::Track;
+use crate::structs::track::{Track, TrackState};
 
 
 #[derive(Debug)]
@@ -26,11 +26,11 @@ impl PlayListStore {
         &self.selector
     }
 
-    pub fn add_row(&self, track: Track) {
+    pub fn add_track(&self, track: Track) {
         self.store.append(&glib::BoxedAnyObject::new(track));
     }
 
-    pub fn get_row(&self, index: u32) -> Option<Track> {
+    pub fn get_track(&self, index: u32) -> Option<Track> {
         if let Some(item) = self.selector.model().unwrap().item(index) {
             let entry = item.downcast::<BoxedAnyObject>().unwrap();
             let r: Ref<Track> = entry.borrow();
@@ -46,6 +46,20 @@ impl PlayListStore {
 
     pub fn clear(&self) {
         self.store.remove_all();
+    }
+
+    pub fn set_track_state(&self, index: u32, state: &TrackState) {
+        if let Some(item) = self.selector.model().unwrap().item(index) {
+            let entry = item.downcast::<BoxedAnyObject>().unwrap();
+            let mut r: Ref<Track> = entry.borrow();
+            println!("{:#?}", &r);
+            r.set_state(state);
+            self.store.items_changed(index, 0, 0);
+        }
+        // if let Some(mut track) = self.get_track(index) {
+        //     println!("{:#?}", &track);
+        //     track.set_state(state);
+        // }
     }
 }
 

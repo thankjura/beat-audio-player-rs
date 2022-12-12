@@ -83,7 +83,7 @@ impl BeatPlayer {
     }
 
     pub fn toggle_play(&self) {
-        if let (Ok(val), State::Playing, _) = self.pipeline.state(None) {
+        if let (Ok(_val), State::Playing, _) = self.pipeline.state(None) {
             self.pause();
         } else {
             self.play();
@@ -105,12 +105,30 @@ impl BeatPlayer {
         self.pipeline.bus().unwrap().remove_signal_watch();
     }
 
-    pub fn set_position(&self, progress: f64) {
-        if let Some(duration) = self.pipeline.query_duration::<gst::ClockTime>() {
-            let seek_value = ((duration.seconds() as f64 / 100.0) * progress) as u64;
+    pub fn set_position_percent(&self, progress: f64) {
+        if let Some(duration) = self.get_duration() {
+            let seek_value = ((duration as f64 / 100.0) * progress) as u64;
             if let Err(_) = self.pipeline.seek_simple(gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,  seek_value * gst::ClockTime::SECOND) {
                 println!("Can't seek");
             }
         }
+    }
+
+    pub fn get_position_progress(&self) -> Option<(u64, f64)> {
+        if let Some(position) = self.pipeline.query_position::<gst::ClockTime>() {
+            if let Some(duration) = self.get_duration() {
+                let progress = (position.seconds() as f64 / duration as f64) * 100.0;
+                println!("player position: {}, progress: {}, duration: {}", position.seconds(), progress, duration);
+                return Some((position.seconds(), progress));
+            }
+        }
+        None
+    }
+
+    pub fn get_duration(&self) -> Option<u64> {
+        if let Some(duration) = self.pipeline.query_duration::<gst::ClockTime>() {
+            return Some(duration.seconds());
+        }
+        None
     }
 }

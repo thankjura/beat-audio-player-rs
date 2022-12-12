@@ -1,9 +1,18 @@
+use std::cell::RefCell;
 use lofty::{Accessor, AudioFile, ItemKey, Probe};
 use std::path::Path;
 
+#[derive(Debug, Clone, PartialEq)]
+pub enum TrackState {
+    Playing,
+    Pause,
+    Active,
+    None
+}
 
 #[derive(Debug)]
 pub struct Track {
+    state: RefCell<TrackState>,
     filepath: String,
     filename: String,
     album: Option<String>,
@@ -11,20 +20,19 @@ pub struct Track {
     artist: Option<String>,
     year: Option<String>,
     duration: Option<u64>,
-    duration_str: Option<String>,
 }
 
 impl Clone for Track {
     fn clone(&self) -> Self {
         Self {
+            state: self.state.clone(),
             filepath: self.filepath.to_string(),
             filename: self.filename.to_string(),
             album: self.album.clone(),
             title: self.title.clone(),
             artist: self.artist.clone(),
             year: self.year.clone(),
-            duration: self.duration.clone(),
-            duration_str: self.duration_str.clone(),
+            duration: self.duration.clone()
         }
     }
 }
@@ -43,31 +51,30 @@ impl Track {
             if let Some(tag) = tag {
                 let properties = tagged_file.properties();
                 let duration = properties.duration();
-                let seconds = duration.as_secs() % 60;
 
                 return Self {
+                    state: RefCell::new(TrackState::None),
                     filepath: filepath.to_string(),
                     filename: filename.to_string(),
                     album: tag.get_string(&ItemKey::AlbumTitle).map(|s| s.to_string()),
                     title: tag.get_string(&ItemKey::TrackTitle).map(|s| s.to_string()),
                     artist: tag.get_string(&ItemKey::TrackArtist).map(|s| s.to_string()),
                     year: tag.year().map(|y| y.to_string()),
-                    duration: Some(duration.as_secs()),
-                    duration_str: Some(format!("{}:{:02}", (duration.as_secs() - seconds) / 60, seconds)),
+                    duration: Some(duration.as_secs())
                 };
             };
         }
 
 
         Self {
+            state: RefCell::new(TrackState::None),
             filepath: filepath.to_string(),
             filename: filename.to_string(),
             album: None,
             title: None,
             artist: None,
             year: None,
-            duration: None,
-            duration_str: None,
+            duration: None
         }
     }
 
@@ -88,9 +95,6 @@ impl Track {
             "artist" => {
                 self.artist.as_deref()
             },
-            "duration" => {
-                self.duration_str.as_deref()
-            },
             _ => {
                 None
             }
@@ -106,5 +110,13 @@ impl Track {
 
     pub fn filepath(&self) -> &str {
         &self.filepath
+    }
+
+    pub fn set_state(&self, state: &TrackState) {
+        self.state.replace(state.clone());
+    }
+
+    pub fn state(&self) -> TrackState {
+        self.state.borrow().clone()
     }
 }

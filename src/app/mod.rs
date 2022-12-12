@@ -1,12 +1,12 @@
 mod imp;
-mod window_actions;
+mod relation;
 
 use std::path::Path;
 use std::rc::Rc;
 use gtk::{gio, glib};
 use gtk::subclass::prelude::*;
 use crate::BeatWindow;
-use crate::ui::Track;
+use crate::structs::track::Track;
 
 
 glib::wrapper! {

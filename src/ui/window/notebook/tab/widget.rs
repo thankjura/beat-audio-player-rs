@@ -66,7 +66,7 @@ impl Tab {
     }
 
     pub fn add_track(&self, track: Track) {
-        self.playlist.store().add_row(track);
+        self.playlist.store().add_track(track);
     }
 
     pub fn has_tracks(&self) -> bool {

@@ -1,6 +1,7 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::Arc;
+use gstreamer::prelude::ElementExt;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
@@ -39,6 +40,7 @@ impl ApplicationImpl for BeatAppImp {
         let obj = self.obj();
         let window = BeatWindow::new(&*obj);
         window.set_title(Some("Beat"));
+
         let window = Rc::new(window);
         let player = self.player.clone();
 
@@ -50,8 +52,17 @@ impl ApplicationImpl for BeatAppImp {
         ));
 
         self.window.replace(Some(window.clone()));
-        self.link_actions(window.clone());
 
+        let bus = player.pipeline.bus().unwrap();
+        bus.add_signal_watch();
+
+        let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+
+        self.watch_bus(sender.clone(), &bus, &player);
+        self.link_header(&window, &player);
+        self.link_notebook(sender.clone(), &window, &player);
+        let progress_signal = self.link_progress(sender.clone(), &window, &player);
+        self.watch_channel(receiver, &window, progress_signal);
         window.present();
     }
 }
