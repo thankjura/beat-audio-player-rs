@@ -52,15 +52,6 @@ impl BeatPlayer {
             src_pad.link(&sink_pad).unwrap();
         });
 
-        //let bus = pipeline.bus().unwrap();
-        //bus.add_signal_watch();
-
-        // bus.connect("message::stream-start", true, |_| {
-        //     glib::timeout_add(Duration::from_secs(1), || {
-        //         Continue(true)
-        //     });
-        //     None
-        // });
 
         BeatPlayer {
             pipeline,
@@ -69,7 +60,6 @@ impl BeatPlayer {
             decode_bin,
             sink,
             spectrum,
-            //bus,
         }
     }
 
@@ -87,8 +77,16 @@ impl BeatPlayer {
     pub fn play(&self) {
         if let Ok(_) = self.file_src.property_value("location").get::<&str>() {
             if let Err(_) = self.pipeline.set_state(State::Playing) {
-                println!("Can't play it");
+                self.pause();
             }
+        }
+    }
+
+    pub fn toggle_play(&self) {
+        if let (Ok(val), State::Playing, _) = self.pipeline.state(None) {
+            self.pause();
+        } else {
+            self.play();
         }
     }
 
@@ -110,7 +108,9 @@ impl BeatPlayer {
     pub fn set_position(&self, progress: f64) {
         if let Some(duration) = self.pipeline.query_duration::<gst::ClockTime>() {
             let seek_value = ((duration.seconds() as f64 / 100.0) * progress) as u64;
-            self.pipeline.seek_simple(gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,  seek_value * gst::ClockTime::SECOND);
+            if let Err(_) = self.pipeline.seek_simple(gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,  seek_value * gst::ClockTime::SECOND) {
+                println!("Can't seek");
+            }
         }
     }
 }

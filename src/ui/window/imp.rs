@@ -1,14 +1,13 @@
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
+use gtk::glib::once_cell::sync::Lazy;
+use gtk::glib::subclass::Signal;
 use crate::ui::window::notebook::BeatNotebook;
 
 #[derive(Default, CompositeTemplate)]
 #[template(file = "../../../resources/ui/window.ui")]
 pub struct BeatWindowImp {
-    #[template_child]
-    pub header: TemplateChild<gtk::HeaderBar>,
-
     #[template_child(id = "body")]
     pub body: TemplateChild<gtk::Box>,
 
@@ -20,6 +19,9 @@ pub struct BeatWindowImp {
 
     #[template_child(id = "progress")]
     pub progress: TemplateChild<gtk::Adjustment>,
+
+    #[template_child(id = "button_play_img")]
+    pub button_play_img: TemplateChild<gtk::Image>,
 }
 
 #[glib::object_subclass]
@@ -39,11 +41,19 @@ impl ObjectSubclass for BeatWindowImp {
 }
 
 impl ObjectImpl for BeatWindowImp {
-    fn constructed(&self) {
-        // Call "constructed" on parent
-        self.parent_constructed();
-        //let nb = Rc::new(self.notebook.get());
-        //self.queue_manager.set_notebook(nb);
+    fn signals() -> &'static [Signal] {
+        static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
+            vec![
+                Signal::builder("play").build(),
+                Signal::builder("stop").build(),
+                Signal::builder("next").build(),
+                Signal::builder("prev").build(),
+                Signal::builder("vol-changed").param_types([f64::static_type()]).build(),
+                Signal::builder("open-path").param_types([Vec::<String>::static_type()]).build(),
+            ]
+        });
+
+        SIGNALS.as_ref()
     }
 
     fn dispose(&self) {

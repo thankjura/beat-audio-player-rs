@@ -41,13 +41,12 @@ impl BeatWindowImp {
 impl BeatWindowImp {
     #[template_callback]
     fn on_open_files(&self, _button: &gtk::Button) {
-
         self.choose_files(false);
     }
 
     #[template_callback]
-    fn on_volume_changed(&self, _value: f64) {
-
+    fn on_volume_changed(&self, value: f64) {
+        self.instance().emit_by_name::<()>("volume-changed", &[&value]);
     }
 
     #[template_callback]
@@ -57,21 +56,21 @@ impl BeatWindowImp {
 
     #[template_callback]
     fn on_stop(&self, _button: &gtk::Button) {
-
+        self.instance().emit_by_name::<()>("stop", &[]);
     }
 
     #[template_callback]
     fn on_play(&self, _button: &gtk::Button) {
-
+        self.instance().emit_by_name::<()>("play", &[]);
     }
 
     #[template_callback]
     fn on_prev(&self, _button: &gtk::Button) {
-
+        self.instance().emit_by_name::<()>("prev", &[]);
     }
 
     #[template_callback]
     fn on_next(&self, _button: &gtk::Button) {
-
+        self.instance().emit_by_name::<()>("next", &[]);
     }
 }

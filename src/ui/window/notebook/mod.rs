@@ -2,13 +2,11 @@ mod tab;
 mod imp;
 mod tabs;
 mod playlist;
-mod track_ref;
 
 use gtk::glib;
 use gtk::subclass::prelude::*;
 pub use playlist::Track;
 pub use tab::Tab;
-pub use crate::ui::window::notebook::track_ref::TrackRef;
 
 glib::wrapper! {
     pub struct BeatNotebook(ObjectSubclass<imp::BeatNotebookImp>)

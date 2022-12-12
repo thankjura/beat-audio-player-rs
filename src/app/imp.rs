@@ -42,12 +42,13 @@ impl ApplicationImpl for BeatAppImp {
         let window = Rc::new(window);
         let player = self.player.clone();
 
-        obj.connect_shutdown(glib::clone!(@strong window, @strong player =>
+        obj.connect_shutdown(glib::clone!(@weak window, @weak player =>
             move |_| {
                 player.destroy();
                 window.destroy();
             }
         ));
+
         self.window.replace(Some(window.clone()));
         self.link_actions(window.clone());
 
