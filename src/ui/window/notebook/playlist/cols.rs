@@ -1,6 +1,7 @@
 use std::cell::Ref;
 use std::fs;
-use std::path::{Path, PathBuf};
+use std::path::Path;
+use gettextrs::gettext;
 use gstreamer::glib::BoxedAnyObject;
 use gtk::prelude::*;
 use gtk::{ColumnViewColumn, Inscription, SignalListItemFactory};
@@ -34,9 +35,14 @@ pub fn make_icon_column(_key: &str, name: &str) -> (SignalListItemFactory, Colum
     (col_factory, col)
 }
 
-pub fn make_text_column(key: &str, name: &str, resizable: bool) -> (gtk::SignalListItemFactory, gtk::ColumnViewColumn) {
+pub fn make_text_column(key: &str, name: &str, resizable: bool, translate: bool) -> (gtk::SignalListItemFactory, gtk::ColumnViewColumn) {
     let col_factory = gtk::SignalListItemFactory::new();
-    let col = gtk::ColumnViewColumn::new(Some(name), Some(&col_factory));
+    let col;
+    if translate {
+        col = gtk::ColumnViewColumn::new(Some(&gettext(name)), Some(&col_factory));
+    } else {
+        col = gtk::ColumnViewColumn::new(Some(name), Some(&col_factory));
+    }
     col.set_resizable(resizable);
     col.set_expand(true);
     col_factory.connect_setup(move |_factory, item| {

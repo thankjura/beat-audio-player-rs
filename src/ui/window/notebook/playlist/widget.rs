@@ -26,7 +26,7 @@ impl PlayList {
         for col in PLAY_LIST_COLS {
             match col.col_type {
                 ColType::Text => {
-                    let (_factory, column) = make_text_column(&col.key, &col.label, true);
+                    let (_factory, column) = make_text_column(&col.key, &col.label, true, col.translate);
                     view.append_column(&column);
                 }
                 ColType::Icon => {

@@ -51,15 +51,11 @@ impl PlayListStore {
     pub fn set_track_state(&self, index: u32, state: &TrackState) {
         if let Some(item) = self.selector.model().unwrap().item(index) {
             let entry = item.downcast::<BoxedAnyObject>().unwrap();
-            let mut r: Ref<Track> = entry.borrow();
+            let r: Ref<Track> = entry.borrow();
             println!("{:#?}", &r);
             r.set_state(state);
             self.store.items_changed(index, 0, 0);
         }
-        // if let Some(mut track) = self.get_track(index) {
-        //     println!("{:#?}", &track);
-        //     track.set_state(state);
-        // }
     }
 }
 

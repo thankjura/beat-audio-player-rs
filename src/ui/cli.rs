@@ -1,6 +1,7 @@
 use gtk::glib;
 use gtk::gio::ApplicationCommandLine;
 use gtk::prelude::*;
+use gettextrs::gettext;
 use crate::BeatApp;
 
 pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> i32 {
@@ -37,7 +38,7 @@ pub fn make_cli(app: &BeatApp) {
         glib::Char::from(b'a'),
         glib::OptionFlags::NONE,
         glib::OptionArg::None,
-        "Append to current playlist instead of create new",
+        &gettext("Append to current playlist instead of create new"),
         None
     );
 
