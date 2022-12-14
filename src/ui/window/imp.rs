@@ -6,7 +6,7 @@ use gtk::glib::subclass::Signal;
 use crate::ui::window::notebook::BeatNotebook;
 
 #[derive(Default, CompositeTemplate)]
-#[template(file = "../../../resources/ui/window.ui")]
+#[template(resource = "/ru/slie/beat/ui/window.ui")]
 pub struct BeatWindowImp {
     #[template_child(id = "body")]
     pub body: TemplateChild<gtk::Box>,
@@ -53,12 +53,12 @@ impl ObjectImpl for BeatWindowImp {
     fn signals() -> &'static [Signal] {
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
             vec![
-                Signal::builder("play").build(),
-                Signal::builder("stop").build(),
-                Signal::builder("next").build(),
-                Signal::builder("prev").build(),
-                Signal::builder("volume-changed").param_types([f64::static_type()]).build(),
-                Signal::builder("open-path").param_types([Vec::<String>::static_type()]).build(),
+                Signal::builder("action")
+                    .param_types([u8::static_type()]).build(),
+                Signal::builder("volume-changed")
+                    .param_types([f64::static_type()]).build(),
+                Signal::builder("open-path")
+                    .param_types([Vec::<String>::static_type()]).build(),
             ]
         });
 

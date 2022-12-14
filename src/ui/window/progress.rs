@@ -4,9 +4,13 @@ use crate::ui::window::imp::BeatWindowImp;
 
 impl BeatWindowImp {
     pub fn update_progress(&self, position: u64, progress: f64) {
-        let progress = progress.clamp(0.0, 100.0);
-        self.progress.get().set_value(progress);
-        self.current_position_label.get().set_label(&UFormat::time_str(position));
+        if progress >= 0.0 {
+            let progress = progress.clamp(0.0, 100.0);
+            self.progress.get().set_value(progress);
+            self.current_position_label.get().set_label(&UFormat::time_str(position));
+        } else {
+            self.clear_duration();
+        }
     }
     pub fn update_duration(&self, duration: u64) {
         self.duration_label.get().set_label(&UFormat::time_str(duration));

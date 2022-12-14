@@ -5,7 +5,7 @@ use gettextrs::gettext;
 use crate::BeatApp;
 
 pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> i32 {
-    if let None = app.window() {
+    if !app.has_window() {
         app.activate();
     };
 

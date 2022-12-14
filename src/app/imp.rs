@@ -1,24 +1,24 @@
 use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::Arc;
-use gstreamer::prelude::ElementExt;
+use gettextrs::gettext;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
+use crate::app::connector;
 use crate::BeatWindow;
 use crate::player::BeatPlayer;
 
 
 pub struct BeatAppImp {
-    pub (super) window: RefCell<Option<Rc<BeatWindow>>>,
-    pub player: Arc<BeatPlayer>,
+    pub (super) window: RefCell<Option<BeatWindow>>,
+    pub player: RefCell<Option<Arc<BeatPlayer>>>,
 }
 
 impl Default for BeatAppImp {
     fn default() -> Self {
         Self {
             window: RefCell::new(None),
-            player: Arc::new(BeatPlayer::new())
+            player: RefCell::new(None),
         }
     }
 }
@@ -39,11 +39,8 @@ impl ApplicationImpl for BeatAppImp {
 
         let obj = self.obj();
         let window = BeatWindow::new(&*obj);
-        window.set_title(Some("Beat"));
-
-        let window = Rc::new(window);
-        let player = self.player.clone();
-
+        window.set_title(Some(&gettext("Beat")));
+        let player = Arc::new(BeatPlayer::default());
         obj.connect_shutdown(glib::clone!(@weak window, @weak player =>
             move |_| {
                 player.destroy();
@@ -51,19 +48,13 @@ impl ApplicationImpl for BeatAppImp {
             }
         ));
 
-        self.window.replace(Some(window.clone()));
+        connector::connect(&window, &player);
 
-        let bus = player.pipeline.bus().unwrap();
-        bus.add_signal_watch();
-
-        let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
-
-        self.watch_bus(sender.clone(), &bus, &player);
-        self.link_header(&window, &player);
-        self.link_notebook(sender.clone(), &window, &player);
-        let progress_signal = self.link_progress(sender.clone(), &window, &player);
-        self.watch_channel(receiver, &window, progress_signal);
         window.present();
+        println!("present");
+
+        self.window.replace(Some(window));
+        self.player.replace(Some(player.clone()));
     }
 }
 

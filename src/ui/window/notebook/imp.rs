@@ -4,6 +4,7 @@ use gtk::subclass::prelude::*;
 use gtk::glib;
 use gtk::glib::once_cell::sync::Lazy;
 use gtk::glib::subclass::Signal;
+use gtk::glib::Type;
 use gtk::prelude::*;
 use crate::ui::window::notebook::tab::Tab;
 
@@ -28,7 +29,7 @@ impl ObjectImpl for BeatNotebookImp {
     fn signals() -> &'static [Signal] {
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
             vec![Signal::builder("track-activated")
-                .param_types([u32::static_type(), u32::static_type()])
+                .param_types([u32::static_type(), u32::static_type(), Type::STRING])
                 .build()]
         });
 

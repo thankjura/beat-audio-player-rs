@@ -52,7 +52,6 @@ impl PlayListStore {
         if let Some(item) = self.selector.model().unwrap().item(index) {
             let entry = item.downcast::<BoxedAnyObject>().unwrap();
             let r: Ref<Track> = entry.borrow();
-            println!("{:#?}", &r);
             r.set_state(state);
             self.store.items_changed(index, 0, 0);
         }

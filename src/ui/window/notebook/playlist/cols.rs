@@ -1,6 +1,4 @@
 use std::cell::Ref;
-use std::fs;
-use std::path::Path;
 use gettextrs::gettext;
 use gstreamer::glib::BoxedAnyObject;
 use gtk::prelude::*;
@@ -25,10 +23,19 @@ pub fn make_icon_column(_key: &str, name: &str) -> (SignalListItemFactory, Colum
         let child = item.child().unwrap().downcast::<gtk::Image>().unwrap();
         let entry = item.item().unwrap().downcast::<BoxedAnyObject>().unwrap();
         let r: Ref<Track> = entry.borrow();
-        if TrackState::Playing == r.state() {
-            let path = Path::new("/home/jura/Development/rust/beat-autio-player/resources/icons/play.svg");
-            println!("{:?}", fs::canonicalize(path));
-            child.set_file(Some("/home/jura/Development/rust/beat-autio-player/resources/icons/play.svg"));
+        match r.state() {
+            TrackState::Playing => {
+                child.set_resource(Some("/ru/slie/beat/icons/play.svg"));
+            }
+            TrackState::Pause => {
+                child.set_resource(Some("/ru/slie/beat/icons/pause.svg"));
+            }
+            TrackState::Active => {
+                child.set_resource(Some("/ru/slie/beat/icons/active.svg"));
+            }
+            TrackState::None => {
+                child.set_resource(None);
+            }
         }
     });
 

@@ -19,3 +19,6 @@ features = [
     "macro-diagnostics", # Enable better diagnostics for compile-time UUIDs
 ]
 
+[build-dependencies]
+glib-build-tools = "^0.16.3"
+

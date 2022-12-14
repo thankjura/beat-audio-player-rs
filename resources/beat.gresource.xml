@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/ru/slie/beat">
+    <file compressed="true" preprocess="xml-stripblanks">ui/window.ui</file>
+    <file>icons/active.svg</file>
+    <file>icons/play.svg</file>
+    <file>icons/pause.svg</file>
+    <file>icons/beat.svg</file>
+    <file>icons/album.svg</file>
+  </gresource>
+</gresources>

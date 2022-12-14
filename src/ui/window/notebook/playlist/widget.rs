@@ -45,7 +45,9 @@ impl PlayList {
                 if notebook.is_ok() {
                     let notebook = &notebook.unwrap();
                     if let Some(page) = notebook.imp().selected_tab_id() {
-                        notebook.emit_by_name::<()>("track-activated", &[&page, &row_index]);
+                        if let Some(track) = notebook.get_track(page, row_index) {
+                            notebook.emit_by_name::<()>("track-activated", &[&page, &row_index, &track.filepath()]);
+                        }
                     }
                 }
             }

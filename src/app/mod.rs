@@ -1,11 +1,9 @@
 mod imp;
-mod relation;
+mod connector;
 
 use std::path::Path;
-use std::rc::Rc;
 use gtk::{gio, glib};
 use gtk::subclass::prelude::*;
-use crate::BeatWindow;
 use crate::structs::track::Track;
 
 
@@ -24,20 +22,21 @@ impl BeatApp {
         ])
     }
 
-    pub fn window(&self) -> Option<Rc<BeatWindow>> {
+    pub fn has_window(&self) -> bool {
         let obj = self.imp();
-        if let Some(win) = obj.window.borrow_mut().as_ref() {
-            return Some(win.clone());
+        if let Some(_) = obj.window.borrow_mut().as_ref() {
+            return true;
         };
 
-        None
+        false
     }
 
     pub fn open_path(&self, paths: &Vec<&str>, append: bool) {
-        let mut tab = self.window().unwrap().selected_tab();
+        let mut tab = self.imp().window.borrow().as_ref().unwrap().selected_tab();
         if !append && tab.has_tracks() {
-            tab = self.window().unwrap().imp().notebook.imp().add_tab("new");
+            tab = self.imp().window.borrow().as_ref().unwrap().imp().notebook.imp().add_tab("new");
         }
+
         for path in paths {
             let path = Path::new(path);
             if path.is_file() {

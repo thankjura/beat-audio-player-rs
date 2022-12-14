@@ -1,6 +1,7 @@
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{FileChooserDialog, ResponseType};
+use crate::structs::action::Action;
 use crate::ui::window::imp::BeatWindowImp;
 
 impl BeatWindowImp {
@@ -64,21 +65,21 @@ impl BeatWindowImp {
 
     #[template_callback]
     fn on_stop(&self, _button: &gtk::Button) {
-        self.instance().emit_by_name::<()>("stop", &[]);
+        self.instance().emit_by_name::<()>("action", &[&Action::STOP.get_value()]);
     }
 
     #[template_callback]
     fn on_play(&self, _button: &gtk::Button) {
-        self.instance().emit_by_name::<()>("play", &[]);
+        self.instance().emit_by_name::<()>("action", &[&Action::PLAY.get_value()]);
     }
 
     #[template_callback]
     fn on_prev(&self, _button: &gtk::Button) {
-        self.instance().emit_by_name::<()>("prev", &[]);
+        self.instance().emit_by_name::<()>("action", &[&Action::PREV.get_value()]);
     }
 
     #[template_callback]
     fn on_next(&self, _button: &gtk::Button) {
-        self.instance().emit_by_name::<()>("next", &[]);
+        self.instance().emit_by_name::<()>("action", &[&Action::NEXT.get_value()]);
     }
 }
