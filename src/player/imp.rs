@@ -18,7 +18,8 @@ pub struct BeatPlayerImp {
     sink: Element,
     spectrum: Element,
     queue: Mutex<Vec<TrackRef>>,
-    current_track: Mutex<Option<TrackRef>>
+    current_track: Mutex<Option<TrackRef>>,
+    pub seek_timeout: Mutex<Option<glib::SourceId>>,
 }
 
 
@@ -67,6 +68,7 @@ impl BeatPlayerImp {
             spectrum,
             queue: Mutex::new(vec![]),
             current_track: Mutex::new(None),
+            seek_timeout: Mutex::new(None),
         }
     }
 

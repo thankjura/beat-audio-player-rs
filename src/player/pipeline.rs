@@ -1,6 +1,9 @@
+use std::mem;
+use std::time::Duration;
 use gstreamer::prelude::*;
 use gstreamer::State;
 use gstreamer_player::gst;
+use gtk::glib;
 use gtk::subclass::prelude::*;
 use crate::player::imp::BeatPlayerImp;
 
@@ -45,6 +48,24 @@ impl BeatPlayerImp {
 
     pub fn __set_volume(&self, value: f64) {
         self.volume.set_property("volume", value);
+    }
+
+    pub fn set_position_percent_smooth(&self, progress: f64) {
+        if self.seek_timeout.lock().unwrap().is_some() {
+            let mut guard = self.seek_timeout.lock().unwrap();
+            let timer_id = mem::replace(&mut *guard, None);
+            timer_id.unwrap().remove();
+        }
+
+        let player_ref = self.downgrade();
+        let timer = glib::timeout_add_once(Duration::from_millis(300u64), move|| {
+            let player = player_ref.upgrade().unwrap();
+            let mut guard = player.seek_timeout.lock().unwrap();
+            mem::replace(&mut *guard, None);
+            player.__set_position_percent(progress);
+        });
+
+        self.seek_timeout.lock().unwrap().replace(timer);
     }
 
     pub fn __set_position_percent(&self, progress: f64) {

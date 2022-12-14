@@ -20,9 +20,6 @@ pub struct BeatWindowImp {
     #[template_child(id = "progress")]
     pub progress: TemplateChild<gtk::Scale>,
 
-    #[template_child(id = "adjustment")]
-    pub adjustment: TemplateChild<gtk::Adjustment>,
-
     #[template_child(id = "button_play_img")]
     pub button_play_img: TemplateChild<gtk::Image>,
 

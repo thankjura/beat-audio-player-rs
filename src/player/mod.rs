@@ -59,7 +59,7 @@ impl BeatPlayer {
     }
 
     pub fn seek_position(&self, percent: f64) {
-        self.imp().__set_position_percent(percent);
+        self.imp().set_position_percent_smooth(percent);
     }
 
     pub fn set_volume(&self, value: f64) {
@@ -81,8 +81,10 @@ impl BeatPlayer {
     }
 
     fn __tick(&self) -> glib::Continue {
-        if let Some((position, progress)) = self.imp().__get_position_progress() {
-            self.emit_by_name::<()>("progress-changed", &[&position, &progress]);
+        if self.imp().seek_timeout.lock().unwrap().is_none() {
+            if let Some((position, progress)) = self.imp().__get_position_progress() {
+                self.emit_by_name::<()>("progress-changed", &[&position, &progress]);
+            }
         }
         glib::Continue(true)
     }
