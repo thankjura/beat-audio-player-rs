@@ -43,7 +43,7 @@ impl BeatPlayerImp {
         let spectrum = gst::ElementFactory::make("spectrum").build().unwrap();
         spectrum.set_property("bands", SPECTRUM_BANDS);
         spectrum.set_property("threshold", SPECTRUM_THRESHOLD);
-        // spectrum.set_property("interval", SPECTRUM_INTERVAL);
+        spectrum.set_property("interval", SPECTRUM_INTERVAL);
         spectrum.set_property("post-messages", true);
         spectrum.set_property("message-magnitude", true);
 

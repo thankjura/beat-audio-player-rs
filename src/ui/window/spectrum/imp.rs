@@ -3,10 +3,21 @@ use gtk::subclass::prelude::*;
 use gtk::glib;
 use gtk::prelude::{Cast, DrawingAreaExtManual};
 use crate::ui::window::spectrum::BeatSpectrum;
+use crate::ui::window::spectrum::spectrum::{Color, interpolate_colors};
 
-#[derive(Default, Debug)]
+#[derive(Debug)]
 pub struct BeatSpectrumImp {
-    pub specs: Mutex<Vec<f32>>
+    pub specs: Mutex<Vec<f32>>,
+    pub colors: Mutex<Vec<Color>>,
+}
+
+impl Default for BeatSpectrumImp {
+    fn default() -> Self {
+        Self {
+            specs: Mutex::new(vec![]),
+            colors: Mutex::new(interpolate_colors())
+        }
+    }
 }
 
 #[glib::object_subclass]

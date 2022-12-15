@@ -2,10 +2,8 @@ use std::path::PathBuf;
 use crate::ui::window::imp::BeatWindowImp;
 
 
-
 impl BeatWindowImp {
     pub fn set_cover(&self, picture: Option<PathBuf>) {
-        println!("{:#?}", picture);
         if let Some(picture) = picture {
             self.cover.set_filename(Some(picture));
         } else {

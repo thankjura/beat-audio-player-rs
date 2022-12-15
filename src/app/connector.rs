@@ -117,6 +117,7 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
             }
             Msg::StateChanged(state) => {
                 window.imp().set_playing_icon(State::Playing == state);
+                window.imp().spectrum.imp().clear();
             }
             Msg::ProgressChanged(position, progress) => {
                 let progress_element = &window.imp().progress;
