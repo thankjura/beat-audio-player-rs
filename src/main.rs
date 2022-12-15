@@ -2,6 +2,7 @@ mod ui;
 mod player;
 mod app;
 mod structs;
+mod utils;
 
 use gettextrs::*;
 use gtk::prelude::*;

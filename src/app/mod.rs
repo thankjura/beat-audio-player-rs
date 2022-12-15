@@ -1,10 +1,8 @@
 mod imp;
 mod connector;
 
-use std::path::Path;
 use gtk::{gio, glib};
 use gtk::subclass::prelude::*;
-use crate::structs::track::Track;
 
 
 glib::wrapper! {
@@ -29,19 +27,5 @@ impl BeatApp {
         };
 
         false
-    }
-
-    pub fn open_path(&self, paths: &Vec<&str>, append: bool) {
-        let mut tab = self.imp().window.borrow().as_ref().unwrap().selected_tab();
-        if !append && tab.has_tracks() {
-            tab = self.imp().window.borrow().as_ref().unwrap().imp().notebook.imp().add_tab("new");
-        }
-
-        for path in paths {
-            let path = Path::new(path);
-            if path.is_file() {
-                tab.add_track(Track::new(path));
-            }
-        }
     }
 }

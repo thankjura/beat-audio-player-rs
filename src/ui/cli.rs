@@ -3,6 +3,7 @@ use gtk::gio::ApplicationCommandLine;
 use gtk::prelude::*;
 use gettextrs::gettext;
 use crate::BeatApp;
+use crate::gio::subclass::prelude::ObjectSubclassIsExt;
 
 pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> i32 {
     if !app.has_window() {
@@ -23,10 +24,10 @@ pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> 
         let mut paths = vec![];
         for p in files {
             if let Some(p) = p.to_str() {
-                paths.push(p);
+                paths.push(p.to_string());
             }
         }
-        app.open_path(&paths, append);
+        app.imp().window.borrow().as_ref().unwrap().imp().open_path(paths, append);
     }
 
     0

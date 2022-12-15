@@ -1,6 +1,7 @@
+use gettextrs::gettext;
+use gtk::gio;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use gtk::{FileChooserDialog, ResponseType};
 use crate::structs::action::Action;
 use crate::ui::window::imp::BeatWindowImp;
 
@@ -8,11 +9,14 @@ impl BeatWindowImp {
     fn choose_files(&self, _keep_tab: bool) {
         let binding = self.instance();
         let w = binding.as_ref();
-        let dialog = FileChooserDialog::new(
-            Some("Open folder"),
+        let dialog = gtk::FileChooserDialog::new(
+            Some(&gettext("Choose audio files or folder")),
             Some(w),
             gtk::FileChooserAction::Open,
-            &[("Open", ResponseType::Ok), ("Cancel", ResponseType::Cancel)],
+            &[
+                (&gettext("Open"), gtk::ResponseType::Ok),
+                (&gettext("Cancel"), gtk::ResponseType::Cancel)
+            ],
         );
 
         dialog.set_select_multiple(true);
@@ -24,11 +28,17 @@ impl BeatWindowImp {
         audio_filter.set_name(Some("Audio files or directory"));
         dialog.add_filter(&audio_filter);
 
-        dialog.connect_response(move |d: &FileChooserDialog, response: ResponseType| {
-            if response == ResponseType::Ok {
-                let file = d.file().unwrap();
-                let path = file.path().unwrap();
-                println!("{:#?}", path);
+        let window_ref = self.downgrade();
+        dialog.connect_response(move |d, response: gtk::ResponseType| {
+            if response == gtk::ResponseType::Ok {
+                let mut files = vec![];
+
+                for file in d.files().iter::<gio::File>().unwrap() {
+                    if let Ok(file)  = file {
+                        files.push(file.path().unwrap().to_str().unwrap().to_string());
+                    }
+                }
+                window_ref.upgrade().unwrap().open_path(files, _keep_tab);
             }
 
             d.close();

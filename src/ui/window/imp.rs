@@ -4,6 +4,7 @@ use gtk::{glib, CompositeTemplate};
 use gtk::glib::once_cell::sync::Lazy;
 use gtk::glib::subclass::Signal;
 use crate::ui::window::notebook::BeatNotebook;
+use crate::ui::window::spectrum::BeatSpectrum;
 
 #[derive(Default, CompositeTemplate)]
 #[template(resource = "/ru/slie/beat/ui/window.ui")]
@@ -28,6 +29,12 @@ pub struct BeatWindowImp {
 
     #[template_child(id = "duration")]
     pub duration_label: TemplateChild<gtk::Label>,
+
+    #[template_child(id = "cover")]
+    pub cover: TemplateChild<gtk::Picture>,
+
+    #[template_child(id = "spectrum")]
+    pub spectrum: TemplateChild<BeatSpectrum>,
 }
 
 #[glib::object_subclass]
@@ -60,6 +67,11 @@ impl ObjectImpl for BeatWindowImp {
         });
 
         SIGNALS.as_ref()
+    }
+
+    fn constructed(&self) {
+        self.parent_constructed();
+        self.set_cover(None);
     }
 }
 

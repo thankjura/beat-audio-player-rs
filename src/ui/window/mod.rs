@@ -2,6 +2,9 @@ mod imp;
 mod header;
 mod notebook;
 mod progress;
+mod footer;
+mod files;
+mod spectrum;
 
 use std::rc::Rc;
 use gtk::{gio, glib};
@@ -24,5 +27,17 @@ impl BeatWindow {
     pub fn selected_tab(&self) -> Rc<Tab> {
         self.imp().notebook.imp().selected_tab()
     }
+
+    // pub fn get_track(&self, tab_idx: u32, track_idx: u32) -> Option<Track> {
+    //     self.imp().notebook.get_track(tab_idx, track_idx)
+    // }
+    //
+    // pub fn set_track_state(&self, tab_idx: u32, track_idx: u32, state: &TrackState) {
+    //     self.imp().notebook.set_track_state(tab_idx, track_idx, state);
+    //
+    //     if let Some(track) = self.get_track(tab_idx, track_idx) {
+    //
+    //     }
+    // }
 }
 

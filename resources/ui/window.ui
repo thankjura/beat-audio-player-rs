@@ -143,11 +143,12 @@
           <object class="GtkBox">
             <child>
               <object class="GtkLabel" id="current_position">
-                <property name="margin-start">6</property>
-                <property name="margin-end">6</property>
-                <property name="margin_top">6</property>
-                <property name="margin_bottom">6</property>
-                <property name="label" translatable="1">--:--</property>
+                <property name="margin-start">3</property>
+                <property name="margin-end">3</property>
+                <property name="margin-top">3</property>
+                <property name="margin-bottom">3</property>
+                <property name="width-chars">6</property>
+                <property name="label">--:--</property>
               </object>
             </child>
             <child>
@@ -162,11 +163,10 @@
             </child>
             <child>
               <object class="GtkLabel" id="duration">
-                <property name="margin-start">6</property>
-                <property name="margin-end">6</property>
-                <property name="margin_top">6</property>
-                <property name="margin_bottom">6</property>
-                <property name="label" translatable="1">--:--</property>
+                <property name="margin-start">3</property>
+                <property name="margin-end">3</property>
+                <property name="width-chars">6</property>
+                <property name="label">--:--</property>
               </object>
             </child>
           </object>
@@ -181,10 +181,14 @@
             <property name="height_request">32</property>
             <property name="spacing">5</property>
             <child>
-              <placeholder/>
+              <object class="GtkPicture" id="cover">
+
+              </object>
             </child>
             <child>
-              <placeholder/>
+              <object class="BeatSpectrum" id="spectrum">
+                <property name="hexpand">1</property>
+              </object>
             </child>
           </object>
         </child>

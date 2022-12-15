@@ -7,12 +7,13 @@ use crate::gio::subclass::prelude::*;
 use crate::player::BeatPlayer;
 use crate::structs::action::Action;
 use crate::structs::track::TrackState;
+use crate::utils::meta;
 
 enum Msg {
     DurationChanged(u64),
     StateChanged(State),
     ProgressChanged(u64, f64),
-    TrackChanged(u32, u32),
+    TrackChanged(u32, u32, String),
     TrackCleared(u32, u32),
 }
 
@@ -87,7 +88,8 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
     player.connect("track-changed", true, move |values| {
         let tab_idx = values[1].get::<u32>().unwrap();
         let track_idx = values[2].get::<u32>().unwrap();
-        sender_ref.send(Msg::TrackChanged(tab_idx, track_idx));
+        let filepath = values[3].get::<String>().unwrap();
+        sender_ref.send(Msg::TrackChanged(tab_idx, track_idx, filepath));
         None
     });
 
@@ -97,6 +99,12 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
         let track_idx = values[2].get::<u32>().unwrap();
         sender_ref.send(Msg::TrackCleared(tab_idx, track_idx));
         None
+    });
+
+    let spectrum =  window.imp().spectrum.imp().downgrade();
+    player.imp().connect_spectrum(move |value| {
+        let spectrum = spectrum.upgrade().unwrap();
+        spectrum.redraw(value);
     });
 
     let window_ref = window.downgrade();
@@ -116,8 +124,11 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
                 window.imp().update_progress(position, progress);
                 progress_element.unblock_signal(&handler_id);
             }
-            Msg::TrackChanged(tab_idx, track_idx) => {
+            Msg::TrackChanged(tab_idx, track_idx, filepath) => {
                 window.imp().notebook.get().set_track_state(tab_idx, track_idx, &TrackState::Active);
+                if let Some(path) = meta::get_album_picture_path(&filepath) {
+                    window.imp().set_cover(Some(path));
+                }
             }
             Msg::TrackCleared(tab_idx, track_idx) => {
                 window.imp().notebook.get().set_track_state(tab_idx, track_idx, &TrackState::None);

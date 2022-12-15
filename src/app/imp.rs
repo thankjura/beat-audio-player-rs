@@ -10,7 +10,7 @@ use crate::player::BeatPlayer;
 
 
 pub struct BeatAppImp {
-    pub (super) window: RefCell<Option<BeatWindow>>,
+    pub window: RefCell<Option<BeatWindow>>,
     pub player: RefCell<Option<Arc<BeatPlayer>>>,
 }
 
@@ -22,7 +22,6 @@ impl Default for BeatAppImp {
         }
     }
 }
-
 
 #[glib::object_subclass]
 impl ObjectSubclass for BeatAppImp {
@@ -51,7 +50,6 @@ impl ApplicationImpl for BeatAppImp {
         connector::connect(&window, &player);
 
         window.present();
-        println!("present");
 
         self.window.replace(Some(window));
         self.player.replace(Some(player.clone()));

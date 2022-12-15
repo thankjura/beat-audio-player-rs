@@ -1,6 +1,4 @@
 use std::cell::RefCell;
-use lofty::{Accessor, AudioFile, ItemKey, Probe};
-use std::path::Path;
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum TrackState {
@@ -38,43 +36,16 @@ impl Clone for Track {
 }
 
 impl Track {
-    pub fn new(file: &Path) -> Self {
-        let filepath = &file.to_str().unwrap().to_string();
-        let filename = &file.file_name().unwrap().to_str().unwrap().to_string();
-
-        if let Ok(tagged_file) = Probe::open(file).unwrap().read() {
-            let tag = match tagged_file.primary_tag() {
-                Some(primary_tag) => Some(primary_tag),
-                None => tagged_file.first_tag(),
-            };
-
-            if let Some(tag) = tag {
-                let properties = tagged_file.properties();
-                let duration = properties.duration();
-
-                return Self {
-                    state: RefCell::new(TrackState::None),
-                    filepath: filepath.to_string(),
-                    filename: filename.to_string(),
-                    album: tag.get_string(&ItemKey::AlbumTitle).map(|s| s.to_string()),
-                    title: tag.get_string(&ItemKey::TrackTitle).map(|s| s.to_string()),
-                    artist: tag.get_string(&ItemKey::TrackArtist).map(|s| s.to_string()),
-                    year: tag.year().map(|y| y.to_string()),
-                    duration: Some(duration.as_secs())
-                };
-            };
-        }
-
-
+    pub fn new(filename: &str, filepath: &str, album: Option<&str>, title: Option<&str>, artist: Option<&str>, year: Option<u32>, duration: Option<u64>) -> Track {
         Self {
             state: RefCell::new(TrackState::None),
             filepath: filepath.to_string(),
             filename: filename.to_string(),
-            album: None,
-            title: None,
-            artist: None,
-            year: None,
-            duration: None
+            album: album.map(|s| s.to_string()),
+            title: title.map(|s| s.to_string()),
+            artist: artist.map(|s| s.to_string()),
+            year: year.map(|y| y.to_string()),
+            duration,
         }
     }
 
@@ -100,13 +71,6 @@ impl Track {
             }
         }
     }
-
-    // pub fn set_duration(&mut self, duration: u32) {
-    //     let (minutes, seconds) = &duration.div_rem(&60);
-    //
-    //     self.duration_str.replace(format!("{}:{:02}", minutes, seconds));
-    //     self.duration.replace(duration);
-    // }
 
     pub fn filepath(&self) -> &str {
         &self.filepath

@@ -8,6 +8,7 @@ use gtk::glib::subclass::Signal;
 use gtk::glib;
 use gtk::subclass::prelude::*;
 use crate::player::TrackRef;
+use crate::structs::{SPECTRUM_BANDS, SPECTRUM_INTERVAL, SPECTRUM_THRESHOLD};
 
 
 pub struct BeatPlayerImp {
@@ -40,9 +41,9 @@ impl BeatPlayerImp {
         let volume = gst::ElementFactory::make("volume").build().unwrap();
         let sink = gst::ElementFactory::make("autoaudiosink").build().unwrap();
         let spectrum = gst::ElementFactory::make("spectrum").build().unwrap();
-        spectrum.set_property("bands", 96u32);
-        spectrum.set_property("threshold", -80);
-        spectrum.set_property("interval", 50000000u64);
+        spectrum.set_property("bands", SPECTRUM_BANDS);
+        spectrum.set_property("threshold", SPECTRUM_THRESHOLD);
+        // spectrum.set_property("interval", SPECTRUM_INTERVAL);
         spectrum.set_property("post-messages", true);
         spectrum.set_property("message-magnitude", true);
 
@@ -81,7 +82,7 @@ impl BeatPlayerImp {
     }
 
     pub fn set_current_track(&self, track_ref: TrackRef) -> Option<TrackRef> {
-        self.obj().emit_by_name::<()>("track-changed", &[&track_ref.tab_idx, &track_ref.track_idx]);
+        self.obj().emit_by_name::<()>("track-changed", &[&track_ref.tab_idx, &track_ref.track_idx, &track_ref.filepath]);
         if let Some(old_ref) = self.current_track.lock().unwrap().replace(track_ref) {
             self.obj().emit_by_name::<()>("track-cleared", &[&old_ref.tab_idx, &old_ref.track_idx]);
             return Some(old_ref);
@@ -124,7 +125,7 @@ impl ObjectImpl for BeatPlayerImp {
                 Signal::builder("duration-changed")
                     .param_types([u64::static_type()]).build(),
                 Signal::builder("track-changed")
-                    .param_types([u32::static_type(), u32::static_type()]).build(),
+                    .param_types([u32::static_type(), u32::static_type(), String::static_type()]).build(),
                 Signal::builder("track-cleared")
                     .param_types([u32::static_type(), u32::static_type()]).build(),
             ]
@@ -136,5 +137,10 @@ impl ObjectImpl for BeatPlayerImp {
     fn constructed(&self) {
         self.parent_constructed();
         self.watch_bus();
+        self.pipeline.bus().unwrap().add_signal_watch();
+    }
+
+    fn dispose(&self) {
+        self.pipeline.bus().unwrap().remove_signal_watch();
     }
 }
