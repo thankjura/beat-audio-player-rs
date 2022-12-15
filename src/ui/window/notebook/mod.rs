@@ -3,10 +3,11 @@ mod imp;
 mod tabs;
 mod playlist;
 
+use gstreamer::State;
 use gtk::glib;
 use gtk::subclass::prelude::*;
 pub use tab::Tab;
-use crate::structs::track::{Track, TrackState};
+use crate::structs::track::Track;
 
 glib::wrapper! {
     pub struct BeatNotebook(ObjectSubclass<imp::BeatNotebookImp>)
@@ -27,7 +28,7 @@ impl BeatNotebook {
         None
     }
 
-    pub fn set_track_state(&self, tab_idx: u32, track_idx: u32, state: &TrackState) {
+    pub fn set_track_state(&self, tab_idx: u32, track_idx: u32, state: &State) {
         let tab_idx = usize::try_from(tab_idx).unwrap();
         if let Some(tab) = self.imp().tabs.borrow().get(tab_idx) {
             return tab.playlist().store().set_track_state(track_idx, state);

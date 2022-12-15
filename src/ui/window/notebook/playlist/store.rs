@@ -1,8 +1,9 @@
 use std::cell::Ref;
+use gstreamer::State;
 use gtk::{glib, gio};
 use gtk::glib::BoxedAnyObject;
 use gtk::prelude::*;
-use crate::structs::track::{Track, TrackState};
+use crate::structs::track::Track;
 
 
 #[derive(Debug)]
@@ -48,7 +49,7 @@ impl PlayListStore {
         self.store.remove_all();
     }
 
-    pub fn set_track_state(&self, index: u32, state: &TrackState) {
+    pub fn set_track_state(&self, index: u32, state: &State) {
         if let Some(item) = self.selector.model().unwrap().item(index) {
             let entry = item.downcast::<BoxedAnyObject>().unwrap();
             let r: Ref<Track> = entry.borrow();

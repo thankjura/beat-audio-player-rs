@@ -1,11 +1,9 @@
 mod widget;
 mod store;
-mod cell_render;
 mod cols;
 
 pub use widget::PlayList;
 pub use crate::structs::track::Track;
-pub use crate::structs::track::TrackState;
 
 enum ColType {
     Text,

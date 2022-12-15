@@ -7,9 +7,9 @@ use crate::ui::window::notebook::playlist::store::PlayListStore;
 
 #[derive(Debug, Default)]
 pub struct PlayList {
-    uuid: String,
+    _uuid: String,
     scrollbox: gtk::ScrolledWindow,
-    view: gtk::ColumnView,
+    //view: gtk::ColumnView,
     store: PlayListStore,
 }
 
@@ -54,9 +54,9 @@ impl PlayList {
         });
 
         Self {
-            uuid,
+            _uuid: uuid,
             scrollbox,
-            view,
+            //view,
             store,
         }
     }

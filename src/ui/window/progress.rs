@@ -1,5 +1,5 @@
 use gtk::prelude::RangeExt;
-use crate::ui::format::{NON_TIME_STRING, UFormat};
+use crate::utils::format::{NON_TIME_STRING, UFormat};
 use crate::ui::window::imp::BeatWindowImp;
 
 impl BeatWindowImp {

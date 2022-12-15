@@ -27,7 +27,7 @@ pub fn interpolate_colors() -> Vec<Color> {
             step_details.push(delta);
         }
 
-        for s in 0..(COL_BRICK_COUNT - 2) {
+        for _s in 0..(COL_BRICK_COUNT - 2) {
             let mut c = vec![];
             for (index, value) in out.last().unwrap().into_iter().enumerate() {
                 c.push(value + step_details[index]);
@@ -43,7 +43,8 @@ pub fn interpolate_colors() -> Vec<Color> {
 impl BeatSpectrumImp {
     pub fn redraw(&self, specs: Vec<f32>) {
         let mut guard = self.specs.lock().unwrap();
-        mem::replace(&mut *guard, specs);
+        let value = mem::replace(&mut *guard, specs);
+        drop(value);
         self.obj().queue_draw();
     }
 
@@ -57,8 +58,8 @@ impl BeatSpectrumImp {
         let guard = self.specs.lock().unwrap();
         if guard.is_empty() {
             cr.push_group();
-            cr.pop_group_to_source();
-            cr.paint();
+            cr.pop_group_to_source().unwrap();
+            cr.paint().unwrap();
             return;
         }
 
@@ -73,8 +74,11 @@ impl BeatSpectrumImp {
             cols.push(SpectrumCol::new(*spec as f64, spec_min, spec_max, colors.clone()));
         }
 
-        let w = self.obj().allocated_width() as f64;
-        let h = self.obj().allocated_height() as f64;
+        // let w = self.obj().allocated_width() as f64;
+        // let h = self.obj().allocated_height() as f64;
+
+        let w = w as f64;
+        let h = h as f64;
         cr.push_group();
 
         let cols_count = cols.len() as f64;
@@ -83,13 +87,13 @@ impl BeatSpectrumImp {
 
         for (i, col) in cols.iter_mut().enumerate() {
             if i != 0usize {
-                x_pos -= (GAP + col_width);
+                x_pos -= GAP + col_width;
             }
 
             col.draw(col_width, h, cr, x_pos);
         }
 
-        cr.pop_group_to_source();
-        cr.paint();
+        cr.pop_group_to_source().unwrap();
+        cr.paint().unwrap();
     }
 }

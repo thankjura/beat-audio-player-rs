@@ -1,9 +1,10 @@
 use std::cell::Ref;
 use gettextrs::gettext;
 use gstreamer::glib::BoxedAnyObject;
+use gstreamer::State;
 use gtk::prelude::*;
 use gtk::{ColumnViewColumn, Inscription, SignalListItemFactory};
-use crate::structs::track::{Track, TrackState};
+use crate::structs::track::Track;
 
 
 pub fn make_icon_column(_key: &str, name: &str) -> (SignalListItemFactory, ColumnViewColumn) {
@@ -24,16 +25,16 @@ pub fn make_icon_column(_key: &str, name: &str) -> (SignalListItemFactory, Colum
         let entry = item.item().unwrap().downcast::<BoxedAnyObject>().unwrap();
         let r: Ref<Track> = entry.borrow();
         match r.state() {
-            TrackState::Playing => {
+            State::Playing => {
                 child.set_resource(Some("/ru/slie/beat/icons/play.svg"));
             }
-            TrackState::Pause => {
+            State::Paused => {
                 child.set_resource(Some("/ru/slie/beat/icons/pause.svg"));
             }
-            TrackState::Active => {
+            State::Ready => {
                 child.set_resource(Some("/ru/slie/beat/icons/active.svg"));
             }
-            TrackState::None => {
+            _ => {
                 child.set_resource(None);
             }
         }

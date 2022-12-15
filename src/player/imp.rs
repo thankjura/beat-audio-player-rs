@@ -15,10 +15,7 @@ pub struct BeatPlayerImp {
     pub pipeline: Pipeline,
     pub file_src: Element,
     pub volume: Element,
-    decode_bin: Element,
-    sink: Element,
-    spectrum: Element,
-    queue: Mutex<Vec<TrackRef>>,
+    pub queue: Mutex<Vec<TrackRef>>,
     current_track: Mutex<Option<TrackRef>>,
     pub seek_timeout: Mutex<Option<glib::SourceId>>,
 }
@@ -64,9 +61,6 @@ impl BeatPlayerImp {
             pipeline,
             file_src,
             volume,
-            decode_bin,
-            sink,
-            spectrum,
             queue: Mutex::new(vec![]),
             current_track: Mutex::new(None),
             seek_timeout: Mutex::new(None),
@@ -119,7 +113,7 @@ impl ObjectImpl for BeatPlayerImp {
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
             vec![
                 Signal::builder("state-changed")
-                    .param_types([State::static_type()]).build(),
+                    .param_types([i32::static_type(), i32::static_type(), State::static_type()]).build(),
                 Signal::builder("progress-changed")
                     .param_types([u64::static_type(), f64::static_type()]).build(),
                 Signal::builder("duration-changed")
@@ -128,6 +122,8 @@ impl ObjectImpl for BeatPlayerImp {
                     .param_types([u32::static_type(), u32::static_type(), String::static_type()]).build(),
                 Signal::builder("track-cleared")
                     .param_types([u32::static_type(), u32::static_type()]).build(),
+                Signal::builder("queue-changed")
+                    .param_types([u32::static_type(), u32::static_type(), u32::static_type()]).build(),
             ]
         });
 

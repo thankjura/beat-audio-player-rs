@@ -6,14 +6,12 @@ use crate::{BeatWindow, ObjectExt};
 use crate::gio::subclass::prelude::*;
 use crate::player::BeatPlayer;
 use crate::structs::action::Action;
-use crate::structs::track::TrackState;
 use crate::utils::meta;
 
 enum Msg {
     DurationChanged(u64),
-    StateChanged(State),
+    StateChanged(Option<(u32, u32, String)>, State),
     ProgressChanged(u64, f64),
-    TrackChanged(u32, u32, String),
     TrackCleared(u32, u32),
 }
 
@@ -63,15 +61,24 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
     let sender_ref = sender.clone();
     player.connect("duration-changed", true, move |values| {
         let duration = values[1].get::<u64>().unwrap();
-        sender_ref.send(Msg::DurationChanged(duration));
-
+        sender_ref.send(Msg::DurationChanged(duration)).unwrap();
         None
     });
 
     let sender_ref = sender.clone();
     player.connect("state-changed", true, move |values| {
-        let state = values[1].get::<State>().unwrap();
-        sender_ref.send(Msg::StateChanged(state));
+        let tab_idx = values[1].get::<i32>().unwrap();
+        let track_idx = values[2].get::<i32>().unwrap();
+        let track_path = values[3].get::<String>().unwrap();
+        let state = values[4].get::<State>().unwrap();
+
+        let track_ref;
+        if tab_idx >= 0 && track_idx >= 0 {
+            track_ref = Some((tab_idx as u32, track_idx as u32, track_path));
+        } else {
+            track_ref = None
+        }
+        sender_ref.send(Msg::StateChanged(track_ref, state)).unwrap();
 
         None
     });
@@ -80,16 +87,7 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
     player.connect("progress-changed", true, move |values| {
         let position = values[1].get::<u64>().unwrap();
         let progress = values[2].get::<f64>().unwrap();
-        sender_ref.send(Msg::ProgressChanged(position, progress));
-        None
-    });
-
-    let sender_ref = sender.clone();
-    player.connect("track-changed", true, move |values| {
-        let tab_idx = values[1].get::<u32>().unwrap();
-        let track_idx = values[2].get::<u32>().unwrap();
-        let filepath = values[3].get::<String>().unwrap();
-        sender_ref.send(Msg::TrackChanged(tab_idx, track_idx, filepath));
+        sender_ref.send(Msg::ProgressChanged(position, progress)).unwrap();
         None
     });
 
@@ -97,7 +95,7 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
     player.connect("track-cleared", true, move |values| {
         let tab_idx = values[1].get::<u32>().unwrap();
         let track_idx = values[2].get::<u32>().unwrap();
-        sender_ref.send(Msg::TrackCleared(tab_idx, track_idx));
+        sender_ref.send(Msg::TrackCleared(tab_idx, track_idx)).unwrap();
         None
     });
 
@@ -115,7 +113,15 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
             Msg::DurationChanged(duration) => {
                 window.imp().update_duration(duration);
             }
-            Msg::StateChanged(state) => {
+            Msg::StateChanged(track_ref, state) => {
+                if let Some((tab_idx, track_idx, track_path)) = track_ref {
+                    window.imp().notebook.get().set_track_state(tab_idx, track_idx, &state);
+                    if State::Playing == state {
+                        if let Some(path) = meta::get_album_picture_path(&track_path) {
+                            window.imp().set_cover(Some(path));
+                        }
+                    }
+                }
                 window.imp().set_playing_icon(State::Playing == state);
                 window.imp().spectrum.imp().clear();
             }
@@ -125,14 +131,8 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
                 window.imp().update_progress(position, progress);
                 progress_element.unblock_signal(&handler_id);
             }
-            Msg::TrackChanged(tab_idx, track_idx, filepath) => {
-                window.imp().notebook.get().set_track_state(tab_idx, track_idx, &TrackState::Active);
-                if let Some(path) = meta::get_album_picture_path(&filepath) {
-                    window.imp().set_cover(Some(path));
-                }
-            }
             Msg::TrackCleared(tab_idx, track_idx) => {
-                window.imp().notebook.get().set_track_state(tab_idx, track_idx, &TrackState::None);
+                window.imp().notebook.get().set_track_state(tab_idx, track_idx, &State::Null);
             }
         }
         glib::Continue(true)

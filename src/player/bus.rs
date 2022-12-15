@@ -14,8 +14,6 @@ impl BeatPlayerImp {
         let obj_ref = self.obj().downgrade();
 
         bus.connect_message(None, move |_bus, msg| {
-
-        //bus.add_watch(move |_bus, msg| {
             let obj = &obj_ref.upgrade().unwrap();
 
             match msg.view() {
@@ -48,7 +46,7 @@ impl BeatPlayerImp {
                 },
                 _ => (),
             }
-        }); //.expect(&gettext("Can't connect to pipeline bus"));
+        });
 
         let obj_ref = self.obj().downgrade();
 
@@ -61,8 +59,6 @@ impl BeatPlayerImp {
     pub fn connect_spectrum<F>(&self, f: F) where F: Fn(Vec<f32>) -> () + Send + Sync + 'static {
         let bus = self.pipeline.bus().unwrap();
 
-        let obj_ref = self.obj().downgrade();
-        //let cb = Box::new(f);
         bus.connect_message(Some("element"), move |_bus, message| {
             if let MessageView::Element(element) = message.view() {
                 if let Some(element) = element.structure() {
@@ -73,34 +69,9 @@ impl BeatPlayerImp {
                     if let Ok(value) = element.get::<List>("magnitude") {
                         let value: Vec<f32> = value.iter().map(|v| { v.get::<f32>().unwrap() }).collect();
                         f(value);
-                        // let value = BoxedAnyObject::from(value.);
-                        // obj.emit_by_name("spectrum", &[])
                     }
                 }
             }
         });
-
-        // bus.add_watch(move |_bus, msg| {
-        //     let obj = &obj_ref.upgrade().unwrap();
-        //     //let cb = Arc::new(&f);
-        //     match msg.view() {
-        //         MessageView::Element(element) => {
-        //             if let Some(element) = element.structure() {
-        //                 if element.name() != "spectrum" {
-        //                     return glib::Continue(true);
-        //                 }
-        //
-        //                 if let Ok(value) = element.get::<List>("magnitude") {
-        //                     let value: Vec<f32> = value.iter().map(|v| { v.get::<f32>().unwrap() }).collect();
-        //                     SendValue::value_type();
-        //                     // let value = BoxedAnyObject::from(value.);
-        //                     // obj.emit_by_name("spectrum", &[])
-        //                 }
-        //             }
-        //         },
-        //         _ => (),
-        //     }
-        //     glib::Continue(true)
-        // }).expect(&gettext("Can't connect spectrum to pipeline bus"));
     }
 }

@@ -16,7 +16,7 @@ impl BeatPlayerImp {
     pub fn __set_state(&self, state: State) {
         match self.pipeline.set_state(state) {
             Ok(_) => {
-                self.obj().emit_by_name::<()>("state-changed", &[&state]);
+                self.obj().__on_state_changed(state);
             }
             Err(_) => {
                 println!("Failed to change state");
@@ -61,7 +61,8 @@ impl BeatPlayerImp {
         let timer = glib::timeout_add_once(Duration::from_millis(300u64), move|| {
             let player = player_ref.upgrade().unwrap();
             let mut guard = player.seek_timeout.lock().unwrap();
-            mem::replace(&mut *guard, None);
+            let value = mem::replace(&mut *guard, None);
+            drop(value);
             player.__set_position_percent(progress);
         });
 

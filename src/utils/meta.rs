@@ -33,10 +33,10 @@ pub fn get_album_picture_path(path: &str) -> Option<PathBuf> {
         let pictures = tag.pictures();
         if let Some(pic) = pictures.get(0) {
             if !cache_dir.exists() {
-                fs::create_dir_all(cache_dir);
+                fs::create_dir_all(cache_dir).expect("Can't create cache directory");
             }
             if let Ok(mut file) = fs::File::create(&cover_path) {
-                file.write_all(pic.data());
+                file.write_all(pic.data()).expect("Can't write cache for art");
                 return Some(cover_path);
             } else {
                 println!("{}", gettext("Can't create cover cache"));

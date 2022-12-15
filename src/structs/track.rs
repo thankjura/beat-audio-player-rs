@@ -1,16 +1,9 @@
 use std::cell::RefCell;
-
-#[derive(Debug, Clone, PartialEq)]
-pub enum TrackState {
-    Playing,
-    Pause,
-    Active,
-    None
-}
+use gstreamer::State;
 
 #[derive(Debug)]
 pub struct Track {
-    state: RefCell<TrackState>,
+    state: RefCell<State>,
     filepath: String,
     filename: String,
     album: Option<String>,
@@ -38,7 +31,7 @@ impl Clone for Track {
 impl Track {
     pub fn new(filename: &str, filepath: &str, album: Option<&str>, title: Option<&str>, artist: Option<&str>, year: Option<u32>, duration: Option<u64>) -> Track {
         Self {
-            state: RefCell::new(TrackState::None),
+            state: RefCell::new(State::Null),
             filepath: filepath.to_string(),
             filename: filename.to_string(),
             album: album.map(|s| s.to_string()),
@@ -76,11 +69,11 @@ impl Track {
         &self.filepath
     }
 
-    pub fn set_state(&self, state: &TrackState) {
+    pub fn set_state(&self, state: &State) {
         self.state.replace(state.clone());
     }
 
-    pub fn state(&self) -> TrackState {
+    pub fn state(&self) -> State {
         self.state.borrow().clone()
     }
 }

@@ -47,15 +47,42 @@ impl BeatPlayer {
     }
 
     pub fn add_to_queue(&self, tab_idx: u32, track_idx: u32, filepath: String) {
-
+        self.imp().queue.lock().unwrap().push(TrackRef { tab_idx, track_idx, filepath });
     }
 
     pub fn rm_from_queue(&self, tab_idx: u32, track_idx: u32) {
-
+        let mut queue = self.imp().queue.lock().unwrap();
+        if let Some(index) = queue.iter().position(|t| {
+            t.tab_idx == tab_idx && t.track_idx == track_idx
+        }) {
+            queue.remove(index);
+            if queue.len() > index {
+                for (i, t) in queue[index..].iter().enumerate() {
+                    let position = (i + index) as u32;
+                    self.emit_by_name::<()>("queue-changed", &[&t.tab_idx, &t.track_idx, &position]);
+                }
+            }
+        }
     }
 
     pub fn rm_tab_from_queue(&self, tab_idx: u32) {
+        let mut queue = self.imp().queue.lock().unwrap();
+        let mut i = 0;
+        let mut flag = false;
 
+        while i < queue.len() {
+            let t = &queue[i];
+            if t.tab_idx == tab_idx {
+                queue.remove(i);
+                flag = true;
+            } else {
+                i += 1;
+                if flag {
+                    let position = i as u32;
+                    self.emit_by_name::<()>("queue-changed", &[&t.tab_idx, &t.track_idx, &position]);
+                }
+            }
+        }
     }
 
     pub fn seek_position(&self, percent: f64) {
@@ -71,7 +98,14 @@ impl BeatPlayer {
     }
 
     fn __on_state_changed(&self, state: State) {
-        self.emit_by_name::<()>("state-changed", &[&state]);
+        let mut current_tab = -1;
+        let mut current_track = -1;
+        if let Some(track) = &self.imp().current_track() {
+            current_tab = track.tab_idx as i32;
+            current_track = track.track_idx as i32;
+        }
+
+        self.emit_by_name::<()>("state-changed", &[&current_tab, &current_track, &state]);
     }
 
     fn __on_stream_start(&self) {

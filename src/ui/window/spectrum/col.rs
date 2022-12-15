@@ -34,8 +34,8 @@ impl SpectrumCol {
 
             let y_pos = col_height - (i as f64) * (brick_h + GAP) - brick_h;
             cr.rectangle(x_pos, y_pos, col_width, brick_h);
-            cr.set_source_rgba(self.colors[i][0] , self.colors[i][1], self.colors[i][2], self.colors[i][3]);
-            cr.fill();
+            cr.set_source_rgba(c[0] , c[1], c[2], c[3]);
+            cr.fill().unwrap();
 
         }
     }

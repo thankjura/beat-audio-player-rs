@@ -7,9 +7,9 @@ use crate::ui::window::notebook::playlist::{PlayList, Track};
 #[derive(Debug)]
 pub struct Tab {
     widget: gtk::Box,
-    event_box: gtk::GestureClick,
+    //event_box: gtk::GestureClick,
     label: gtk::Label,
-    menu: Rc<gtk::PopoverMenu>,
+    //menu: Rc<gtk::PopoverMenu>,
     playlist: PlayList,
 }
 
@@ -50,9 +50,9 @@ impl Tab {
 
         Self {
             widget,
-            event_box,
+            //event_box,
             label,
-            menu,
+            //menu,
             playlist,
         }
     }
