@@ -47,7 +47,7 @@ impl BeatPlayer {
     }
 
     pub fn add_to_queue(&self, tab_idx: u32, track_idx: u32, filepath: String) {
-        self.imp().queue.lock().unwrap().push(TrackRef { tab_idx, track_idx, filepath });
+        self.imp().queue.lock().unwrap().push_back(TrackRef { tab_idx, track_idx, filepath });
     }
 
     pub fn rm_from_queue(&self, tab_idx: u32, track_idx: u32) {
@@ -57,9 +57,11 @@ impl BeatPlayer {
         }) {
             queue.remove(index);
             if queue.len() > index {
-                for (i, t) in queue[index..].iter().enumerate() {
-                    let position = (i + index) as u32;
-                    self.emit_by_name::<()>("queue-changed", &[&t.tab_idx, &t.track_idx, &position]);
+                for (i, t) in queue.iter().enumerate() {
+                    if i >= index {
+                        let position = i as u32;
+                        self.emit_by_name::<()>("queue-changed", &[&t.tab_idx, &t.track_idx, &position]);
+                    }
                 }
             }
         }
@@ -100,12 +102,14 @@ impl BeatPlayer {
     fn __on_state_changed(&self, state: State) {
         let mut current_tab = -1;
         let mut current_track = -1;
+        let mut current_path = "".to_string();
         if let Some(track) = &self.imp().current_track() {
             current_tab = track.tab_idx as i32;
             current_track = track.track_idx as i32;
+            current_path = track.filepath.clone();
         }
 
-        self.emit_by_name::<()>("state-changed", &[&current_tab, &current_track, &state]);
+        self.emit_by_name::<()>("state-changed", &[&current_tab, &current_track, &current_path, &state]);
     }
 
     fn __on_stream_start(&self) {

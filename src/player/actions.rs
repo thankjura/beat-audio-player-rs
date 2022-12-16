@@ -17,7 +17,12 @@ impl BeatPlayerImp {
     }
 
     pub fn next(&self) {
-        println!("Implement me: next");
+        let mut queue = self.queue.lock().unwrap();
+        if let Some(t) = queue.pop_front() {
+            self.play_ref(t.tab_idx, t.track_idx, t.filepath);
+        } else {
+            println!("Implement me: next");
+        }
     }
 
     pub fn prev(&self) {

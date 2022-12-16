@@ -1,5 +1,4 @@
 use std::borrow::Borrow;
-use std::rc::Rc;
 use gtk::prelude::*;
 use gtk::{gdk, gio, glib, ScrolledWindow};
 use crate::ui::window::notebook::playlist::{PlayList, Track};
@@ -7,9 +6,7 @@ use crate::ui::window::notebook::playlist::{PlayList, Track};
 #[derive(Debug)]
 pub struct Tab {
     widget: gtk::Box,
-    //event_box: gtk::GestureClick,
     label: gtk::Label,
-    //menu: Rc<gtk::PopoverMenu>,
     playlist: PlayList,
 }
 
@@ -22,37 +19,30 @@ impl Tab {
             .button(gdk::BUTTON_SECONDARY)
             .propagation_phase(gtk::PropagationPhase::Capture)
             .build();
-        label.add_controller(&event_box);
+        widget.add_controller(&event_box);
         widget.append(&label);
 
         let menu_data = gio::Menu::new();
-
         let menu_item_rename = gio::MenuItem::new(Some("Rename"), None);
         let menu_item_close = gio::MenuItem::new(Some("Close"), Some("tab.close"));
         menu_data.append_item(&menu_item_rename);
         menu_data.append_item(&menu_item_close);
-
         let menu_model = gio::MenuModel::from(menu_data);
-
         let menu = gtk::PopoverMenu::builder().menu_model(&menu_model).build();
-
-        let label = gtk::Label::new(Some("Rename"));
-
         widget.append(&menu);
-        let menu = Rc::new(menu);
 
-        event_box.connect_released(glib::clone!(@weak menu =>
-            move |gesture, _count, _x, _y| {
-                gesture.set_state(gtk::EventSequenceState::Claimed);
-                menu.popup();
+        event_box.connect_pressed(glib::clone!(@strong menu =>
+            move |gesture, count, _x, _y| {
+                if count == 1 {
+                    gesture.set_state(gtk::EventSequenceState::Claimed);
+                    menu.popup();
+                }
             }
         ));
 
         Self {
             widget,
-            //event_box,
             label,
-            //menu,
             playlist,
         }
     }

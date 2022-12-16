@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::sync::Mutex;
 use gstreamer::{Element, Pipeline, State};
 use gstreamer::prelude::{ElementExtManual, GstBinExtManual};
@@ -15,7 +16,7 @@ pub struct BeatPlayerImp {
     pub pipeline: Pipeline,
     pub file_src: Element,
     pub volume: Element,
-    pub queue: Mutex<Vec<TrackRef>>,
+    pub queue: Mutex<VecDeque<TrackRef>>,
     current_track: Mutex<Option<TrackRef>>,
     pub seek_timeout: Mutex<Option<glib::SourceId>>,
 }
@@ -61,7 +62,7 @@ impl BeatPlayerImp {
             pipeline,
             file_src,
             volume,
-            queue: Mutex::new(vec![]),
+            queue: Mutex::new(VecDeque::new()),
             current_track: Mutex::new(None),
             seek_timeout: Mutex::new(None),
         }
@@ -76,7 +77,6 @@ impl BeatPlayerImp {
     }
 
     pub fn set_current_track(&self, track_ref: TrackRef) -> Option<TrackRef> {
-        self.obj().emit_by_name::<()>("track-changed", &[&track_ref.tab_idx, &track_ref.track_idx, &track_ref.filepath]);
         if let Some(old_ref) = self.current_track.lock().unwrap().replace(track_ref) {
             self.obj().emit_by_name::<()>("track-cleared", &[&old_ref.tab_idx, &old_ref.track_idx]);
             return Some(old_ref);
@@ -113,13 +113,11 @@ impl ObjectImpl for BeatPlayerImp {
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
             vec![
                 Signal::builder("state-changed")
-                    .param_types([i32::static_type(), i32::static_type(), State::static_type()]).build(),
+                    .param_types([i32::static_type(), i32::static_type(), String::static_type(), State::static_type()]).build(),
                 Signal::builder("progress-changed")
                     .param_types([u64::static_type(), f64::static_type()]).build(),
                 Signal::builder("duration-changed")
                     .param_types([u64::static_type()]).build(),
-                Signal::builder("track-changed")
-                    .param_types([u32::static_type(), u32::static_type(), String::static_type()]).build(),
                 Signal::builder("track-cleared")
                     .param_types([u32::static_type(), u32::static_type()]).build(),
                 Signal::builder("queue-changed")

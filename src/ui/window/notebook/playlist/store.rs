@@ -9,13 +9,13 @@ use crate::structs::track::Track;
 #[derive(Debug)]
 pub struct PlayListStore {
     store: gio::ListStore,
-    selector: gtk::SingleSelection,
+    selector: gtk::MultiSelection,
 }
 
 impl PlayListStore {
     pub fn new() -> Self {
         let store = gio::ListStore::new(glib::BoxedAnyObject::static_type());
-        let selector = gtk::SingleSelection::new(Some(&store));
+        let selector = gtk::MultiSelection::new(Some(&store));
 
         Self {
             store,
@@ -23,7 +23,7 @@ impl PlayListStore {
         }
     }
 
-    pub fn selector(&self) -> &gtk::SingleSelection {
+    pub fn selector(&self) -> &gtk::MultiSelection {
         &self.selector
     }
 
