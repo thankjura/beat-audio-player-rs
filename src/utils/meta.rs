@@ -5,6 +5,7 @@ use gettextrs::gettext;
 use gtk::glib;
 use lofty::{Accessor, AudioFile, ItemKey};
 use crate::structs::track::Track;
+use crate::utils::format::time_str;
 
 fn get_cache_dir() -> PathBuf {
     glib::user_cache_dir().join("beat").join("covers")
@@ -72,7 +73,7 @@ pub fn get_track_from_path(filepath: &str) -> Option<Track> {
                 tag.get_string(&ItemKey::TrackTitle),
                 tag.get_string(&ItemKey::TrackArtist),
                 tag.year(),
-                Some(duration.as_secs())
+                Some(&time_str(duration.as_secs()))
             ));
         };
     }

@@ -11,9 +11,9 @@ pub struct Tab {
 }
 
 impl Tab {
-    pub fn new(name: &str) -> Self {
+    pub fn new(name: &str, uuid: &str) -> Self {
         let label = gtk::Label::new(Some(name));
-        let playlist = PlayList::new_with_uuid(&uuid::Uuid::new_v4().to_string());
+        let playlist = PlayList::new_with_uuid(uuid);
         let widget = gtk::Box::new(gtk::Orientation::Horizontal, 10);
         let event_box = gtk::GestureClick::builder()
             .button(gdk::BUTTON_SECONDARY)

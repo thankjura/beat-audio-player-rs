@@ -10,7 +10,7 @@ pub struct Track {
     title: Option<String>,
     artist: Option<String>,
     year: Option<String>,
-    duration: Option<u64>,
+    duration_str: Option<String>,
     queue_position: RefCell<Option<String>>,
 }
 
@@ -24,14 +24,14 @@ impl Clone for Track {
             title: self.title.clone(),
             artist: self.artist.clone(),
             year: self.year.clone(),
-            duration: self.duration.clone(),
+            duration_str: self.duration_str.clone(),
             queue_position: self.queue_position.clone(),
         }
     }
 }
 
 impl Track {
-    pub fn new(filename: &str, filepath: &str, album: Option<&str>, title: Option<&str>, artist: Option<&str>, year: Option<u32>, duration: Option<u64>) -> Track {
+    pub fn new(filename: &str, filepath: &str, album: Option<&str>, title: Option<&str>, artist: Option<&str>, year: Option<u32>, duration_str: Option<&str>) -> Track {
         Self {
             state: RefCell::new(None),
             filepath: filepath.to_string(),
@@ -40,7 +40,7 @@ impl Track {
             title: title.map(|s| s.to_string()),
             artist: artist.map(|s| s.to_string()),
             year: year.map(|y| y.to_string()),
-            duration,
+            duration_str: duration_str.map(|s| s.to_string()),
             queue_position: RefCell::new(None)
         }
     }
@@ -61,6 +61,9 @@ impl Track {
             },
             "artist" => {
                 self.artist.as_deref()
+            },
+            "duration" => {
+                self.duration_str.as_deref()
             },
             _ => {
                 None

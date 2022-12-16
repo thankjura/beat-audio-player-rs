@@ -63,7 +63,6 @@ impl PlayList {
                     let (_factory, column) = make_icon_column(&col.key, &col.label);
                     view.append_column(&column);
                 }
-                ColType::Duration => {}
                 ColType::Position => {
                     let (_factory, column) = make_position_column(&col.key, &col.label);
                     view.append_column(&column);

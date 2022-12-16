@@ -8,11 +8,13 @@ use gtk::subclass::prelude::*;
 use crate::app::connector;
 use crate::BeatWindow;
 use crate::player::BeatPlayer;
+use crate::utils::settings::BeatSettings;
 
 
 pub struct BeatAppImp {
     pub window: RefCell<Option<BeatWindow>>,
     pub player: RefCell<Option<Arc<BeatPlayer>>>,
+    pub settings: RefCell<Option<BeatSettings>>,
 }
 
 impl Default for BeatAppImp {
@@ -20,6 +22,7 @@ impl Default for BeatAppImp {
         Self {
             window: RefCell::new(None),
             player: RefCell::new(None),
+            settings: RefCell::new(None),
         }
     }
 }
@@ -48,12 +51,21 @@ impl ApplicationImpl for BeatAppImp {
             }
         ));
 
-        connector::connect(&window, &player);
+        let mut settings = BeatSettings::load();
 
+        connector::connect(&window, &player);
         window.present();
+
+        for playlist in settings.playlists() {
+            let tab = window.imp().notebook.get().imp().add_tab_wth_uuid(&playlist.label, &playlist.uuid);
+            for track in playlist.rows {
+                tab.add_track(track);
+            }
+        }
 
         self.window.replace(Some(window));
         self.player.replace(Some(player.clone()));
+        self.settings.replace(Some(settings));
     }
 }
 

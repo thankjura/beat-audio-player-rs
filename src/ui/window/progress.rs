@@ -1,5 +1,5 @@
 use gtk::prelude::RangeExt;
-use crate::utils::format::{NON_TIME_STRING, UFormat};
+use crate::utils::format::{NON_TIME_STRING, time_str};
 use crate::ui::window::imp::BeatWindowImp;
 
 impl BeatWindowImp {
@@ -7,13 +7,13 @@ impl BeatWindowImp {
         if progress >= 0.0 {
             let progress = progress.clamp(0.0, 100.0);
             self.progress.get().set_value(progress);
-            self.current_position_label.get().set_label(&UFormat::time_str(position));
+            self.current_position_label.get().set_label(&time_str(position));
         } else {
             self.clear_duration();
         }
     }
     pub fn update_duration(&self, duration: u64) {
-        self.duration_label.get().set_label(&UFormat::time_str(duration));
+        self.duration_label.get().set_label(&time_str(duration));
     }
 
     pub fn clear_duration(&self) {

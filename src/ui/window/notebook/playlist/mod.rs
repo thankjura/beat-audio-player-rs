@@ -8,7 +8,6 @@ pub use crate::structs::track::Track;
 enum ColType {
     Text,
     Icon,
-    Duration,
     Position,
 }
 
@@ -24,7 +23,7 @@ const PLAY_LIST_COLS: [PlayListCol; 6] = [
     PlayListCol { key: "artist", label: "Artist",  col_type: ColType::Text, translate: true},
     PlayListCol { key: "album", label: "Album",  col_type: ColType::Text, translate: true},
     PlayListCol { key: "title", label: "Title",  col_type: ColType::Text, translate: true},
-    PlayListCol { key: "duration", label: "Duration",  col_type: ColType::Duration, translate: true},
+    PlayListCol { key: "duration", label: "Duration",  col_type: ColType::Text, translate: true},
     PlayListCol { key: "position", label: "",  col_type: ColType::Position, translate: false},
 ];
 
