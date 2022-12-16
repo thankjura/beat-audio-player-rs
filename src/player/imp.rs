@@ -19,6 +19,7 @@ pub struct BeatPlayerImp {
     pub queue: Mutex<VecDeque<TrackRef>>,
     current_track: Mutex<Option<TrackRef>>,
     pub seek_timeout: Mutex<Option<glib::SourceId>>,
+    //next_cb: Option<Box<dyn Fn() -> (u32, u32, String) + Send + Sync + 'static>>
 }
 
 
@@ -65,6 +66,7 @@ impl BeatPlayerImp {
             queue: Mutex::new(VecDeque::new()),
             current_track: Mutex::new(None),
             seek_timeout: Mutex::new(None),
+            //next_cb: None,
         }
     }
 
@@ -122,6 +124,8 @@ impl ObjectImpl for BeatPlayerImp {
                     .param_types([u32::static_type(), u32::static_type()]).build(),
                 Signal::builder("queue-changed")
                     .param_types([u32::static_type(), u32::static_type(), u32::static_type()]).build(),
+                Signal::builder("query-next").build(),
+                Signal::builder("query-prev").build(),
             ]
         });
 

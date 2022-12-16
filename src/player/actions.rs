@@ -1,3 +1,5 @@
+use gtk::prelude::ObjectExt;
+use gtk::subclass::prelude::ObjectSubclassExt;
 use crate::player::imp::BeatPlayerImp;
 use crate::player::TrackRef;
 
@@ -21,11 +23,11 @@ impl BeatPlayerImp {
         if let Some(t) = queue.pop_front() {
             self.play_ref(t.tab_idx, t.track_idx, t.filepath);
         } else {
-            println!("Implement me: next");
+            self.obj().emit_by_name::<()>("query-next", &[]);
         }
     }
 
     pub fn prev(&self) {
-        println!("Implement me: prev");
+        self.obj().emit_by_name::<()>("query-prev", &[]);
     }
 }

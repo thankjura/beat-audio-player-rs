@@ -45,7 +45,7 @@ impl BeatNotebookImp {
         // End actions
 
         let idx = self.notebook.append_page(tab.scrollbox(), Some(tab.widget()));
-        self.notebook.set_show_tabs(true);
+        self.toggle_show_tabs();
         self.notebook.set_current_page(Some(idx));
         self.tabs.borrow_mut().push(tab.clone());
 
@@ -60,7 +60,25 @@ impl BeatNotebookImp {
         self.add_tab("new")
     }
 
+    pub fn get_tab(&self, idx: usize) -> Option<Rc<Tab>> {
+        if let Some(tab) = self.tabs.borrow().get(idx) {
+            return Some(tab.clone());
+        }
+
+        None
+    }
+
     pub fn selected_tab_id(&self) -> Option<u32> {
         self.notebook.current_page()
+    }
+
+    pub fn active_tab_track(&self) -> Option<(u32, Rc<Tab>, u32)> {
+        for (idx, tab) in self.tabs.borrow().iter().enumerate() {
+            if let Some(index) = tab.active_track() {
+                return Some((idx as u32, tab.clone(), index));
+            }
+        }
+
+        None
     }
 }

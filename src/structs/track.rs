@@ -3,7 +3,7 @@ use gstreamer::State;
 
 #[derive(Debug)]
 pub struct Track {
-    state: RefCell<State>,
+    state: RefCell<Option<State>>,
     filepath: String,
     filename: String,
     album: Option<String>,
@@ -33,7 +33,7 @@ impl Clone for Track {
 impl Track {
     pub fn new(filename: &str, filepath: &str, album: Option<&str>, title: Option<&str>, artist: Option<&str>, year: Option<u32>, duration: Option<u64>) -> Track {
         Self {
-            state: RefCell::new(State::Null),
+            state: RefCell::new(None),
             filepath: filepath.to_string(),
             filename: filename.to_string(),
             album: album.map(|s| s.to_string()),
@@ -75,15 +75,15 @@ impl Track {
         &self.filepath
     }
 
-    pub fn set_state(&self, state: &State) {
-        self.state.replace(state.clone());
+    pub fn set_state(&self, state: Option<State>) {
+        self.state.replace(state);
     }
 
     pub fn set_queue_pos(&mut self, position: String) {
         self.queue_position.replace(position);
     }
 
-    pub fn state(&self) -> State {
+    pub fn state(&self) -> Option<State> {
         self.state.borrow().clone()
     }
 }

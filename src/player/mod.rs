@@ -128,10 +128,10 @@ impl BeatPlayer {
     }
 
     fn __on_error(&self) {
-        println!("error");
+        self.next();
     }
 
     fn __on_eos(&self) {
-        println!("error");
+        self.next();
     }
 }

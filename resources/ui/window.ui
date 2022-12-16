@@ -49,7 +49,7 @@
           </object>
         </child>
         <child type="end">
-          <object class="GtkToggleButton" id="_button_shuffle">
+          <object class="GtkToggleButton" id="button_shuffle">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
             <property name="has-frame">0</property>
@@ -61,7 +61,7 @@
           </object>
         </child>
         <child type="end">
-          <object class="GtkToggleButton" id="_button_repeat">
+          <object class="GtkToggleButton" id="button_repeat">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
             <property name="has-frame">0</property>

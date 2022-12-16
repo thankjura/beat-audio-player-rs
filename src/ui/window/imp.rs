@@ -35,6 +35,12 @@ pub struct BeatWindowImp {
 
     #[template_child(id = "spectrum")]
     pub spectrum: TemplateChild<BeatSpectrum>,
+
+    #[template_child(id = "button_shuffle")]
+    pub button_shuffle: TemplateChild<gtk::ToggleButton>,
+
+    #[template_child(id = "button_repeat")]
+    pub button_repeat: TemplateChild<gtk::ToggleButton>,
 }
 
 #[glib::object_subclass]

@@ -20,7 +20,6 @@ impl BeatPlayerImp {
                 MessageView::StateChanged(value) => {
                     if let Some(src) = msg.src() {
                         if src != pipeline.upgrade().unwrap() {
-                            //return glib::Continue(true);
                             return;
                         }
                     }
@@ -32,17 +31,14 @@ impl BeatPlayerImp {
                         let pipeline = pipeline.upgrade().unwrap();
                         if src == pipeline {
                             obj.__on_stream_start();
-                            //sender_ref.send(BusMsg::StreamStart);
                         }
                     }
                 },
                 MessageView::Error(_error) => {
                     obj.__on_error();
-                    //sender_ref.send(BusMsg::Error);
                 },
                 MessageView::Eos(_eos) => {
                     obj.__on_eos();
-                    //sender_ref.send(BusMsg::Eos);
                 },
                 _ => (),
             }

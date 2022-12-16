@@ -71,4 +71,8 @@ impl Tab {
         self.label.set_label("new");
         self.playlist.store().borrow().clear();
     }
+
+    pub fn active_track(&self) -> Option<u32> {
+        self.playlist.store().active_track()
+    }
 }

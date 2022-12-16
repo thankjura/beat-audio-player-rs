@@ -65,7 +65,6 @@ impl PlayList {
             }
         }
         container.append(&view);
-        //scrollbox.set_child(Some(&view));
 
         view.connect_activate(move |view, row_index| {
             if let Some(notebook) = view.ancestor(BeatNotebook::static_type()) {

@@ -12,6 +12,16 @@ pub struct PlayListStore {
     selector: gtk::MultiSelection,
 }
 
+fn get_track(store: &gio::ListStore, index: u32) -> Option<Track> {
+    if let Some(item) = store.item(index) {
+        let entry = item.downcast::<BoxedAnyObject>().unwrap();
+        let r: Ref<Track> = entry.borrow();
+        return Some(r.clone());
+    }
+
+    None
+}
+
 impl PlayListStore {
     pub fn new() -> Self {
         let store = gio::ListStore::new(glib::BoxedAnyObject::static_type());
@@ -32,30 +42,40 @@ impl PlayListStore {
     }
 
     pub fn get_track(&self, index: u32) -> Option<Track> {
-        if let Some(item) = self.selector.model().unwrap().item(index) {
-            let entry = item.downcast::<BoxedAnyObject>().unwrap();
-            let r: Ref<Track> = entry.borrow();
-            return Some(r.clone());
-        }
-
-        None
+        get_track(&self.store, index)
     }
 
     pub fn has_tracks(&self) -> bool {
-        self.selector.n_items() > 0
+        self.store.n_items() > 0
+    }
+
+    pub fn active_track(&self) -> Option<u32> {
+        for i in 0..self.store.n_items() {
+            if let Some(track) = get_track(&self.store, i) {
+                if track.state().is_some() {
+                    return Some(i);
+                }
+            }
+        }
+
+        None
     }
 
     pub fn clear(&self) {
         self.store.remove_all();
     }
 
-    pub fn set_track_state(&self, index: u32, state: &State) {
+    pub fn set_track_state(&self, index: u32, state: Option<State>) {
         if let Some(item) = self.selector.model().unwrap().item(index) {
             let entry = item.downcast::<BoxedAnyObject>().unwrap();
             let r: Ref<Track> = entry.borrow();
             r.set_state(state);
             self.store.items_changed(index, 0, 0);
         }
+    }
+
+    pub fn size(&self) -> u32 {
+        self.store.n_items()
     }
 }
 

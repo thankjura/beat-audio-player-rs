@@ -13,6 +13,8 @@ enum Msg {
     StateChanged(Option<(u32, u32, String)>, State),
     ProgressChanged(u64, f64),
     TrackCleared(u32, u32),
+    RequestNext,
+    RequestPrev,
 }
 
 pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
@@ -99,6 +101,18 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
         None
     });
 
+    let sender_ref = sender.clone();
+    player.connect("query-next", true, move |_values| {
+        sender_ref.send(Msg::RequestNext).unwrap();
+        None
+    });
+
+    let sender_ref = sender.clone();
+    player.connect("query-prev", true, move |_values| {
+        sender_ref.send(Msg::RequestPrev).unwrap();
+        None
+    });
+
     let spectrum =  window.imp().spectrum.imp().downgrade();
     player.imp().connect_spectrum(move |value| {
         let spectrum = spectrum.upgrade().unwrap();
@@ -114,16 +128,17 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
                 window.imp().update_duration(duration);
             }
             Msg::StateChanged(track_ref, state) => {
+                window.imp().set_playing_icon(State::Playing == state);
+                window.imp().spectrum.imp().clear();
+
                 if let Some((tab_idx, track_idx, track_path)) = track_ref {
-                    window.imp().notebook.get().set_track_state(tab_idx, track_idx, &state);
                     if State::Playing == state {
                         if let Some(path) = meta::get_album_picture_path(&track_path) {
                             window.imp().set_cover(Some(path));
                         }
                     }
+                    window.imp().notebook.get().set_track_state(tab_idx, track_idx, Some(state));
                 }
-                window.imp().set_playing_icon(State::Playing == state);
-                window.imp().spectrum.imp().clear();
             }
             Msg::ProgressChanged(position, progress) => {
                 let progress_element = &window.imp().progress;
@@ -132,7 +147,13 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
                 progress_element.unblock_signal(&handler_id);
             }
             Msg::TrackCleared(tab_idx, track_idx) => {
-                window.imp().notebook.get().set_track_state(tab_idx, track_idx, &State::Null);
+                window.imp().notebook.get().set_track_state(tab_idx, track_idx, None);
+            }
+            Msg::RequestNext => {
+                window.imp().notebook.get().activate_next();
+            }
+            Msg::RequestPrev => {
+                window.imp().notebook.get().activate_prev();
             }
         }
         glib::Continue(true)

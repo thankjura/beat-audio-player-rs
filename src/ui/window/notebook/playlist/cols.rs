@@ -24,20 +24,22 @@ pub fn make_icon_column(_key: &str, name: &str) -> (SignalListItemFactory, Colum
         let child = item.child().unwrap().downcast::<gtk::Image>().unwrap();
         let entry = item.item().unwrap().downcast::<BoxedAnyObject>().unwrap();
         let r: Ref<Track> = entry.borrow();
-        match r.state() {
-            State::Playing => {
-                child.set_resource(Some("/ru/slie/beat/icons/play.svg"));
+        if let Some(state) = r.state() {
+            match state {
+                State::Playing => {
+                    child.set_resource(Some("/ru/slie/beat/icons/play.svg"));
+                }
+                State::Paused => {
+                    child.set_resource(Some("/ru/slie/beat/icons/pause.svg"));
+                }
+                _ => {
+                    child.set_resource(Some("/ru/slie/beat/icons/active.svg"));
+                }
             }
-            State::Paused => {
-                child.set_resource(Some("/ru/slie/beat/icons/pause.svg"));
-            }
-            State::Ready => {
-                child.set_resource(Some("/ru/slie/beat/icons/active.svg"));
-            }
-            _ => {
-                child.set_resource(None);
-            }
+        } else {
+            child.set_resource(None);
         }
+
     });
 
     (col_factory, col)

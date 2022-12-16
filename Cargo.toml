@@ -11,6 +11,7 @@ gstreamer-player = { version = "^0.19.2", features = ["v1_20"] }
 gtk = { version = "^0.5.4", package = "gtk4", features = ["v4_8"] }
 lofty = "^0.9.0"
 md5 = "0.7.0"
+rand = "0.8.5"
 
 
 [dependencies.uuid]
