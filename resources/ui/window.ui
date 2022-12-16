@@ -11,6 +11,7 @@
           <object class="GtkButton">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
+            <property name="has-frame">0</property>
             <signal name="clicked" handler="on_open_files" swapped="yes"/>
             <child>
               <object class="GtkImage">
@@ -51,6 +52,7 @@
           <object class="GtkToggleButton" id="_button_shuffle">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
+            <property name="has-frame">0</property>
             <child>
               <object class="GtkImage">
                 <property name="icon-name">media-playlist-shuffle-symbolic</property>
@@ -62,6 +64,7 @@
           <object class="GtkToggleButton" id="_button_repeat">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
+            <property name="has-frame">0</property>
             <child>
               <object class="GtkImage" id="_button_repeat_img">
                 <property name="icon-name">media-playlist-repeat-symbolic</property>
@@ -73,6 +76,7 @@
           <object class="GtkButton" id="_button_add_files">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
+            <property name="has-frame">0</property>
             <signal name="clicked" handler="on_add_files" swapped="yes"/>
             <child>
               <object class="GtkImage">
@@ -85,6 +89,7 @@
           <object class="GtkButton" id="_button_stop">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
+            <property name="has-frame">0</property>
             <signal name="clicked" handler="on_stop" swapped="yes"/>
             <child>
               <object class="GtkImage">
@@ -97,6 +102,7 @@
           <object class="GtkButton" id="_button_play">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
+            <property name="has-frame">0</property>
             <signal name="clicked" handler="on_play" swapped="yes"/>
             <child>
               <object class="GtkImage" id="button_play_img">
@@ -109,6 +115,7 @@
           <object class="GtkButton" id="_button_prev">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
+            <property name="has-frame">0</property>
             <signal name="clicked" handler="on_prev" swapped="yes"/>
             <child>
               <object class="GtkImage">
@@ -121,6 +128,7 @@
           <object class="GtkButton" id="_button_next">
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
+            <property name="has-frame">0</property>
             <signal name="clicked" handler="on_next" swapped="yes"/>
             <child>
               <object class="GtkImage">
