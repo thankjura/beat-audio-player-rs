@@ -11,6 +11,7 @@ pub struct Track {
     artist: Option<String>,
     year: Option<String>,
     duration: Option<u64>,
+    queue_position: Option<String>,
 }
 
 impl Clone for Track {
@@ -23,7 +24,8 @@ impl Clone for Track {
             title: self.title.clone(),
             artist: self.artist.clone(),
             year: self.year.clone(),
-            duration: self.duration.clone()
+            duration: self.duration.clone(),
+            queue_position: None
         }
     }
 }
@@ -39,6 +41,7 @@ impl Track {
             artist: artist.map(|s| s.to_string()),
             year: year.map(|y| y.to_string()),
             duration,
+            queue_position: None
         }
     }
 
@@ -59,6 +62,9 @@ impl Track {
             "artist" => {
                 self.artist.as_deref()
             },
+            "position" => {
+                self.queue_position.as_deref()
+            },
             _ => {
                 None
             }
@@ -71,6 +77,10 @@ impl Track {
 
     pub fn set_state(&self, state: &State) {
         self.state.replace(state.clone());
+    }
+
+    pub fn set_queue_pos(&mut self, position: String) {
+        self.queue_position.replace(position);
     }
 
     pub fn state(&self) -> State {

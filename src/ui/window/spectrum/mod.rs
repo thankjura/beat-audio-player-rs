@@ -1,4 +1,3 @@
-mod col;
 mod imp;
 mod spectrum;
 
