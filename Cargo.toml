@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+adw = { version = "0.2.1", package = "libadwaita" }
 gettext-rs = { version = "^0.7.0", features = ["gettext-system"] }
 gstreamer = { version = "^0.19.2", features = ["v1_20"] }
 gstreamer-player = { version = "^0.19.2", features = ["v1_20"] }

@@ -7,7 +7,7 @@ use gtk::subclass::prelude::*;
 
 glib::wrapper! {
     pub struct BeatApp(ObjectSubclass<imp::BeatAppImp>)
-        @extends gio::Application, gtk::Application,
+        @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionGroup, gio::ActionMap, gio::ApplicationCommandLine;
 }
 

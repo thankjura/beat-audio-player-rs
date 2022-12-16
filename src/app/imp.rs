@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use std::sync::Arc;
+use adw::subclass::prelude::AdwApplicationImpl;
 use gettextrs::gettext;
 use gtk::glib;
 use gtk::prelude::*;
@@ -27,7 +28,7 @@ impl Default for BeatAppImp {
 impl ObjectSubclass for BeatAppImp {
     const NAME: &'static str = "BeatApp";
     type Type = super::BeatApp;
-    type ParentType = gtk::Application;
+    type ParentType = adw::Application;
 }
 
 impl ObjectImpl for BeatAppImp {}
@@ -57,3 +58,7 @@ impl ApplicationImpl for BeatAppImp {
 }
 
 impl GtkApplicationImpl for BeatAppImp {}
+
+impl AdwApplicationImpl for BeatAppImp {
+
+}
