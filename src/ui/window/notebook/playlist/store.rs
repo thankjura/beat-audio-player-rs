@@ -12,7 +12,7 @@ pub struct PlayListStore {
     selector: gtk::MultiSelection,
 }
 
-fn get_track(store: &gio::ListStore, index: u32) -> Option<Track> {
+pub fn get_track(store: &gio::ListStore, index: u32) -> Option<Track> {
     if let Some(item) = store.item(index) {
         let entry = item.downcast::<BoxedAnyObject>().unwrap();
         let r: Ref<Track> = entry.borrow();
@@ -37,12 +37,20 @@ impl PlayListStore {
         &self.selector
     }
 
+    pub fn store(&self) -> &gio::ListStore {
+        &self.store
+    }
+
     pub fn add_track(&self, track: Track) {
         self.store.append(&glib::BoxedAnyObject::new(track));
     }
 
     pub fn get_track(&self, index: u32) -> Option<Track> {
         get_track(&self.store, index)
+    }
+
+    pub fn rm_track(&self, index: u32) {
+        self.store.remove(index);
     }
 
     pub fn has_tracks(&self) -> bool {
@@ -70,6 +78,15 @@ impl PlayListStore {
             let entry = item.downcast::<BoxedAnyObject>().unwrap();
             let r: Ref<Track> = entry.borrow();
             r.set_state(state);
+            self.store.items_changed(index, 0, 0);
+        }
+    }
+
+    pub fn set_track_position(&self, index: u32, position: u32) {
+        if let Some(item) = self.selector.model().unwrap().item(index) {
+            let entry = item.downcast::<BoxedAnyObject>().unwrap();
+            let r: Ref<Track> = entry.borrow();
+            r.set_queue_pos(position);
             self.store.items_changed(index, 0, 0);
         }
     }

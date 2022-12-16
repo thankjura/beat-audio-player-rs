@@ -14,14 +14,20 @@ impl BeatPlayerImp {
         if let Some(_track_ref) = self.current_track() {
             self.__toggle_play();
         } else {
-            println!("Implement me: play");
+            self.next();
         }
     }
 
     pub fn next(&self) {
-        let mut queue = self.queue.lock().unwrap();
-        if let Some(t) = queue.pop_front() {
-            self.play_ref(t.tab_idx, t.track_idx, t.filepath);
+        let mut guard = self.queue.lock().unwrap();
+        if let Some(track) = guard.pop_front() {
+            self.obj().emit_by_name::<()>("queue-changed", &[&track.tab_idx, &track.track_idx, &0u32]);
+            self.play_ref(track.tab_idx, track.track_idx, track.filepath);
+
+            for (index, track) in guard.iter().enumerate() {
+                let position = index as u32 + 1;
+                self.obj().emit_by_name::<()>("queue-changed", &[&track.tab_idx, &track.track_idx, &position]);
+            }
         } else {
             self.obj().emit_by_name::<()>("query-next", &[]);
         }

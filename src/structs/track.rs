@@ -11,7 +11,7 @@ pub struct Track {
     artist: Option<String>,
     year: Option<String>,
     duration: Option<u64>,
-    queue_position: Option<String>,
+    queue_position: RefCell<Option<String>>,
 }
 
 impl Clone for Track {
@@ -25,7 +25,7 @@ impl Clone for Track {
             artist: self.artist.clone(),
             year: self.year.clone(),
             duration: self.duration.clone(),
-            queue_position: None
+            queue_position: self.queue_position.clone(),
         }
     }
 }
@@ -41,7 +41,7 @@ impl Track {
             artist: artist.map(|s| s.to_string()),
             year: year.map(|y| y.to_string()),
             duration,
-            queue_position: None
+            queue_position: RefCell::new(None)
         }
     }
 
@@ -62,9 +62,6 @@ impl Track {
             "artist" => {
                 self.artist.as_deref()
             },
-            "position" => {
-                self.queue_position.as_deref()
-            },
             _ => {
                 None
             }
@@ -79,8 +76,16 @@ impl Track {
         self.state.replace(state);
     }
 
-    pub fn set_queue_pos(&mut self, position: String) {
-        self.queue_position.replace(position);
+    pub fn set_queue_pos(&self, position: u32) {
+        if position > 0 {
+            self.queue_position.replace(Some(position.to_string()));
+        } else {
+            self.queue_position.replace(None);
+        }
+    }
+
+    pub fn queue_pos(&self) -> Option<String> {
+        self.queue_position.borrow().clone()
     }
 
     pub fn state(&self) -> Option<State> {

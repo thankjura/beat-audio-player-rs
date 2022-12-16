@@ -1,6 +1,6 @@
 use std::rc::Rc;
 use gtk::{gio, glib};
-use gtk::prelude::{ActionMapExt, Cast, StaticType, WidgetExt};
+use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use crate::ui::BeatNotebook;
 use crate::ui::window::notebook::tab::Tab;
@@ -14,6 +14,8 @@ impl BeatNotebookImp {
             self.notebook.set_show_tabs(false);
         }
     }
+
+
 
     pub fn add_tab(&self, name: &str) -> Rc<Tab> {
         let tab = Rc::new(Tab::new(name));
@@ -32,8 +34,10 @@ impl BeatNotebookImp {
 
                     let value = notebook.imp().tabs.borrow().iter().position(|item| Rc::ptr_eq(item, &tab));
                     if let Some(value) = value {
+                        let tab_idx = value as u32;
+                        notebook.emit_by_name::<()>("tab-removed", &[&tab_idx]);
                         if tabs_count > 1 {
-                            notebook.imp().notebook.remove_page(Some(u32::try_from(value).unwrap()));
+                            notebook.imp().notebook.remove_page(Some(tab_idx));
                             notebook.imp().tabs.borrow_mut().remove(value);
                         } else {
                             tab.clear_tab();
@@ -45,6 +49,7 @@ impl BeatNotebookImp {
         // End actions
 
         let idx = self.notebook.append_page(tab.scrollbox(), Some(tab.widget()));
+
         self.toggle_show_tabs();
         self.notebook.set_current_page(Some(idx));
         self.tabs.borrow_mut().push(tab.clone());

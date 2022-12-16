@@ -45,6 +45,33 @@ pub fn make_icon_column(_key: &str, name: &str) -> (SignalListItemFactory, Colum
     (col_factory, col)
 }
 
+pub fn make_position_column(_key: &str, name: &str) -> (SignalListItemFactory, ColumnViewColumn) {
+    let col_factory = gtk::SignalListItemFactory::new();
+    let col = gtk::ColumnViewColumn::new(Some(name), Some(&col_factory));
+    col.set_resizable(false);
+    col.set_expand(false);
+    col_factory.connect_setup(move |_factory, item| {
+        let item = item.downcast_ref::<gtk::ListItem>().unwrap();
+        let row = gtk::Inscription::new(None);
+        item.set_child(Some(&row));
+    });
+
+    col_factory.connect_bind(move |_factory, item| {
+        let item = item.downcast_ref::<gtk::ListItem>().unwrap();
+        let child = item.child().unwrap().downcast::<Inscription>().unwrap();
+        let entry = item.item().unwrap().downcast::<BoxedAnyObject>().unwrap();
+        let r: Ref<Track> = entry.borrow();
+        if let Some(value) = r.queue_pos() {
+            child.set_text(Some(&value));
+        } else {
+            child.set_text(None);
+        }
+
+    });
+
+    (col_factory, col)
+}
+
 pub fn make_text_column(key: &str, name: &str, resizable: bool, translate: bool) -> (gtk::SignalListItemFactory, gtk::ColumnViewColumn) {
     let col_factory = gtk::SignalListItemFactory::new();
     let col;

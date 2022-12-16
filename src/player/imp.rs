@@ -81,6 +81,7 @@ impl BeatPlayerImp {
     pub fn set_current_track(&self, track_ref: TrackRef) -> Option<TrackRef> {
         if let Some(old_ref) = self.current_track.lock().unwrap().replace(track_ref) {
             self.obj().emit_by_name::<()>("track-cleared", &[&old_ref.tab_idx, &old_ref.track_idx]);
+            self.obj().emit_by_name::<()>("queue-changed", &[&old_ref.tab_idx, &old_ref.track_idx, &0u32]);
             return Some(old_ref);
         }
         None

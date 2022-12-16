@@ -39,6 +39,13 @@ impl BeatNotebook {
     }
 
 
+    pub fn set_track_position(&self, tab_idx: u32, track_idx: u32, position: u32) {
+        let tab_idx = usize::try_from(tab_idx).unwrap();
+        if let Some(tab) = self.imp().tabs.borrow().get(tab_idx) {
+            return tab.playlist().store().set_track_position(track_idx, position);
+        }
+    }
+
     pub fn activate_next(&self) {
         let win = self.ancestor(BeatWindow::static_type()).unwrap();
         let win = win.downcast_ref::<BeatWindow>().unwrap();

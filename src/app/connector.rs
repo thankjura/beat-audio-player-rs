@@ -15,6 +15,7 @@ enum Msg {
     TrackCleared(u32, u32),
     RequestNext,
     RequestPrev,
+    QueueChanged(u32, u32, u32),
 }
 
 pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
@@ -55,6 +56,33 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
                 Action::PREV => { player.prev(); }
             }
         }
+        None
+    });
+
+    let player_weak = player.downgrade();
+    window.imp().notebook.connect("tab-removed", false, move |values| {
+        let player = player_weak.upgrade().unwrap();
+        let tab_idx = values[1].get::<u32>().unwrap();
+        player.rm_tab_from_queue(tab_idx);
+        None
+    });
+
+    let player_weak = player.downgrade();
+    window.imp().notebook.connect("queue-add", false, move |values| {
+        let player = player_weak.upgrade().unwrap();
+        let tab_idx = values[1].get::<u32>().unwrap();
+        let track_idx = values[2].get::<u32>().unwrap();
+        let track_path = values[3].get::<String>().unwrap();
+        player.add_to_queue(tab_idx, track_idx, track_path);
+        None
+    });
+
+    let player_weak = player.downgrade();
+    window.imp().notebook.connect("queue-rm", false, move |values| {
+        let player = player_weak.upgrade().unwrap();
+        let tab_idx = values[1].get::<u32>().unwrap();
+        let track_idx = values[2].get::<u32>().unwrap();
+        player.rm_from_queue(tab_idx, track_idx);
         None
     });
 
@@ -113,6 +141,16 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
         None
     });
 
+
+    let sender_ref = sender.clone();
+    player.connect("queue-changed", true, move |values| {
+        let tab_idx = values[1].get::<u32>().unwrap();
+        let track_idx = values[2].get::<u32>().unwrap();
+        let position = values[3].get::<u32>().unwrap();
+        sender_ref.send(Msg::QueueChanged(tab_idx, track_idx, position)).unwrap();
+        None
+    });
+
     let spectrum =  window.imp().spectrum.imp().downgrade();
     player.imp().connect_spectrum(move |value| {
         let spectrum = spectrum.upgrade().unwrap();
@@ -154,6 +192,9 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
             }
             Msg::RequestPrev => {
                 window.imp().notebook.get().activate_prev();
+            }
+            Msg::QueueChanged(tab_idx, track_idx, position) => {
+                window.imp().notebook.get().set_track_position(tab_idx, track_idx, position);
             }
         }
         glib::Continue(true)

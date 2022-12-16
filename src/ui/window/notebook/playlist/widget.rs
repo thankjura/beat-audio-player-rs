@@ -4,15 +4,16 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use crate::BeatWindow;
 use crate::ui::BeatNotebook;
-use crate::ui::window::notebook::playlist::cols::{make_icon_column, make_text_column};
+use crate::ui::window::notebook::playlist::cols::{make_icon_column, make_position_column, make_text_column};
 use crate::ui::window::notebook::playlist::{ColType, PLAY_LIST_COLS};
-use crate::ui::window::notebook::playlist::store::PlayListStore;
+use crate::ui::window::notebook::playlist::store::{get_track, PlayListStore};
 
-#[derive(Debug, Default)]
+#[derive(Debug)]
 pub struct PlayList {
     _uuid: String,
     scrollbox: gtk::ScrolledWindow,
     store: PlayListStore,
+    view: ColumnView,
 }
 
 fn get_clicked_row(view: &ColumnView, x: f64, y: f64) -> Option<u32> {
@@ -50,6 +51,7 @@ impl PlayList {
         view.set_show_row_separators(true);
         view.set_show_column_separators(true);
         view.set_enable_rubberband(true);
+        view.set_vexpand(true);
 
         for col in PLAY_LIST_COLS {
             match col.col_type {
@@ -62,6 +64,10 @@ impl PlayList {
                     view.append_column(&column);
                 }
                 ColType::Duration => {}
+                ColType::Position => {
+                    let (_factory, column) = make_position_column(&col.key, &col.label);
+                    view.append_column(&column);
+                }
             }
         }
         container.append(&view);
@@ -95,6 +101,8 @@ impl PlayList {
 
         let clear_selection_box = gtk::GestureClick::builder().button(BUTTON_PRIMARY).build();
         let view_ref = view.downgrade();
+        let store_ref  = store.store().downgrade();
+
         clear_selection_box.connect_pressed(move |_event, n_press, x, y| {
             if n_press != 1 {
                 return ();
@@ -116,16 +124,14 @@ impl PlayList {
 
         container.append(&menu);
 
-        let add_to_queue = gio::MenuItem::new(Some("Add to queue"), None);
-        let rm_from_queue = gio::MenuItem::new(Some("Remove from queue"), None);
-        let rm_from_playlist = gio::MenuItem::new(Some("Remove from playlist"), None);
+        let add_to_queue = gio::MenuItem::new(Some("Add to queue"), Some("playlist.queue-add"));
+        let rm_from_queue = gio::MenuItem::new(Some("Remove from queue"), Some("playlist.queue-rm"));
+        let rm_from_playlist = gio::MenuItem::new(Some("Remove from playlist"), Some("playlist.playlist-add"));
 
         context_menu_box.connect_pressed(move |_event, n_press, x, y| {
             if n_press != 1 {
                 return ();
             }
-
-            let mut in_queue = true;
 
             let view = view_ref.upgrade().unwrap();
             let selection = view.model().unwrap().selection();
@@ -135,13 +141,37 @@ impl PlayList {
                 }
             }
 
-            if !view.model().unwrap().selection().is_empty() {
+            let selection = view.model().unwrap().selection();
+            if !selection.is_empty() {
+                let mut show_remove = false;
+                let mut show_add = false;
+
+                let store = &store_ref.upgrade().unwrap();
+                for i in 0..selection.size() {
+                    let position = selection.nth(i as u32);
+                    if let Some(item) = get_track(store, position) {
+                        if item.queue_pos().is_some() {
+                            show_remove = true;
+                        } else {
+                            show_add = true;
+                        }
+
+                        if show_add && show_remove {
+                            break;
+                        }
+                    }
+                }
+
                 let menu_data = gio::Menu::new();
-                if in_queue {
+
+                if show_remove {
                     menu_data.append_item(&rm_from_queue);
-                } else {
+                }
+
+                if show_add {
                     menu_data.append_item(&add_to_queue);
                 }
+
                 menu_data.append_item(&rm_from_playlist);
                 let model = gio::MenuModel::from(menu_data);
                 menu.set_menu_model(Some(&model));
@@ -152,11 +182,82 @@ impl PlayList {
 
         view.add_controller(&context_menu_box);
 
+
+
+        // Actions
+        let action_group = gio::SimpleActionGroup::new();
+
+        let add_to_queue = gio::SimpleAction::new("queue-add", None);
+        let rm_from_queue = gio::SimpleAction::new("queue-rm", None);
+        let rm_from_playlist = gio::SimpleAction::new("playlist-rm", None);
+
+        action_group.add_action(&add_to_queue);
+        action_group.add_action(&rm_from_queue);
+        action_group.add_action(&rm_from_playlist);
+        container.insert_action_group("playlist", Some(&action_group));
+
+        let view_ref = view.downgrade();
+
+        add_to_queue.connect_activate(move |_action, _value| {
+            let view = view_ref.upgrade().unwrap();
+            let notebook = view.ancestor(BeatNotebook::static_type()).unwrap();
+            let notebook = notebook.downcast_ref::<BeatNotebook>().unwrap();
+            let tab_idx = notebook.imp().selected_tab_id().unwrap();
+            let tab = notebook.imp().selected_tab();
+
+            let selection = tab.playlist().view.model().unwrap().selection();
+            let select_count = selection.size() as u32;
+            for i in 0..select_count {
+                let index = selection.nth(i);
+                if let Some(track) = tab.playlist().store().get_track(index) {
+                    notebook.emit_by_name::<()>("queue-add", &[&tab_idx, &index, &track.filepath()]);
+                }
+            }
+        });
+
+        let view_ref = view.downgrade();
+
+        rm_from_queue.connect_activate(move |_action, _value| {
+            let view = view_ref.upgrade().unwrap();
+            let notebook = view.ancestor(BeatNotebook::static_type()).unwrap();
+            let notebook = notebook.downcast_ref::<BeatNotebook>().unwrap();
+            let tab_idx = notebook.imp().selected_tab_id().unwrap();
+            let tab = notebook.imp().selected_tab();
+
+            let selection = tab.playlist().view.model().unwrap().selection();
+            let select_count = selection.size() as u32;
+            for i in 0..select_count {
+                let index = selection.nth(i);
+                notebook.emit_by_name::<()>("queue-rm", &[&tab_idx, &index]);
+            }
+        });
+
+        let view_ref = view.downgrade();
+
+        rm_from_playlist.connect_activate(move |_action, _value| {
+            let view = view_ref.upgrade().unwrap();
+            let notebook = view.ancestor(BeatNotebook::static_type()).unwrap();
+            let notebook = notebook.downcast_ref::<BeatNotebook>().unwrap();
+            let tab_idx = notebook.imp().selected_tab_id().unwrap();
+            let tab = notebook.imp().selected_tab();
+
+            let selection = tab.playlist().view.model().unwrap().selection();
+            let select_count = selection.size() as u32;
+            for i in 0..select_count {
+                let index = selection.nth(i);
+                tab.playlist().store.rm_track(index);
+                notebook.emit_by_name::<()>("queue-rm", &[&tab_idx, &index]);
+            }
+        });
+        // End actions
+
+
+
         Self {
             _uuid: uuid,
             scrollbox,
-            //view,
             store,
+            view,
         }
     }
 

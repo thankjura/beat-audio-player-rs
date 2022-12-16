@@ -28,17 +28,27 @@ impl ObjectSubclass for BeatNotebookImp {
 impl ObjectImpl for BeatNotebookImp {
     fn signals() -> &'static [Signal] {
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
-            vec![Signal::builder("track-activated")
-                .param_types([u32::static_type(), u32::static_type(), Type::STRING])
-                .build()]
+            vec![
+                Signal::builder("track-activated")
+                    .param_types([u32::static_type(), u32::static_type(), Type::STRING])
+                    .build(),
+                Signal::builder("tab-removed")
+                    .param_types([u32::static_type()])
+                    .build(),
+                Signal::builder("queue-add")
+                    .param_types([u32::static_type(), u32::static_type(), Type::STRING])
+                    .build(),
+                Signal::builder("queue-rm")
+                    .param_types([u32::static_type(), u32::static_type()])
+                    .build(),
+            ]
         });
 
-        //let a = u32::value_type();
+
         SIGNALS.as_ref()
     }
 
     fn constructed(&self) {
-        // Call "constructed" on parent
         self.parent_constructed();
         let obj = self.obj();
         self.notebook.set_parent(&*obj);

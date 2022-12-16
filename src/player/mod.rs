@@ -46,20 +46,36 @@ impl BeatPlayer {
         self.imp().prev();
     }
 
+    fn get_track_queue_position(&self, tab_idx: u32, track_idx: u32) -> Option<usize> {
+        let guard = self.imp().queue.lock().unwrap();
+        let cur_position = guard.iter().position(|t| {
+            t.tab_idx == tab_idx && t.track_idx == track_idx
+        });
+
+        cur_position
+    }
+
     pub fn add_to_queue(&self, tab_idx: u32, track_idx: u32, filepath: String) {
-        self.imp().queue.lock().unwrap().push_back(TrackRef { tab_idx, track_idx, filepath });
+        //self.imp().queue.lock().unwrap().push_back(TrackRef { tab_idx, track_idx, filepath });
+        if let None = self.get_track_queue_position(tab_idx, track_idx) {
+            let mut guard = self.imp().queue.lock().unwrap();
+            guard.push_back(TrackRef { tab_idx, track_idx, filepath });
+            let position = guard.len() as u32;
+            self.emit_by_name::<()>("queue-changed", &[&tab_idx, &track_idx, &position]);
+        }
     }
 
     pub fn rm_from_queue(&self, tab_idx: u32, track_idx: u32) {
-        let mut queue = self.imp().queue.lock().unwrap();
-        if let Some(index) = queue.iter().position(|t| {
-            t.tab_idx == tab_idx && t.track_idx == track_idx
-        }) {
-            queue.remove(index);
-            if queue.len() > index {
+        if let Some(position) = self.get_track_queue_position(tab_idx, track_idx) {
+            let mut queue = self.imp().queue.lock().unwrap();
+            queue.remove(position);
+
+            self.emit_by_name::<()>("queue-changed", &[&tab_idx, &track_idx, &0u32]);
+
+            if queue.len() > position {
                 for (i, t) in queue.iter().enumerate() {
-                    if i >= index {
-                        let position = i as u32;
+                    if i >= position {
+                        let position = i as u32 + 1;
                         self.emit_by_name::<()>("queue-changed", &[&t.tab_idx, &t.track_idx, &position]);
                     }
                 }
