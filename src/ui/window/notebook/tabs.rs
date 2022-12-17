@@ -2,7 +2,7 @@ use std::rc::Rc;
 use gtk::{gio, glib};
 use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
-use uuid::{uuid, Uuid};
+use uuid::Uuid;
 use crate::ui::BeatNotebook;
 use crate::ui::window::notebook::tab::Tab;
 use crate::ui::window::notebook::imp::BeatNotebookImp;

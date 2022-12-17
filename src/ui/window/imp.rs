@@ -78,6 +78,7 @@ impl ObjectImpl for BeatWindowImp {
     fn constructed(&self) {
         self.parent_constructed();
         self.set_cover(None);
+        // self.obj().set_hide_on_close(true);
     }
 }
 

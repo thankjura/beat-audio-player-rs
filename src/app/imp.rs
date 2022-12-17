@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::rc::Rc;
 use std::sync::Arc;
 use adw::subclass::prelude::AdwApplicationImpl;
 use gettextrs::gettext;
@@ -12,7 +13,7 @@ use crate::utils::settings::BeatSettings;
 
 
 pub struct BeatAppImp {
-    pub window: RefCell<Option<BeatWindow>>,
+    pub window: RefCell<Option<Rc<BeatWindow>>>,
     pub player: RefCell<Option<Arc<BeatPlayer>>>,
     pub settings: RefCell<Option<BeatSettings>>,
 }
@@ -62,6 +63,8 @@ impl ApplicationImpl for BeatAppImp {
                 tab.add_track(track);
             }
         }
+
+        let window = Rc::new(window);
 
         self.window.replace(Some(window));
         self.player.replace(Some(player.clone()));

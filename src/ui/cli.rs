@@ -6,9 +6,11 @@ use crate::BeatApp;
 use crate::gio::subclass::prelude::ObjectSubclassIsExt;
 
 pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> i32 {
-    if !app.has_window() {
+    if let Some(win) = app.get_window() {
+        win.present();
+    } else {
         app.activate();
-    };
+    }
 
     let options = command_line.options_dict();
     let mut append = false;
@@ -44,6 +46,5 @@ pub fn make_cli(app: &BeatApp) {
     );
 
     app.set_option_context_parameter_string(Some("files"));
-
     app.connect_command_line(on_command_line);
 }

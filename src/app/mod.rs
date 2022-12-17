@@ -1,8 +1,10 @@
 mod imp;
 mod connector;
 
+use std::rc::Rc;
 use gtk::{gio, glib};
 use gtk::subclass::prelude::*;
+use crate::BeatWindow;
 
 
 glib::wrapper! {
@@ -27,5 +29,14 @@ impl BeatApp {
         };
 
         false
+    }
+
+    pub fn get_window(&self) -> Option<Rc<BeatWindow>> {
+        let obj = self.imp();
+        if let Some(win) = obj.window.borrow_mut().as_ref().clone() {
+            return Some(win.clone());
+        }
+
+        None
     }
 }
