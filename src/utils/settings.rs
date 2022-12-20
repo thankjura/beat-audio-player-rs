@@ -1,10 +1,10 @@
-use std::{path::PathBuf, fs, io};
+use std::{path::PathBuf, fs};
 use std::fs::File;
-use std::io::BufRead;
 use gtk::glib;
 use configparser::ini::Ini;
 use lazy_static::lazy_static;
 use regex::Regex;
+use serde;
 
 use crate::structs::track::Track;
 
@@ -25,6 +25,15 @@ pub struct TabData {
     pub label: String,
     position: u32,
     pub selected: bool,
+}
+
+#[derive(Default, Debug, serde::Deserialize, serde::Serialize)]
+struct PlRow {
+    src: String,
+    artist: Option<String>,
+    album: Option<String>,
+    title: Option<String>,
+    length: Option<String>,
 }
 
 impl BeatSettings {
@@ -48,6 +57,52 @@ impl BeatSettings {
         self.config.write(&self.path).expect("Can't save configuration");
     }
 
+    pub fn drop_playlist(&mut self, uuid: &str) {
+        if let Some(section) = self.config.remove_section(uuid) {
+            if let Some(Some(filename)) = section.get("file") {
+                let path = PathBuf::from(filename);
+                if path.is_file() {
+                    if let Err(_) = fs::remove_file(path) {
+                        println!("Can't remove playlist file");
+                    }
+                }
+            }
+        }
+
+        self.save();
+    }
+
+    pub fn save_playlist(&mut self, uuid: &str, name: &str, tracks: Vec<Track>) {
+        self.config.set(uuid, "label", Some(name.to_string()));
+        let mut filename = self.config.get(uuid, "file");
+        if filename.is_none() {
+            filename.replace(uuid.to_string() + ".csv");
+            self.config.set(uuid, "file", filename.clone());
+        }
+        self.save();
+
+        let mut filename = PathBuf::from(filename.unwrap());
+        if !filename.is_absolute() {
+            filename = self.config_dir.join(filename);
+        }
+
+        if let Ok(file) = fs::OpenOptions::new().write(true).truncate(true).create(true).open(filename) {
+            let mut writer = csv::Writer::from_writer(file);
+            for track in tracks {
+                writer.serialize(PlRow {
+                    src: track.filepath().to_string(),
+                    artist: track.get_by_name("artist").map(|s| s.to_string()),
+                    album: track.get_by_name("album").map(|s| s.to_string()),
+                    title: track.get_by_name("title").map(|s| s.to_string()),
+                    length: track.get_by_name("length").map(|s| s.to_string()),
+                }).unwrap();
+            }
+        } else {
+            println!("Can't save playlist");
+        }
+
+    }
+
     pub fn playlists(&mut self) -> Vec<TabData> {
         let mut out = vec![];
         let mut need_save = false;
@@ -56,12 +111,11 @@ impl BeatSettings {
 
         for section in self.config.sections().iter() {
             if REGEXP.is_match(section) {
-                let mut section_map = self.config.get_map_ref()[section].clone();
+                let section_map = self.config.get_map_ref()[section].clone();
 
                 if let Some(Some(playlist_path)) = &section_map.get("file").clone() {
                     let playlist_path = PathBuf::from(self.config_dir.join(playlist_path));
-                    if let Ok(file) = File::open(&playlist_path) {
-                        let lines = io::BufReader::new(file).lines();
+                    if let Ok(_file) = File::open(&playlist_path) {
                         let mut tracks = vec![];
                         let position;
                         let label;
@@ -83,17 +137,18 @@ impl BeatSettings {
 
 
                         if let Ok(mut reader) = csv::Reader::from_path(&playlist_path) {
-                            for r in reader.records() {
+                            for r in reader.deserialize::<PlRow>() {
                                 if let Ok(r) = r {
-                                    let path = PathBuf::from(r.get(0).unwrap());
+                                    let r: PlRow = r;
+                                    let path = PathBuf::from(r.src);
                                     tracks.push(Track::new(
                                         path.file_name().unwrap().to_str().unwrap(),
                                         path.to_str().unwrap(),
-                                        r.get(2),
-                                        r.get(3),
-                                        r.get(1),
+                                        r.album.as_ref().map(|s| &**s ),
+                                        r.title.as_ref().map(|s| &**s ),
+                                        r.artist.as_ref().map(|s| &**s ),
                                         None,
-                                        r.get(4),
+                                        r.length.as_ref().map(|s| &**s ),
                                     ));
                                 }
                             }
@@ -107,6 +162,7 @@ impl BeatSettings {
                                 position,
                                 selected: &selected_tab == section
                             });
+                            continue;
                         }
                     }
                 }

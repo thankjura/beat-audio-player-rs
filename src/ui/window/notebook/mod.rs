@@ -22,6 +22,24 @@ impl BeatNotebook {
         glib::Object::new(&[("application", app)])
     }
 
+    pub fn tab_name(&self, tab_idx: u32) -> Option<String> {
+        let tab_idx = usize::try_from(tab_idx).unwrap();
+
+        if let Some(tab) = self.imp().tabs.borrow().get(tab_idx) {
+            return Some(tab.label.label().as_str().to_string());
+        }
+
+        None
+    }
+
+    pub fn get_tracks(&self, tab_idx: u32) -> Vec<Track> {
+        let tab_idx = usize::try_from(tab_idx).unwrap();
+        if let Some(tab) = self.imp().tabs.borrow().get(tab_idx) {
+            return tab.playlist().store().get_tracks();
+        }
+        vec![]
+    }
+
     pub fn get_track(&self, tab_idx: u32, track_idx: u32) -> Option<Track> {
         let tab_idx = usize::try_from(tab_idx).unwrap();
         if let Some(tab) = self.imp().tabs.borrow().get(tab_idx) {

@@ -1,4 +1,4 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use gstreamer::State;
 use gtk::glib;
 use gtk::prelude::RangeExt;
@@ -7,6 +7,7 @@ use crate::gio::subclass::prelude::*;
 use crate::player::BeatPlayer;
 use crate::structs::action::Action;
 use crate::utils::meta;
+use crate::utils::settings::BeatSettings;
 
 enum Msg {
     DurationChanged(u64),
@@ -16,9 +17,10 @@ enum Msg {
     RequestNext,
     RequestPrev,
     QueueChanged(u32, u32, u32),
+    TabChanged(u32, String),
 }
 
-pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
+pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mutex<BeatSettings>>) {
     let player_weak = player.downgrade();
 
     window.imp().notebook.get().connect("track-activated", false, move |values| {
@@ -60,10 +62,14 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
     });
 
     let player_weak = player.downgrade();
+    let settings_ref = Arc::clone(settings);
     window.imp().notebook.connect("tab-removed", false, move |values| {
         let player = player_weak.upgrade().unwrap();
+        let mut settings = settings_ref.lock().unwrap();
         let tab_idx = values[1].get::<u32>().unwrap();
+        let tab_uuid = values[2].get::<String>().unwrap();
         player.rm_tab_from_queue(tab_idx);
+        settings.drop_playlist(&tab_uuid);
         None
     });
 
@@ -87,6 +93,14 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
     });
 
     let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+
+    let sender_ref = sender.clone();
+    window.imp().notebook.connect("tab-changed", false, move |values| {
+        let tab_idx = values[1].get::<u32>().unwrap();
+        let tab_uuid = values[2].get::<String>().unwrap();
+        sender_ref.send(Msg::TabChanged(tab_idx, tab_uuid)).unwrap();
+        None
+    });
 
     let sender_ref = sender.clone();
     player.connect("duration-changed", true, move |values| {
@@ -158,6 +172,7 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
     });
 
     let window_ref = window.downgrade();
+    let settings_ref = Arc::clone(settings);
 
     receiver.attach(None, move |msg| {
         let window = window_ref.upgrade().unwrap();
@@ -195,6 +210,15 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>) {
             }
             Msg::QueueChanged(tab_idx, track_idx, position) => {
                 window.imp().notebook.get().set_track_position(tab_idx, track_idx, position);
+            }
+            Msg::TabChanged(tab_idx, tab_uuid) => {
+                let mut settings = settings_ref.lock().unwrap();
+                let tracks = window.imp().notebook.get().get_tracks(tab_idx);
+                let mut tab_name = window.imp().notebook.get().tab_name(tab_idx);
+                if tab_name.is_none() {
+                    tab_name.replace("unknown".to_string());
+                }
+                settings.save_playlist(&tab_uuid, &tab_name.unwrap(), tracks)
             }
         }
         glib::Continue(true)

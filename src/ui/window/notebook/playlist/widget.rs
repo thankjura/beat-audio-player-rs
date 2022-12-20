@@ -10,7 +10,7 @@ use crate::ui::window::notebook::playlist::store::{get_track, PlayListStore};
 
 #[derive(Debug)]
 pub struct PlayList {
-    _uuid: String,
+    uuid: String,
     scrollbox: gtk::ScrolledWindow,
     store: PlayListStore,
     view: ColumnView,
@@ -125,7 +125,7 @@ impl PlayList {
 
         let add_to_queue = gio::MenuItem::new(Some("Add to queue"), Some("playlist.queue-add"));
         let rm_from_queue = gio::MenuItem::new(Some("Remove from queue"), Some("playlist.queue-rm"));
-        let rm_from_playlist = gio::MenuItem::new(Some("Remove from playlist"), Some("playlist.playlist-add"));
+        let rm_from_playlist = gio::MenuItem::new(Some("Remove from playlist"), Some("playlist.playlist-rm"));
 
         context_menu_box.connect_pressed(move |_event, n_press, x, y| {
             if n_press != 1 {
@@ -229,6 +229,7 @@ impl PlayList {
                 let index = selection.nth(i);
                 notebook.emit_by_name::<()>("queue-rm", &[&tab_idx, &index]);
             }
+            notebook.emit_by_name::<()>("tab-changed", &[&tab.uuid()]);
         });
 
         let view_ref = view.downgrade();
@@ -247,13 +248,15 @@ impl PlayList {
                 tab.playlist().store.rm_track(index);
                 notebook.emit_by_name::<()>("queue-rm", &[&tab_idx, &index]);
             }
+
+            notebook.emit_by_name::<()>("tab-changed", &[&tab_idx, &tab.uuid()]);
         });
         // End actions
 
 
 
         Self {
-            _uuid: uuid,
+            uuid,
             scrollbox,
             store,
             view,
@@ -266,5 +269,9 @@ impl PlayList {
 
     pub fn store(&self) -> &PlayListStore {
         &self.store
+    }
+
+    pub fn uuid(&self) -> &str {
+        &self.uuid
     }
 }

@@ -33,7 +33,10 @@ impl ObjectImpl for BeatNotebookImp {
                     .param_types([u32::static_type(), u32::static_type(), Type::STRING])
                     .build(),
                 Signal::builder("tab-removed")
-                    .param_types([u32::static_type()])
+                    .param_types([u32::static_type(), Type::STRING])
+                    .build(),
+                Signal::builder("tab-changed")
+                    .param_types([u32::static_type(), Type::STRING])
                     .build(),
                 Signal::builder("queue-add")
                     .param_types([u32::static_type(), u32::static_type(), Type::STRING])

@@ -1,4 +1,5 @@
 use gettextrs::gettext;
+use gtk::prelude::ObjectExt;
 use crate::gio::subclass::prelude::*;
 use crate::ui::window::imp::BeatWindowImp;
 use crate::utils::meta;
@@ -16,5 +17,9 @@ impl BeatWindowImp {
                 tab.add_track(track);
             }
         }
+
+        let page = self.notebook.imp().notebook.page(tab.playlist().scrollbox());
+        let position = page.position().abs() as u32;
+        self.notebook.emit_by_name::<()>("tab-changed", &[&position, &tab.uuid()]);
     }
 }

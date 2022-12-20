@@ -6,7 +6,7 @@ use crate::ui::window::notebook::playlist::{PlayList, Track};
 #[derive(Debug)]
 pub struct Tab {
     widget: gtk::Box,
-    label: gtk::Label,
+    pub label: gtk::Label,
     playlist: PlayList,
 }
 
@@ -74,5 +74,9 @@ impl Tab {
 
     pub fn active_track(&self) -> Option<u32> {
         self.playlist.store().active_track()
+    }
+
+    pub fn uuid(&self) -> &str {
+        self.playlist.uuid()
     }
 }

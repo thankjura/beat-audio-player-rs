@@ -1,6 +1,6 @@
 use std::cell::RefCell;
 use std::rc::Rc;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use adw::subclass::prelude::AdwApplicationImpl;
 use gettextrs::gettext;
 use gtk::glib;
@@ -15,7 +15,7 @@ use crate::utils::settings::BeatSettings;
 pub struct BeatAppImp {
     pub window: RefCell<Option<Rc<BeatWindow>>>,
     pub player: RefCell<Option<Arc<BeatPlayer>>>,
-    pub settings: RefCell<Option<BeatSettings>>,
+    pub settings: RefCell<Option<Arc<Mutex<BeatSettings>>>>,
 }
 
 impl Default for BeatAppImp {
@@ -54,9 +54,6 @@ impl ApplicationImpl for BeatAppImp {
 
         let mut settings = BeatSettings::load();
 
-        connector::connect(&window, &player);
-        window.present();
-
         for playlist in settings.playlists() {
             let tab = window.imp().notebook.get().imp().add_tab_wth_uuid(&playlist.label, &playlist.uuid);
             for track in playlist.rows {
@@ -64,11 +61,17 @@ impl ApplicationImpl for BeatAppImp {
             }
         }
 
+        let settings = Arc::new(Mutex::new(settings));
+
+        connector::connect(&window, &player, &settings);
+
         let window = Rc::new(window);
 
-        self.window.replace(Some(window));
+        self.window.replace(Some(window.clone()));
         self.player.replace(Some(player.clone()));
         self.settings.replace(Some(settings));
+
+        window.present();
     }
 }
 

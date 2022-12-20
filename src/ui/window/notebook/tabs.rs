@@ -34,7 +34,7 @@ impl BeatNotebookImp {
                     let value = notebook.imp().tabs.borrow().iter().position(|item| Rc::ptr_eq(item, &tab));
                     if let Some(value) = value {
                         let tab_idx = value as u32;
-                        notebook.emit_by_name::<()>("tab-removed", &[&tab_idx]);
+                        notebook.emit_by_name::<()>("tab-removed", &[&tab_idx, &tab.uuid()]);
                         if tabs_count > 1 {
                             notebook.imp().notebook.remove_page(Some(tab_idx));
                             notebook.imp().tabs.borrow_mut().remove(value);

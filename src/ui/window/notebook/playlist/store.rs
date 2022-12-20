@@ -49,6 +49,19 @@ impl PlayListStore {
         get_track(&self.store, index)
     }
 
+    pub fn get_tracks(&self) -> Vec<Track> {
+        let mut out = vec![];
+
+        for i in 0..self.store.n_items() {
+            if let Some(track) = get_track(&self.store, i) {
+                out.push(track);
+            }
+        }
+
+        out
+    }
+
+
     pub fn rm_track(&self, index: u32) {
         self.store.remove(index);
     }
