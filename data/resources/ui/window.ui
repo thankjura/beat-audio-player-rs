@@ -53,6 +53,7 @@
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
             <property name="has-frame">0</property>
+            <property name="tooltip-text">Shuffle</property>
             <child>
               <object class="GtkImage">
                 <property name="icon-name">media-playlist-shuffle-symbolic</property>
@@ -65,6 +66,7 @@
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
             <property name="has-frame">0</property>
+            <property name="tooltip-text">Repeat</property>
             <child>
               <object class="GtkImage" id="_button_repeat_img">
                 <property name="icon-name">media-playlist-repeat-symbolic</property>
@@ -90,6 +92,7 @@
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
             <property name="has-frame">0</property>
+            <property name="tooltip-text">Stop</property>
             <signal name="clicked" handler="on_stop" swapped="yes"/>
             <child>
               <object class="GtkImage">
@@ -103,6 +106,7 @@
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
             <property name="has-frame">0</property>
+            <property name="tooltip-text">Toggle play</property>
             <signal name="clicked" handler="on_play" swapped="yes"/>
             <child>
               <object class="GtkImage" id="button_play_img">
@@ -116,6 +120,7 @@
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
             <property name="has-frame">0</property>
+            <property name="tooltip-text">Previous</property>
             <signal name="clicked" handler="on_prev" swapped="yes"/>
             <child>
               <object class="GtkImage">
@@ -129,6 +134,7 @@
             <property name="focusable">1</property>
             <property name="receives-default">1</property>
             <property name="has-frame">0</property>
+            <property name="tooltip-text">Next</property>
             <signal name="clicked" handler="on_next" swapped="yes"/>
             <child>
               <object class="GtkImage">

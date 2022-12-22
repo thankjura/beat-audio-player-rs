@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: beat\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-22 21:40+0300\n"
+"POT-Creation-Date: 2022-12-22 23:55+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -57,6 +57,30 @@ msgstr ""
 msgid "Can't create cover cache"
 msgstr ""
 
+#: src/ui/window/notebook/playlist/widget.rs:127
+msgid "Add to queue"
+msgstr ""
+
+#: src/ui/window/notebook/playlist/widget.rs:128
+msgid "Remove from queue"
+msgstr ""
+
+#: src/ui/window/notebook/playlist/widget.rs:129
+msgid "Remove from playlist"
+msgstr ""
+
+#: src/ui/window/notebook/tab/widget.rs:27
+msgid "Rename"
+msgstr ""
+
+#: src/ui/window/notebook/tab/widget.rs:28
+msgid "Close"
+msgstr ""
+
+#: src/ui/window/notebook/tab/widget.rs:72 src/ui/window/files.rs:12
+msgid "new"
+msgstr ""
+
 #: src/ui/window/header.rs:13
 msgid "Choose audio files or folder"
 msgstr ""
@@ -67,10 +91,6 @@ msgstr ""
 
 #: src/ui/window/header.rs:18
 msgid "Cancel"
-msgstr ""
-
-#: src/ui/window/files.rs:12
-msgid "new"
 msgstr ""
 
 #: src/ui/cli.rs:44

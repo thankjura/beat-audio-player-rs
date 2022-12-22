@@ -1,6 +1,6 @@
 data/ru.slie.beat.desktop.in
 data/ru.slie.beat.appdata.xml.in
-data/ru.slie.beat.gschema.xml
+data/ru.slie.beat.gschema.xml.in
 
 # UI files
 data/resources/ui/window.ui
@@ -8,6 +8,8 @@ data/resources/ui/window.ui
 # Rust files
 src/utils/meta.rs
 src/ui/window/notebook/playlist/cols.rs
+src/ui/window/notebook/playlist/widget.rs
+src/ui/window/notebook/tab/widget.rs
 src/ui/window/header.rs
 src/ui/window/files.rs
 src/ui/cli.rs

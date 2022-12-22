@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: beat\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-12-22 21:40+0300\n"
-"PO-Revision-Date: 2022-12-22 21:41+0300\n"
+"POT-Creation-Date: 2022-12-22 23:55+0300\n"
+"PO-Revision-Date: 2022-12-22 23:55+0300\n"
 "Last-Translator: Юрий <me@slie.ru>\n"
 "Language-Team: none\n"
 "Language: ru\n"
@@ -59,6 +59,30 @@ msgstr "Простой аудиоплеер для среды Гном"
 msgid "Can't create cover cache"
 msgstr "Не удалось создать кеш обложки"
 
+#: src/ui/window/notebook/playlist/widget.rs:127
+msgid "Add to queue"
+msgstr "Добавить в очередь"
+
+#: src/ui/window/notebook/playlist/widget.rs:128
+msgid "Remove from queue"
+msgstr "Удалить из очереди"
+
+#: src/ui/window/notebook/playlist/widget.rs:129
+msgid "Remove from playlist"
+msgstr "Удалить из плейлиста"
+
+#: src/ui/window/notebook/tab/widget.rs:27
+msgid "Rename"
+msgstr "Переименовать"
+
+#: src/ui/window/notebook/tab/widget.rs:28
+msgid "Close"
+msgstr "Закрыть"
+
+#: src/ui/window/notebook/tab/widget.rs:72 src/ui/window/files.rs:12
+msgid "new"
+msgstr "новая"
+
 #: src/ui/window/header.rs:13
 msgid "Choose audio files or folder"
 msgstr "Выберите папку или файлы"
@@ -70,10 +94,6 @@ msgstr "Открыть"
 #: src/ui/window/header.rs:18
 msgid "Cancel"
 msgstr "Отменить"
-
-#: src/ui/window/files.rs:12
-msgid "new"
-msgstr "новая"
 
 #: src/ui/cli.rs:44
 msgid "Append to current playlist instead of create new"
