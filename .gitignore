@@ -1,3 +1,6 @@
 .idea
 /target
 .vscode
+src/config.rs
+po/*.mo
+build

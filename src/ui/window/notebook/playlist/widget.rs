@@ -1,3 +1,4 @@
+use gettextrs::gettext;
 use gtk::gdk::{BUTTON_PRIMARY, BUTTON_SECONDARY};
 use gtk::{ColumnView, gdk, gio, ListView, Orientation, PickFlags};
 use gtk::prelude::*;
@@ -123,9 +124,9 @@ impl PlayList {
 
         container.append(&menu);
 
-        let add_to_queue = gio::MenuItem::new(Some("Add to queue"), Some("playlist.queue-add"));
-        let rm_from_queue = gio::MenuItem::new(Some("Remove from queue"), Some("playlist.queue-rm"));
-        let rm_from_playlist = gio::MenuItem::new(Some("Remove from playlist"), Some("playlist.playlist-rm"));
+        let add_to_queue = gio::MenuItem::new(Some(&gettext("Add to queue")), Some("playlist.queue-add"));
+        let rm_from_queue = gio::MenuItem::new(Some(&gettext("Remove from queue")), Some("playlist.queue-rm"));
+        let rm_from_playlist = gio::MenuItem::new(Some(&gettext("Remove from playlist")), Some("playlist.playlist-rm"));
 
         context_menu_box.connect_pressed(move |_event, n_press, x, y| {
             if n_press != 1 {

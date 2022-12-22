@@ -1,4 +1,5 @@
 use std::borrow::Borrow;
+use gettextrs::gettext;
 use gtk::prelude::*;
 use gtk::{gdk, gio, glib, ScrolledWindow};
 use crate::ui::window::notebook::playlist::{PlayList, Track};
@@ -23,8 +24,8 @@ impl Tab {
         widget.append(&label);
 
         let menu_data = gio::Menu::new();
-        let menu_item_rename = gio::MenuItem::new(Some("Rename"), None);
-        let menu_item_close = gio::MenuItem::new(Some("Close"), Some("tab.close"));
+        let menu_item_rename = gio::MenuItem::new(Some(&gettext("Rename")), None);
+        let menu_item_close = gio::MenuItem::new(Some(&gettext("Close")), Some("tab.close"));
         menu_data.append_item(&menu_item_rename);
         menu_data.append_item(&menu_item_close);
         let menu_model = gio::MenuModel::from(menu_data);
@@ -68,7 +69,7 @@ impl Tab {
     }
 
     pub fn clear_tab(&self) {
-        self.label.set_label("new");
+        self.label.set_label(&gettext("new"));
         self.playlist.store().borrow().clear();
     }
 
