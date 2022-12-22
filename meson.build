@@ -1,13 +1,15 @@
 project('beat', 'rust', 
-          version: '0.1.0',
+          version: '0.0.1',
     meson_version: '>= 0.59.0',
   default_options: [ 'warning_level=2', 'werror=false', ],
 )
 
 i18n = import('i18n')
 gnome = import('gnome')
-
-
+application_id = 'ru.slie.beat'
+gettext_package = meson.project_name()
+prefix = get_option('prefix')
+datadir = prefix / get_option('datadir')
 
 subdir('data')
 subdir('src')
