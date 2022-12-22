@@ -76,9 +76,9 @@ pub fn make_text_column(key: &str, name: &str, resizable: bool, translate: bool)
     let col_factory = gtk::SignalListItemFactory::new();
     let col;
     if translate {
-        col = gtk::ColumnViewColumn::new(Some(&gettext(name)), Some(&col_factory));
+        col = ColumnViewColumn::new(Some(&gettext(name)), Some(&col_factory));
     } else {
-        col = gtk::ColumnViewColumn::new(Some(name), Some(&col_factory));
+        col = ColumnViewColumn::new(Some(name), Some(&col_factory));
     }
     col.set_resizable(resizable);
     col.set_expand(true);
@@ -95,8 +95,12 @@ pub fn make_text_column(key: &str, name: &str, resizable: bool, translate: bool)
         let child = item.child().unwrap().downcast::<Inscription>().unwrap();
         let entry = item.item().unwrap().downcast::<BoxedAnyObject>().unwrap();
         let r: Ref<Track> = entry.borrow();
-        let value = r.get_by_name(&field);
-        child.set_text(value);
+        if field == "duration" {
+            child.set_text(r.duration().as_deref());
+        } else {
+            let value = r.get_by_name(&field);
+            child.set_text(value);
+        }
     });
 
     (col_factory, col)

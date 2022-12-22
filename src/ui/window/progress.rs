@@ -12,8 +12,9 @@ impl BeatWindowImp {
             self.clear_duration();
         }
     }
-    pub fn update_duration(&self, duration: u64) {
+    pub fn update_duration(&self, tab_idx: u32, track_idx: u32, duration: u64) {
         self.duration_label.get().set_label(&time_str(duration));
+        self.notebook.set_track_duration(tab_idx, track_idx, duration);
     }
 
     pub fn clear_duration(&self) {

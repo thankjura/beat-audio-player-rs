@@ -1,5 +1,6 @@
 use std::cell::RefCell;
 use gstreamer::State;
+use crate::utils::format::time_str;
 
 #[derive(Debug)]
 pub struct Track {
@@ -10,7 +11,7 @@ pub struct Track {
     title: Option<String>,
     artist: Option<String>,
     year: Option<String>,
-    duration_str: Option<String>,
+    duration_str: RefCell<Option<String>>,
     queue_position: RefCell<Option<String>>,
 }
 
@@ -40,7 +41,7 @@ impl Track {
             title: title.map(|s| s.to_string()),
             artist: artist.map(|s| s.to_string()),
             year: year.map(|y| y.to_string()),
-            duration_str: duration_str.map(|s| s.to_string()),
+            duration_str: RefCell::new(duration_str.map(|s| s.to_string())),
             queue_position: RefCell::new(None)
         }
     }
@@ -62,9 +63,6 @@ impl Track {
             "artist" => {
                 self.artist.as_deref()
             },
-            "duration" => {
-                self.duration_str.as_deref()
-            },
             _ => {
                 None
             }
@@ -77,6 +75,14 @@ impl Track {
 
     pub fn set_state(&self, state: Option<State>) {
         self.state.replace(state);
+    }
+
+    pub fn set_duration(&self, duration: u64) {
+        self.duration_str.replace(Some(time_str(duration)));
+    }
+
+    pub fn duration(&self) -> Option<String> {
+        self.duration_str.borrow().clone()
     }
 
     pub fn set_queue_pos(&self, position: u32) {

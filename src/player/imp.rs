@@ -120,7 +120,7 @@ impl ObjectImpl for BeatPlayerImp {
                 Signal::builder("progress-changed")
                     .param_types([u64::static_type(), f64::static_type()]).build(),
                 Signal::builder("duration-changed")
-                    .param_types([u64::static_type()]).build(),
+                    .param_types([u32::static_type(), u32::static_type(), u64::static_type()]).build(),
                 Signal::builder("track-cleared")
                     .param_types([u32::static_type(), u32::static_type()]).build(),
                 Signal::builder("queue-changed")

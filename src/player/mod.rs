@@ -129,8 +129,10 @@ impl BeatPlayer {
     }
 
     fn __on_stream_start(&self) {
-        if let Some(duration) = self.imp().__get_duration() {
-            self.emit_by_name::<()>("duration-changed", &[&duration]);
+        if let Some(track_ref) = self.imp().current_track() {
+            if let Some(duration) = self.imp().__get_duration() {
+                self.emit_by_name::<()>("duration-changed", &[&track_ref.tab_idx, &track_ref.track_idx, &duration]);
+            }
         }
     }
 

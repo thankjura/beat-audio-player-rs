@@ -95,6 +95,15 @@ impl PlayListStore {
         }
     }
 
+    pub fn set_track_duration(&self, index: u32, duration: u64) {
+        if let Some(item) = self.selector.model().unwrap().item(index) {
+            let entry = item.downcast::<BoxedAnyObject>().unwrap();
+            let r: Ref<Track> = entry.borrow();
+            r.set_duration(duration);
+            self.store.items_changed(index, 0, 0);
+        }
+    }
+
     pub fn set_track_position(&self, index: u32, position: u32) {
         if let Some(item) = self.selector.model().unwrap().item(index) {
             let entry = item.downcast::<BoxedAnyObject>().unwrap();

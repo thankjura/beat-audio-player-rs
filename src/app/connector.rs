@@ -10,7 +10,7 @@ use crate::utils::meta;
 use crate::utils::settings::BeatSettings;
 
 enum Msg {
-    DurationChanged(u64),
+    DurationChanged(u32, u32, u64),
     StateChanged(Option<(u32, u32, String)>, State),
     ProgressChanged(u64, f64),
     TrackCleared(u32, u32),
@@ -104,8 +104,10 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
 
     let sender_ref = sender.clone();
     player.connect("duration-changed", true, move |values| {
-        let duration = values[1].get::<u64>().unwrap();
-        sender_ref.send(Msg::DurationChanged(duration)).unwrap();
+        let tab_idx = values[1].get::<u32>().unwrap();
+        let track_idx = values[2].get::<u32>().unwrap();
+        let duration = values[3].get::<u64>().unwrap();
+        sender_ref.send(Msg::DurationChanged(tab_idx, track_idx, duration)).unwrap();
         None
     });
 
@@ -177,8 +179,8 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
     receiver.attach(None, move |msg| {
         let window = window_ref.upgrade().unwrap();
         match msg {
-            Msg::DurationChanged(duration) => {
-                window.imp().update_duration(duration);
+            Msg::DurationChanged(tab_idx, track_idx, duration) => {
+                window.imp().update_duration(tab_idx, track_idx, duration);
             }
             Msg::StateChanged(track_ref, state) => {
                 window.imp().set_playing_icon(State::Playing == state);

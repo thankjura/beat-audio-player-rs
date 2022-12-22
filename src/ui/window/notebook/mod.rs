@@ -56,6 +56,12 @@ impl BeatNotebook {
         }
     }
 
+    pub fn set_track_duration(&self, tab_idx: u32, track_idx: u32, duration: u64) {
+        let tab_idx = usize::try_from(tab_idx).unwrap();
+        if let Some(tab) = self.imp().tabs.borrow().get(tab_idx) {
+            return tab.playlist().store().set_track_duration(track_idx, duration);
+        }
+    }
 
     pub fn set_track_position(&self, tab_idx: u32, track_idx: u32, position: u32) {
         let tab_idx = usize::try_from(tab_idx).unwrap();
