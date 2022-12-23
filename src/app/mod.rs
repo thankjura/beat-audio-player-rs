@@ -1,18 +1,16 @@
-mod imp;
 mod connector;
+mod imp;
 
-use std::rc::Rc;
-use gtk::{gio, glib};
-use gtk::subclass::prelude::*;
 use crate::BeatWindow;
-
+use gtk::subclass::prelude::*;
+use gtk::{gio, glib};
+use std::rc::Rc;
 
 glib::wrapper! {
     pub struct BeatApp(ObjectSubclass<imp::BeatAppImp>)
         @extends gio::Application, gtk::Application, adw::Application,
         @implements gio::ActionGroup, gio::ActionMap, gio::ApplicationCommandLine;
 }
-
 
 impl BeatApp {
     pub fn new(app_id: &str) -> Self {

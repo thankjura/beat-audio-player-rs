@@ -1,9 +1,9 @@
+use crate::structs::action::Action;
+use crate::ui::window::imp::BeatWindowImp;
 use gettextrs::gettext;
 use gtk::gio;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use crate::structs::action::Action;
-use crate::ui::window::imp::BeatWindowImp;
 
 impl BeatWindowImp {
     fn choose_files(&self, _keep_tab: bool) {
@@ -15,7 +15,7 @@ impl BeatWindowImp {
             gtk::FileChooserAction::Open,
             &[
                 (&gettext("Open"), gtk::ResponseType::Ok),
-                (&gettext("Cancel"), gtk::ResponseType::Cancel)
+                (&gettext("Cancel"), gtk::ResponseType::Cancel),
             ],
         );
 
@@ -34,7 +34,7 @@ impl BeatWindowImp {
                 let mut files = vec![];
 
                 for file in d.files().iter::<gio::File>().unwrap() {
-                    if let Ok(file)  = file {
+                    if let Ok(file) = file {
                         files.push(file.path().unwrap().to_str().unwrap().to_string());
                     }
                 }
@@ -49,9 +49,13 @@ impl BeatWindowImp {
 
     pub fn set_playing_icon(&self, value: bool) {
         if value {
-            self.button_play_img.get().set_from_icon_name(Some("media-playback-pause-symbolic"))
+            self.button_play_img
+                .get()
+                .set_from_icon_name(Some("media-playback-pause-symbolic"))
         } else {
-            self.button_play_img.get().set_from_icon_name(Some("media-playback-start-symbolic"));
+            self.button_play_img
+                .get()
+                .set_from_icon_name(Some("media-playback-start-symbolic"));
         }
     }
 }
@@ -65,7 +69,8 @@ impl BeatWindowImp {
 
     #[template_callback]
     fn on_volume_changed(&self, value: f64) {
-        self.instance().emit_by_name::<()>("volume-changed", &[&value]);
+        self.instance()
+            .emit_by_name::<()>("volume-changed", &[&value]);
     }
 
     #[template_callback]
@@ -75,21 +80,25 @@ impl BeatWindowImp {
 
     #[template_callback]
     fn on_stop(&self, _button: &gtk::Button) {
-        self.instance().emit_by_name::<()>("action", &[&Action::STOP.get_value()]);
+        self.instance()
+            .emit_by_name::<()>("action", &[&Action::STOP.get_value()]);
     }
 
     #[template_callback]
     fn on_play(&self, _button: &gtk::Button) {
-        self.instance().emit_by_name::<()>("action", &[&Action::PLAY.get_value()]);
+        self.instance()
+            .emit_by_name::<()>("action", &[&Action::PLAY.get_value()]);
     }
 
     #[template_callback]
     fn on_prev(&self, _button: &gtk::Button) {
-        self.instance().emit_by_name::<()>("action", &[&Action::PREV.get_value()]);
+        self.instance()
+            .emit_by_name::<()>("action", &[&Action::PREV.get_value()]);
     }
 
     #[template_callback]
     fn on_next(&self, _button: &gtk::Button) {
-        self.instance().emit_by_name::<()>("action", &[&Action::NEXT.get_value()]);
+        self.instance()
+            .emit_by_name::<()>("action", &[&Action::NEXT.get_value()]);
     }
 }

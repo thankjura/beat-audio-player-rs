@@ -1,10 +1,10 @@
+use crate::ui::window::notebook::BeatNotebook;
+use crate::ui::window::spectrum::BeatSpectrum;
+use gtk::glib::once_cell::sync::Lazy;
+use gtk::glib::subclass::Signal;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
-use gtk::glib::once_cell::sync::Lazy;
-use gtk::glib::subclass::Signal;
-use crate::ui::window::notebook::BeatNotebook;
-use crate::ui::window::spectrum::BeatSpectrum;
 
 #[derive(Default, CompositeTemplate)]
 #[template(resource = "/ru/slie/beat/ui/window.ui")]
@@ -64,11 +64,14 @@ impl ObjectImpl for BeatWindowImp {
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
             vec![
                 Signal::builder("action")
-                    .param_types([u8::static_type()]).build(),
+                    .param_types([u8::static_type()])
+                    .build(),
                 Signal::builder("volume-changed")
-                    .param_types([f64::static_type()]).build(),
+                    .param_types([f64::static_type()])
+                    .build(),
                 Signal::builder("open-path")
-                    .param_types([Vec::<String>::static_type()]).build(),
+                    .param_types([Vec::<String>::static_type()])
+                    .build(),
             ]
         });
 

@@ -1,9 +1,9 @@
-use gtk::glib;
-use gtk::gio::ApplicationCommandLine;
-use gtk::prelude::*;
-use gettextrs::gettext;
-use crate::BeatApp;
 use crate::gio::subclass::prelude::ObjectSubclassIsExt;
+use crate::BeatApp;
+use gettextrs::gettext;
+use gtk::gio::ApplicationCommandLine;
+use gtk::glib;
+use gtk::prelude::*;
 
 pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> i32 {
     if let Some(win) = app.get_window() {
@@ -29,7 +29,13 @@ pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> 
                 paths.push(p.to_string());
             }
         }
-        app.imp().window.borrow().as_ref().unwrap().imp().open_path(paths, append);
+        app.imp()
+            .window
+            .borrow()
+            .as_ref()
+            .unwrap()
+            .imp()
+            .open_path(paths, append);
     }
 
     0
@@ -42,7 +48,7 @@ pub fn make_cli(app: &BeatApp) {
         glib::OptionFlags::NONE,
         glib::OptionArg::None,
         &gettext("Append to current playlist instead of create new"),
-        None
+        None,
     );
 
     app.set_option_context_parameter_string(Some("files"));

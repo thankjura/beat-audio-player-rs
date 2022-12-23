@@ -1,16 +1,16 @@
-mod tab;
 mod imp;
-mod tabs;
 mod playlist;
+mod tab;
+mod tabs;
 
-use rand::Rng;
+use crate::structs::track::Track;
+use crate::BeatWindow;
 use gstreamer::State;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
+use rand::Rng;
 pub use tab::Tab;
-use crate::BeatWindow;
-use crate::structs::track::Track;
 
 glib::wrapper! {
     pub struct BeatNotebook(ObjectSubclass<imp::BeatNotebookImp>)
@@ -59,14 +59,20 @@ impl BeatNotebook {
     pub fn set_track_duration(&self, tab_idx: u32, track_idx: u32, duration: u64) {
         let tab_idx = usize::try_from(tab_idx).unwrap();
         if let Some(tab) = self.imp().tabs.borrow().get(tab_idx) {
-            return tab.playlist().store().set_track_duration(track_idx, duration);
+            return tab
+                .playlist()
+                .store()
+                .set_track_duration(track_idx, duration);
         }
     }
 
     pub fn set_track_position(&self, tab_idx: u32, track_idx: u32, position: u32) {
         let tab_idx = usize::try_from(tab_idx).unwrap();
         if let Some(tab) = self.imp().tabs.borrow().get(tab_idx) {
-            return tab.playlist().store().set_track_position(track_idx, position);
+            return tab
+                .playlist()
+                .store()
+                .set_track_position(track_idx, position);
         }
     }
 
@@ -92,7 +98,10 @@ impl BeatNotebook {
 
             if let Some(next_index) = next_index {
                 if let Some(track) = tab.playlist().store().get_track(next_index) {
-                    self.emit_by_name::<()>("track-activated", &[&tab_idx, &next_index, &track.filepath()]);
+                    self.emit_by_name::<()>(
+                        "track-activated",
+                        &[&tab_idx, &next_index, &track.filepath()],
+                    );
                 }
             }
         }
@@ -103,7 +112,10 @@ impl BeatNotebook {
             if track_idx > 0 {
                 if let Some(track) = tab.playlist().store().get_track(track_idx - 1) {
                     let index = track_idx - 1;
-                    self.emit_by_name::<()>("track-activated", &[&tab_idx, &index, &track.filepath()]);
+                    self.emit_by_name::<()>(
+                        "track-activated",
+                        &[&tab_idx, &index, &track.filepath()],
+                    );
                 }
             }
         }

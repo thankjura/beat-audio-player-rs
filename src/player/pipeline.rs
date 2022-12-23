@@ -1,11 +1,11 @@
-use std::mem;
-use std::time::Duration;
+use crate::player::imp::BeatPlayerImp;
 use gstreamer::prelude::*;
 use gstreamer::State;
 use gstreamer_player::gst;
 use gtk::glib;
 use gtk::subclass::prelude::*;
-use crate::player::imp::BeatPlayerImp;
+use std::mem;
+use std::time::Duration;
 
 impl BeatPlayerImp {
     pub fn __set_uri(&self, uri: &str) {
@@ -36,8 +36,6 @@ impl BeatPlayerImp {
         self.__set_state(State::Paused);
     }
 
-
-
     pub fn __toggle_play(&self) {
         if let Some(State::Playing) = self.state() {
             self.__pause();
@@ -58,7 +56,7 @@ impl BeatPlayerImp {
         }
 
         let player_ref = self.downgrade();
-        let timer = glib::timeout_add_once(Duration::from_millis(300u64), move|| {
+        let timer = glib::timeout_add_once(Duration::from_millis(300u64), move || {
             let player = player_ref.upgrade().unwrap();
             let mut guard = player.seek_timeout.lock().unwrap();
             let value = mem::replace(&mut *guard, None);
@@ -72,10 +70,14 @@ impl BeatPlayerImp {
     pub fn __set_position_percent(&self, progress: f64) {
         if let Some(duration) = self.__get_duration() {
             let seek_value = ((duration as f64 / 100.0) * progress) as u64;
-            if let Err(_) = self.pipeline.seek_simple(gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,  seek_value * gst::ClockTime::SECOND) {
+            if let Err(_) = self.pipeline.seek_simple(
+                gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,
+                seek_value * gst::ClockTime::SECOND,
+            ) {
                 println!("Can't seek");
             } else {
-                self.obj().emit_by_name::<()>("progress-changed", &[&seek_value, &progress]);
+                self.obj()
+                    .emit_by_name::<()>("progress-changed", &[&seek_value, &progress]);
             }
         }
     }

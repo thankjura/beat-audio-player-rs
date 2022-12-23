@@ -1,13 +1,13 @@
-use std::sync::{Arc, Mutex};
-use gstreamer::State;
-use gtk::glib;
-use gtk::prelude::RangeExt;
-use crate::{BeatWindow, ObjectExt};
 use crate::gio::subclass::prelude::*;
 use crate::player::BeatPlayer;
 use crate::structs::action::Action;
 use crate::utils::meta;
 use crate::utils::settings::BeatSettings;
+use crate::{BeatWindow, ObjectExt};
+use gstreamer::State;
+use gtk::glib;
+use gtk::prelude::RangeExt;
+use std::sync::{Arc, Mutex};
 
 enum Msg {
     DurationChanged(u32, u32, u64),
@@ -23,14 +23,18 @@ enum Msg {
 pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mutex<BeatSettings>>) {
     let player_weak = player.downgrade();
 
-    window.imp().notebook.get().connect("track-activated", false, move |values| {
-        let tab_idx = values[1].get::<u32>().unwrap();
-        let track_idx = values[2].get::<u32>().unwrap();
-        let filepath = values[3].get::<String>().unwrap();
-        let player = player_weak.upgrade().unwrap();
-        player.play_ref(tab_idx, track_idx, filepath);
-        None
-    });
+    window
+        .imp()
+        .notebook
+        .get()
+        .connect("track-activated", false, move |values| {
+            let tab_idx = values[1].get::<u32>().unwrap();
+            let track_idx = values[2].get::<u32>().unwrap();
+            let filepath = values[3].get::<String>().unwrap();
+            let player = player_weak.upgrade().unwrap();
+            player.play_ref(tab_idx, track_idx, filepath);
+            None
+        });
 
     let player_weak = player.downgrade();
     window.connect("volume-changed", true, move |values| {
@@ -41,21 +45,33 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
     });
 
     let player_weak = player.downgrade();
-    let handler_id = window.imp().progress.get().connect_value_changed(move |el| {
-        let value = el.value();
-        let player = player_weak.upgrade().unwrap();
-        player.seek_position(value);
-    });
+    let handler_id = window
+        .imp()
+        .progress
+        .get()
+        .connect_value_changed(move |el| {
+            let value = el.value();
+            let player = player_weak.upgrade().unwrap();
+            player.seek_position(value);
+        });
 
     let player_weak = player.downgrade();
     window.connect("action", false, move |values| {
         let player = player_weak.upgrade().unwrap();
         if let Some(action) = Action::from_value(values[1].get::<u8>().unwrap()) {
             match action {
-                Action::PLAY => { player.toggle_play(); }
-                Action::STOP => { player.stop(); }
-                Action::NEXT => { player.next(); }
-                Action::PREV => { player.prev(); }
+                Action::PLAY => {
+                    player.toggle_play();
+                }
+                Action::STOP => {
+                    player.stop();
+                }
+                Action::NEXT => {
+                    player.next();
+                }
+                Action::PREV => {
+                    player.prev();
+                }
             }
         }
         None
@@ -63,51 +79,65 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
 
     let player_weak = player.downgrade();
     let settings_ref = Arc::clone(settings);
-    window.imp().notebook.connect("tab-removed", false, move |values| {
-        let player = player_weak.upgrade().unwrap();
-        let mut settings = settings_ref.lock().unwrap();
-        let tab_idx = values[1].get::<u32>().unwrap();
-        let tab_uuid = values[2].get::<String>().unwrap();
-        player.rm_tab_from_queue(tab_idx);
-        settings.drop_playlist(&tab_uuid);
-        None
-    });
+    window
+        .imp()
+        .notebook
+        .connect("tab-removed", false, move |values| {
+            let player = player_weak.upgrade().unwrap();
+            let mut settings = settings_ref.lock().unwrap();
+            let tab_idx = values[1].get::<u32>().unwrap();
+            let tab_uuid = values[2].get::<String>().unwrap();
+            player.rm_tab_from_queue(tab_idx);
+            settings.drop_playlist(&tab_uuid);
+            None
+        });
 
     let player_weak = player.downgrade();
-    window.imp().notebook.connect("queue-add", false, move |values| {
-        let player = player_weak.upgrade().unwrap();
-        let tab_idx = values[1].get::<u32>().unwrap();
-        let track_idx = values[2].get::<u32>().unwrap();
-        let track_path = values[3].get::<String>().unwrap();
-        player.add_to_queue(tab_idx, track_idx, track_path);
-        None
-    });
+    window
+        .imp()
+        .notebook
+        .connect("queue-add", false, move |values| {
+            let player = player_weak.upgrade().unwrap();
+            let tab_idx = values[1].get::<u32>().unwrap();
+            let track_idx = values[2].get::<u32>().unwrap();
+            let track_path = values[3].get::<String>().unwrap();
+            player.add_to_queue(tab_idx, track_idx, track_path);
+            None
+        });
 
     let player_weak = player.downgrade();
-    window.imp().notebook.connect("queue-rm", false, move |values| {
-        let player = player_weak.upgrade().unwrap();
-        let tab_idx = values[1].get::<u32>().unwrap();
-        let track_idx = values[2].get::<u32>().unwrap();
-        player.rm_from_queue(tab_idx, track_idx);
-        None
-    });
+    window
+        .imp()
+        .notebook
+        .connect("queue-rm", false, move |values| {
+            let player = player_weak.upgrade().unwrap();
+            let tab_idx = values[1].get::<u32>().unwrap();
+            let track_idx = values[2].get::<u32>().unwrap();
+            player.rm_from_queue(tab_idx, track_idx);
+            None
+        });
 
     let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
 
     let sender_ref = sender.clone();
-    window.imp().notebook.connect("tab-changed", false, move |values| {
-        let tab_idx = values[1].get::<u32>().unwrap();
-        let tab_uuid = values[2].get::<String>().unwrap();
-        sender_ref.send(Msg::TabChanged(tab_idx, tab_uuid)).unwrap();
-        None
-    });
+    window
+        .imp()
+        .notebook
+        .connect("tab-changed", false, move |values| {
+            let tab_idx = values[1].get::<u32>().unwrap();
+            let tab_uuid = values[2].get::<String>().unwrap();
+            sender_ref.send(Msg::TabChanged(tab_idx, tab_uuid)).unwrap();
+            None
+        });
 
     let sender_ref = sender.clone();
     player.connect("duration-changed", true, move |values| {
         let tab_idx = values[1].get::<u32>().unwrap();
         let track_idx = values[2].get::<u32>().unwrap();
         let duration = values[3].get::<u64>().unwrap();
-        sender_ref.send(Msg::DurationChanged(tab_idx, track_idx, duration)).unwrap();
+        sender_ref
+            .send(Msg::DurationChanged(tab_idx, track_idx, duration))
+            .unwrap();
         None
     });
 
@@ -124,7 +154,9 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
         } else {
             track_ref = None
         }
-        sender_ref.send(Msg::StateChanged(track_ref, state)).unwrap();
+        sender_ref
+            .send(Msg::StateChanged(track_ref, state))
+            .unwrap();
 
         None
     });
@@ -133,7 +165,9 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
     player.connect("progress-changed", true, move |values| {
         let position = values[1].get::<u64>().unwrap();
         let progress = values[2].get::<f64>().unwrap();
-        sender_ref.send(Msg::ProgressChanged(position, progress)).unwrap();
+        sender_ref
+            .send(Msg::ProgressChanged(position, progress))
+            .unwrap();
         None
     });
 
@@ -141,7 +175,9 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
     player.connect("track-cleared", true, move |values| {
         let tab_idx = values[1].get::<u32>().unwrap();
         let track_idx = values[2].get::<u32>().unwrap();
-        sender_ref.send(Msg::TrackCleared(tab_idx, track_idx)).unwrap();
+        sender_ref
+            .send(Msg::TrackCleared(tab_idx, track_idx))
+            .unwrap();
         None
     });
 
@@ -157,17 +193,18 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
         None
     });
 
-
     let sender_ref = sender.clone();
     player.connect("queue-changed", true, move |values| {
         let tab_idx = values[1].get::<u32>().unwrap();
         let track_idx = values[2].get::<u32>().unwrap();
         let position = values[3].get::<u32>().unwrap();
-        sender_ref.send(Msg::QueueChanged(tab_idx, track_idx, position)).unwrap();
+        sender_ref
+            .send(Msg::QueueChanged(tab_idx, track_idx, position))
+            .unwrap();
         None
     });
 
-    let spectrum =  window.imp().spectrum.imp().downgrade();
+    let spectrum = window.imp().spectrum.imp().downgrade();
     player.imp().connect_spectrum(move |value| {
         let spectrum = spectrum.upgrade().unwrap();
         spectrum.redraw(value);
@@ -192,7 +229,11 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
                             window.imp().set_cover(Some(path));
                         }
                     }
-                    window.imp().notebook.get().set_track_state(tab_idx, track_idx, Some(state));
+                    window
+                        .imp()
+                        .notebook
+                        .get()
+                        .set_track_state(tab_idx, track_idx, Some(state));
                 }
             }
             Msg::ProgressChanged(position, progress) => {
@@ -202,7 +243,11 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
                 progress_element.unblock_signal(&handler_id);
             }
             Msg::TrackCleared(tab_idx, track_idx) => {
-                window.imp().notebook.get().set_track_state(tab_idx, track_idx, None);
+                window
+                    .imp()
+                    .notebook
+                    .get()
+                    .set_track_state(tab_idx, track_idx, None);
             }
             Msg::RequestNext => {
                 window.imp().notebook.get().activate_next();
@@ -211,7 +256,11 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
                 window.imp().notebook.get().activate_prev();
             }
             Msg::QueueChanged(tab_idx, track_idx, position) => {
-                window.imp().notebook.get().set_track_position(tab_idx, track_idx, position);
+                window
+                    .imp()
+                    .notebook
+                    .get()
+                    .set_track_position(tab_idx, track_idx, position);
             }
             Msg::TabChanged(tab_idx, tab_uuid) => {
                 let mut settings = settings_ref.lock().unwrap();

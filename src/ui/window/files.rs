@@ -1,9 +1,8 @@
-use gettextrs::gettext;
-use gtk::prelude::ObjectExt;
 use crate::gio::subclass::prelude::*;
 use crate::ui::window::imp::BeatWindowImp;
 use crate::utils::meta;
-
+use gettextrs::gettext;
+use gtk::prelude::ObjectExt;
 
 impl BeatWindowImp {
     pub fn open_path(&self, paths: Vec<String>, append: bool) {
@@ -20,6 +19,7 @@ impl BeatWindowImp {
 
         let page = self.notebook.imp().notebook.page(tab.playlist().body());
         let position = page.position().abs() as u32;
-        self.notebook.emit_by_name::<()>("tab-changed", &[&position, &tab.uuid()]);
+        self.notebook
+            .emit_by_name::<()>("tab-changed", &[&position, &tab.uuid()]);
     }
 }

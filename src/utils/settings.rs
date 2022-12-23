@@ -1,10 +1,10 @@
-use std::{path::PathBuf, fs};
-use std::fs::File;
-use gtk::glib;
 use configparser::ini::Ini;
+use gtk::glib;
 use lazy_static::lazy_static;
 use regex::Regex;
 use serde;
+use std::fs::File;
+use std::{fs, path::PathBuf};
 
 use crate::structs::track::Track;
 
@@ -15,7 +15,9 @@ pub struct BeatSettings {
 }
 
 lazy_static! {
-    static ref REGEXP: Regex = Regex::new(r"^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}").unwrap();
+    static ref REGEXP: Regex =
+        Regex::new(r"^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}")
+            .unwrap();
 }
 
 #[derive(Debug)]
@@ -54,7 +56,9 @@ impl BeatSettings {
     }
 
     pub fn save(&self) {
-        self.config.write(&self.path).expect("Can't save configuration");
+        self.config
+            .write(&self.path)
+            .expect("Can't save configuration");
     }
 
     pub fn drop_playlist(&mut self, uuid: &str) {
@@ -86,28 +90,37 @@ impl BeatSettings {
             filename = self.config_dir.join(filename);
         }
 
-        if let Ok(file) = fs::OpenOptions::new().write(true).truncate(true).create(true).open(filename) {
+        if let Ok(file) = fs::OpenOptions::new()
+            .write(true)
+            .truncate(true)
+            .create(true)
+            .open(filename)
+        {
             let mut writer = csv::Writer::from_writer(file);
             for track in tracks {
-                writer.serialize(PlRow {
-                    src: track.filepath().to_string(),
-                    artist: track.get_by_name("artist").map(|s| s.to_string()),
-                    album: track.get_by_name("album").map(|s| s.to_string()),
-                    title: track.get_by_name("title").map(|s| s.to_string()),
-                    length: track.get_by_name("length").map(|s| s.to_string()),
-                }).unwrap();
+                writer
+                    .serialize(PlRow {
+                        src: track.filepath().to_string(),
+                        artist: track.get_by_name("artist").map(|s| s.to_string()),
+                        album: track.get_by_name("album").map(|s| s.to_string()),
+                        title: track.get_by_name("title").map(|s| s.to_string()),
+                        length: track.get_by_name("length").map(|s| s.to_string()),
+                    })
+                    .unwrap();
             }
         } else {
             println!("Can't save playlist");
         }
-
     }
 
     pub fn playlists(&mut self) -> Vec<TabData> {
         let mut out = vec![];
         let mut need_save = false;
 
-        let selected_tab = self.config.get("main", "selected").unwrap_or("000".to_string());
+        let selected_tab = self
+            .config
+            .get("main", "selected")
+            .unwrap_or("000".to_string());
 
         for section in self.config.sections().iter() {
             if REGEXP.is_match(section) {
@@ -135,7 +148,6 @@ impl BeatSettings {
                             label = "unknown".to_string();
                         }
 
-
                         if let Ok(mut reader) = csv::Reader::from_path(&playlist_path) {
                             for r in reader.deserialize::<PlRow>() {
                                 if let Ok(r) = r {
@@ -144,11 +156,11 @@ impl BeatSettings {
                                     tracks.push(Track::new(
                                         path.file_name().unwrap().to_str().unwrap(),
                                         path.to_str().unwrap(),
-                                        r.album.as_ref().map(|s| &**s ),
-                                        r.title.as_ref().map(|s| &**s ),
-                                        r.artist.as_ref().map(|s| &**s ),
+                                        r.album.as_ref().map(|s| &**s),
+                                        r.title.as_ref().map(|s| &**s),
+                                        r.artist.as_ref().map(|s| &**s),
                                         None,
-                                        r.length.as_ref().map(|s| &**s ),
+                                        r.length.as_ref().map(|s| &**s),
                                     ));
                                 }
                             }
@@ -160,7 +172,7 @@ impl BeatSettings {
                                 uuid: section.to_string(),
                                 label,
                                 position,
-                                selected: &selected_tab == section
+                                selected: &selected_tab == section,
                             });
                             continue;
                         }
@@ -175,7 +187,7 @@ impl BeatSettings {
             self.save();
         }
 
-        out.sort_by_key(|tab| {tab.position});
+        out.sort_by_key(|tab| tab.position);
 
         out
     }

@@ -1,10 +1,9 @@
-use gstreamer::{List, MessageView};
-use gstreamer::prelude::ElementExt;
-use gtk::glib;
-use gtk::prelude::*;
 use crate::gio::subclass::prelude::ObjectSubclassExt;
 use crate::player::imp::BeatPlayerImp;
-
+use gstreamer::prelude::ElementExt;
+use gstreamer::{List, MessageView};
+use gtk::glib;
+use gtk::prelude::*;
 
 impl BeatPlayerImp {
     pub fn watch_bus(&self) {
@@ -25,7 +24,7 @@ impl BeatPlayerImp {
                     }
 
                     obj.__on_state_changed(value.current());
-                },
+                }
                 MessageView::StreamStart(_state) => {
                     if let Some(src) = msg.src() {
                         let pipeline = pipeline.upgrade().unwrap();
@@ -33,13 +32,13 @@ impl BeatPlayerImp {
                             obj.__on_stream_start();
                         }
                     }
-                },
+                }
                 MessageView::Error(_error) => {
                     obj.__on_error();
-                },
+                }
                 MessageView::Eos(_eos) => {
                     obj.__on_eos();
-                },
+                }
                 _ => (),
             }
         });
@@ -52,7 +51,10 @@ impl BeatPlayerImp {
         });
     }
 
-    pub fn connect_spectrum<F>(&self, f: F) where F: Fn(Vec<f32>) -> () + Send + Sync + 'static {
+    pub fn connect_spectrum<F>(&self, f: F)
+    where
+        F: Fn(Vec<f32>) -> () + Send + Sync + 'static,
+    {
         let bus = self.pipeline.bus().unwrap();
 
         bus.connect_message(Some("element"), move |_bus, message| {
@@ -63,7 +65,8 @@ impl BeatPlayerImp {
                     }
 
                     if let Ok(value) = element.get::<List>("magnitude") {
-                        let value: Vec<f32> = value.iter().map(|v| { v.get::<f32>().unwrap() }).collect();
+                        let value: Vec<f32> =
+                            value.iter().map(|v| v.get::<f32>().unwrap()).collect();
                         f(value);
                     }
                 }

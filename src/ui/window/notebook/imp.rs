@@ -1,12 +1,12 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use gtk::subclass::prelude::*;
+use crate::ui::window::notebook::tab::Tab;
 use gtk::glib;
 use gtk::glib::once_cell::sync::Lazy;
 use gtk::glib::subclass::Signal;
 use gtk::glib::Type;
 use gtk::prelude::*;
-use crate::ui::window::notebook::tab::Tab;
+use gtk::subclass::prelude::*;
+use std::cell::RefCell;
+use std::rc::Rc;
 
 #[derive(Default, Debug)]
 pub struct BeatNotebookImp {
@@ -47,7 +47,6 @@ impl ObjectImpl for BeatNotebookImp {
             ]
         });
 
-
         SIGNALS.as_ref()
     }
 
@@ -63,6 +62,5 @@ impl ObjectImpl for BeatNotebookImp {
         }
     }
 }
-
 
 impl WidgetImpl for BeatNotebookImp {}

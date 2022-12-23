@@ -1,6 +1,6 @@
-use std::cell::RefCell;
-use gstreamer::State;
 use crate::utils::format::time_str;
+use gstreamer::State;
+use std::cell::RefCell;
 
 #[derive(Debug)]
 pub struct Track {
@@ -32,7 +32,15 @@ impl Clone for Track {
 }
 
 impl Track {
-    pub fn new(filename: &str, filepath: &str, album: Option<&str>, title: Option<&str>, artist: Option<&str>, year: Option<u32>, duration_str: Option<&str>) -> Track {
+    pub fn new(
+        filename: &str,
+        filepath: &str,
+        album: Option<&str>,
+        title: Option<&str>,
+        artist: Option<&str>,
+        year: Option<u32>,
+        duration_str: Option<&str>,
+    ) -> Track {
         Self {
             state: RefCell::new(None),
             filepath: filepath.to_string(),
@@ -42,30 +50,18 @@ impl Track {
             artist: artist.map(|s| s.to_string()),
             year: year.map(|y| y.to_string()),
             duration_str: RefCell::new(duration_str.map(|s| s.to_string())),
-            queue_position: RefCell::new(None)
+            queue_position: RefCell::new(None),
         }
     }
 
     pub fn get_by_name(&self, field: &str) -> Option<&str> {
         match field {
-            "filename" => {
-                Some(&self.filename)
-            },
-            "filepath" => {
-                Some(&self.filepath)
-            },
-            "album" => {
-                self.album.as_deref()
-            },
-            "title" => {
-                self.title.as_deref()
-            },
-            "artist" => {
-                self.artist.as_deref()
-            },
-            _ => {
-                None
-            }
+            "filename" => Some(&self.filename),
+            "filepath" => Some(&self.filepath),
+            "album" => self.album.as_deref(),
+            "title" => self.title.as_deref(),
+            "artist" => self.artist.as_deref(),
+            _ => None,
         }
     }
 

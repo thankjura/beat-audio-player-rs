@@ -1,8 +1,8 @@
-use std::borrow::Borrow;
+use crate::ui::window::notebook::playlist::{PlayList, Track};
 use gettextrs::gettext;
 use gtk::prelude::*;
 use gtk::{gdk, gio, glib};
-use crate::ui::window::notebook::playlist::{PlayList, Track};
+use std::borrow::Borrow;
 
 #[derive(Debug)]
 pub struct Tab {

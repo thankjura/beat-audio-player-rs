@@ -1,9 +1,9 @@
-use std::iter::zip;
-use std::mem;
+use crate::ui::window::spectrum::imp::BeatSpectrumImp;
 use gtk::cairo;
 use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassExt;
-use crate::ui::window::spectrum::imp::BeatSpectrumImp;
+use std::iter::zip;
+use std::mem;
 
 pub type Color = [f64; 4];
 
@@ -38,16 +38,25 @@ pub fn interpolate_colors() -> Vec<Color> {
     out
 }
 
-pub fn draw_column(magnitude: f64, spec_min: f64, spec_max: f64, colors: &Vec<Color>, col_width: f64, col_height: f64, cr: &cairo::Context, x_pos: f64) {
-
+pub fn draw_column(
+    magnitude: f64,
+    spec_min: f64,
+    spec_max: f64,
+    colors: &Vec<Color>,
+    col_width: f64,
+    col_height: f64,
+    cr: &cairo::Context,
+    x_pos: f64,
+) {
     if spec_max == spec_min {
         return;
     }
 
     let brick_h = (col_height - (GAP * COL_BRICK_COUNT as f64 - 1.0)) / COL_BRICK_COUNT as f64;
 
-
-    let upper = ((magnitude - spec_min)/(spec_max - spec_min) * COL_BRICK_COUNT as f64).round().abs() as u64;
+    let upper = ((magnitude - spec_min) / (spec_max - spec_min) * COL_BRICK_COUNT as f64)
+        .round()
+        .abs() as u64;
 
     for (i, c) in colors.iter().enumerate() {
         if i as u64 >= upper {
@@ -56,9 +65,8 @@ pub fn draw_column(magnitude: f64, spec_min: f64, spec_max: f64, colors: &Vec<Co
 
         let y_pos = col_height - (i as f64) * (brick_h + GAP) - brick_h;
         cr.rectangle(x_pos, y_pos, col_width, brick_h);
-        cr.set_source_rgba(c[0] , c[1], c[2], c[3]);
+        cr.set_source_rgba(c[0], c[1], c[2], c[3]);
         cr.fill().unwrap();
-
     }
 }
 
@@ -104,7 +112,16 @@ impl BeatSpectrumImp {
                 x_pos -= GAP + col_width;
             }
 
-            draw_column(*spec as f64, spec_min, spec_max, &colors, col_width, h, cr, x_pos);
+            draw_column(
+                *spec as f64,
+                spec_min,
+                spec_max,
+                &colors,
+                col_width,
+                h,
+                cr,
+                x_pos,
+            );
         }
 
         cr.pop_group_to_source().unwrap();

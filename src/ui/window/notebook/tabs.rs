@@ -1,11 +1,11 @@
-use std::rc::Rc;
-use gtk::{gio, glib};
+use crate::ui::window::notebook::imp::BeatNotebookImp;
+use crate::ui::window::notebook::tab::Tab;
+use crate::ui::BeatNotebook;
 use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
+use gtk::{gio, glib};
+use std::rc::Rc;
 use uuid::Uuid;
-use crate::ui::BeatNotebook;
-use crate::ui::window::notebook::tab::Tab;
-use crate::ui::window::notebook::imp::BeatNotebookImp;
 
 impl BeatNotebookImp {
     pub fn toggle_show_tabs(&self) {
@@ -99,7 +99,12 @@ impl BeatNotebookImp {
 
     pub fn selected_tab(&self) -> Rc<Tab> {
         if let Some(tab_index) = self.notebook.current_page() {
-            return self.tabs.borrow().get(usize::try_from(tab_index).unwrap()).unwrap().clone();
+            return self
+                .tabs
+                .borrow()
+                .get(usize::try_from(tab_index).unwrap())
+                .unwrap()
+                .clone();
         };
 
         self.add_tab("new")

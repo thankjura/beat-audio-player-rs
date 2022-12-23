@@ -1,16 +1,15 @@
-use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::{Arc, Mutex};
+use crate::app::connector;
+use crate::player::BeatPlayer;
+use crate::utils::settings::BeatSettings;
+use crate::BeatWindow;
 use adw::subclass::prelude::AdwApplicationImpl;
 use gettextrs::gettext;
 use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
-use crate::app::connector;
-use crate::BeatWindow;
-use crate::player::BeatPlayer;
-use crate::utils::settings::BeatSettings;
-
+use std::cell::RefCell;
+use std::rc::Rc;
+use std::sync::{Arc, Mutex};
 
 pub struct BeatAppImp {
     pub window: RefCell<Option<Rc<BeatWindow>>>,
@@ -55,7 +54,12 @@ impl ApplicationImpl for BeatAppImp {
         let mut settings = BeatSettings::load();
 
         for playlist in settings.playlists() {
-            let tab = window.imp().notebook.get().imp().add_tab_with_uuid(&playlist.label, &playlist.uuid);
+            let tab = window
+                .imp()
+                .notebook
+                .get()
+                .imp()
+                .add_tab_with_uuid(&playlist.label, &playlist.uuid);
             for track in playlist.rows {
                 tab.add_track(track);
             }
@@ -77,6 +81,4 @@ impl ApplicationImpl for BeatAppImp {
 
 impl GtkApplicationImpl for BeatAppImp {}
 
-impl AdwApplicationImpl for BeatAppImp {
-
-}
+impl AdwApplicationImpl for BeatAppImp {}

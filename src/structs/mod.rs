@@ -1,5 +1,5 @@
-pub mod track;
 pub mod action;
+pub mod track;
 
 pub const SPECTRUM_BANDS: u32 = 96;
 pub const SPECTRUM_THRESHOLD: i32 = -80;

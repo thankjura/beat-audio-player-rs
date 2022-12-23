@@ -1,16 +1,15 @@
-use std::collections::VecDeque;
-use std::sync::Mutex;
-use gstreamer::{Element, Pipeline, State};
-use gstreamer::prelude::{ElementExtManual, GstBinExtManual};
-use gstreamer_player::gst;
-use gst::prelude::*;
-use gtk::glib::once_cell::sync::Lazy;
-use gtk::glib::subclass::Signal;
-use gtk::glib;
-use gtk::subclass::prelude::*;
 use crate::player::TrackRef;
 use crate::structs::{SPECTRUM_BANDS, SPECTRUM_INTERVAL, SPECTRUM_THRESHOLD};
-
+use gst::prelude::*;
+use gstreamer::prelude::{ElementExtManual, GstBinExtManual};
+use gstreamer::{Element, Pipeline, State};
+use gstreamer_player::gst;
+use gtk::glib;
+use gtk::glib::once_cell::sync::Lazy;
+use gtk::glib::subclass::Signal;
+use gtk::subclass::prelude::*;
+use std::collections::VecDeque;
+use std::sync::Mutex;
 
 pub struct BeatPlayerImp {
     pub pipeline: Pipeline,
@@ -22,13 +21,11 @@ pub struct BeatPlayerImp {
     //next_cb: Option<Box<dyn Fn() -> (u32, u32, String) + Send + Sync + 'static>>
 }
 
-
 impl Default for BeatPlayerImp {
     fn default() -> Self {
         Self::new()
     }
 }
-
 
 impl BeatPlayerImp {
     pub fn new() -> Self {
@@ -46,7 +43,14 @@ impl BeatPlayerImp {
         spectrum.set_property("post-messages", true);
         spectrum.set_property("message-magnitude", true);
 
-        let elements = [&file_src, &decode_bin, &audio_convert, &spectrum, &volume, &sink];
+        let elements = [
+            &file_src,
+            &decode_bin,
+            &audio_convert,
+            &spectrum,
+            &volume,
+            &sink,
+        ];
         pipeline.add_many(&elements).unwrap();
         file_src.link(&decode_bin).unwrap();
         audio_convert.link(&spectrum).unwrap();
@@ -80,8 +84,12 @@ impl BeatPlayerImp {
 
     pub fn set_current_track(&self, track_ref: TrackRef) -> Option<TrackRef> {
         if let Some(old_ref) = self.current_track.lock().unwrap().replace(track_ref) {
-            self.obj().emit_by_name::<()>("track-cleared", &[&old_ref.tab_idx, &old_ref.track_idx]);
-            self.obj().emit_by_name::<()>("queue-changed", &[&old_ref.tab_idx, &old_ref.track_idx, &0u32]);
+            self.obj()
+                .emit_by_name::<()>("track-cleared", &[&old_ref.tab_idx, &old_ref.track_idx]);
+            self.obj().emit_by_name::<()>(
+                "queue-changed",
+                &[&old_ref.tab_idx, &old_ref.track_idx, &0u32],
+            );
             return Some(old_ref);
         }
         None
@@ -96,8 +104,8 @@ impl BeatPlayerImp {
     }
 
     pub fn current_track(&self) -> Option<TrackRef> {
-       let track = self.current_track.lock().unwrap();
-       track.as_ref().cloned()
+        let track = self.current_track.lock().unwrap();
+        track.as_ref().cloned()
     }
 
     pub fn destroy(&self) {
@@ -116,15 +124,25 @@ impl ObjectImpl for BeatPlayerImp {
         static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
             vec![
                 Signal::builder("state-changed")
-                    .param_types([i32::static_type(), i32::static_type(), String::static_type(), State::static_type()]).build(),
+                    .param_types([
+                        i32::static_type(),
+                        i32::static_type(),
+                        String::static_type(),
+                        State::static_type(),
+                    ])
+                    .build(),
                 Signal::builder("progress-changed")
-                    .param_types([u64::static_type(), f64::static_type()]).build(),
+                    .param_types([u64::static_type(), f64::static_type()])
+                    .build(),
                 Signal::builder("duration-changed")
-                    .param_types([u32::static_type(), u32::static_type(), u64::static_type()]).build(),
+                    .param_types([u32::static_type(), u32::static_type(), u64::static_type()])
+                    .build(),
                 Signal::builder("track-cleared")
-                    .param_types([u32::static_type(), u32::static_type()]).build(),
+                    .param_types([u32::static_type(), u32::static_type()])
+                    .build(),
                 Signal::builder("queue-changed")
-                    .param_types([u32::static_type(), u32::static_type(), u32::static_type()]).build(),
+                    .param_types([u32::static_type(), u32::static_type(), u32::static_type()])
+                    .build(),
                 Signal::builder("query-next").build(),
                 Signal::builder("query-prev").build(),
             ]

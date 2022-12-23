@@ -1,9 +1,9 @@
-use std::sync::Mutex;
-use gtk::subclass::prelude::*;
+use crate::ui::window::spectrum::spectrum::{interpolate_colors, Color};
+use crate::ui::window::spectrum::BeatSpectrum;
 use gtk::glib;
 use gtk::prelude::{Cast, DrawingAreaExtManual};
-use crate::ui::window::spectrum::BeatSpectrum;
-use crate::ui::window::spectrum::spectrum::{Color, interpolate_colors};
+use gtk::subclass::prelude::*;
+use std::sync::Mutex;
 
 #[derive(Debug)]
 pub struct BeatSpectrumImp {
@@ -15,7 +15,7 @@ impl Default for BeatSpectrumImp {
     fn default() -> Self {
         Self {
             specs: Mutex::new(vec![]),
-            colors: Mutex::new(interpolate_colors())
+            colors: Mutex::new(interpolate_colors()),
         }
     }
 }

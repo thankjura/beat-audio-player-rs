@@ -1,13 +1,15 @@
+use crate::ui::window::notebook::playlist::cols::{
+    make_icon_column, make_position_column, make_text_column,
+};
+use crate::ui::window::notebook::playlist::store::{get_track, PlayListStore};
+use crate::ui::window::notebook::playlist::{ColType, PLAY_LIST_COLS};
+use crate::ui::BeatNotebook;
+use crate::BeatWindow;
 use gettextrs::gettext;
 use gtk::gdk::{BUTTON_PRIMARY, BUTTON_SECONDARY};
-use gtk::{gdk, gio, ListView, Orientation, PickFlags};
 use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
-use crate::BeatWindow;
-use crate::ui::BeatNotebook;
-use crate::ui::window::notebook::playlist::cols::{make_icon_column, make_position_column, make_text_column};
-use crate::ui::window::notebook::playlist::{ColType, PLAY_LIST_COLS};
-use crate::ui::window::notebook::playlist::store::{get_track, PlayListStore};
+use gtk::{gdk, gio, ListView, Orientation, PickFlags};
 
 #[derive(Debug)]
 pub struct PlayList {
@@ -57,7 +59,8 @@ impl PlayList {
         for col in PLAY_LIST_COLS {
             match col.col_type {
                 ColType::Text => {
-                    let (_factory, column) = make_text_column(&col.key, &col.label, true, col.translate);
+                    let (_factory, column) =
+                        make_text_column(&col.key, &col.label, true, col.translate);
                     view.append_column(&column);
                 }
                 ColType::Icon => {
@@ -78,20 +81,34 @@ impl PlayList {
                 if let Some(notebook) = notebook.downcast_ref::<BeatNotebook>() {
                     if let Some(page) = notebook.imp().selected_tab_id() {
                         if let Some(track) = notebook.get_track(page, row_index) {
-                            notebook.emit_by_name::<()>("track-activated", &[&page, &row_index, &track.filepath()]);
+                            notebook.emit_by_name::<()>(
+                                "track-activated",
+                                &[&page, &row_index, &track.filepath()],
+                            );
                         }
                     }
                 }
             }
         });
 
-        let drag_box = gtk::DropTarget::new(gtk::gdk::FileList::static_type(), gtk::gdk::DragAction::COPY);
+        let drag_box = gtk::DropTarget::new(
+            gtk::gdk::FileList::static_type(),
+            gtk::gdk::DragAction::COPY,
+        );
         let view_ref = view.downgrade();
 
         drag_box.connect_drop(move |_drop, value, _x, _y| {
             let files = value.get::<gtk::gdk::FileList>().unwrap();
-            let files: Vec<String> = files.files().iter().map(|f| {f.path().unwrap().to_str().unwrap().to_string()}).collect();
-            if let Some(win) = view_ref.upgrade().unwrap().ancestor(BeatWindow::static_type()) {
+            let files: Vec<String> = files
+                .files()
+                .iter()
+                .map(|f| f.path().unwrap().to_str().unwrap().to_string())
+                .collect();
+            if let Some(win) = view_ref
+                .upgrade()
+                .unwrap()
+                .ancestor(BeatWindow::static_type())
+            {
                 if let Some(win) = win.downcast_ref::<BeatWindow>() {
                     win.imp().open_path(files, true);
                 }
@@ -102,7 +119,7 @@ impl PlayList {
 
         let clear_selection_box = gtk::GestureClick::builder().button(BUTTON_PRIMARY).build();
         let view_ref = view.downgrade();
-        let store_ref  = store.store().downgrade();
+        let store_ref = store.store().downgrade();
 
         clear_selection_box.connect_pressed(move |_event, n_press, x, y| {
             if n_press != 1 {
@@ -116,7 +133,9 @@ impl PlayList {
 
         view.add_controller(&clear_selection_box);
 
-        let context_menu_box = gtk::GestureClick::builder().button(BUTTON_SECONDARY).build();
+        let context_menu_box = gtk::GestureClick::builder()
+            .button(BUTTON_SECONDARY)
+            .build();
         let view_ref = view.downgrade();
 
         let menu_data = gio::Menu::new();
@@ -125,9 +144,16 @@ impl PlayList {
 
         container.append(&menu);
 
-        let add_to_queue = gio::MenuItem::new(Some(&gettext("Add to queue")), Some("playlist.queue-add"));
-        let rm_from_queue = gio::MenuItem::new(Some(&gettext("Remove from queue")), Some("playlist.queue-rm"));
-        let rm_from_playlist = gio::MenuItem::new(Some(&gettext("Remove from playlist")), Some("playlist.playlist-rm"));
+        let add_to_queue =
+            gio::MenuItem::new(Some(&gettext("Add to queue")), Some("playlist.queue-add"));
+        let rm_from_queue = gio::MenuItem::new(
+            Some(&gettext("Remove from queue")),
+            Some("playlist.queue-rm"),
+        );
+        let rm_from_playlist = gio::MenuItem::new(
+            Some(&gettext("Remove from playlist")),
+            Some("playlist.playlist-rm"),
+        );
 
         context_menu_box.connect_pressed(move |_event, n_press, x, y| {
             if n_press != 1 {
@@ -183,8 +209,6 @@ impl PlayList {
 
         view.add_controller(&context_menu_box);
 
-
-
         // Actions
         let action_group = gio::SimpleActionGroup::new();
 
@@ -211,7 +235,8 @@ impl PlayList {
             for i in 0..select_count {
                 let index = selection.nth(i);
                 if let Some(track) = tab.playlist().store().get_track(index) {
-                    notebook.emit_by_name::<()>("queue-add", &[&tab_idx, &index, &track.filepath()]);
+                    notebook
+                        .emit_by_name::<()>("queue-add", &[&tab_idx, &index, &track.filepath()]);
                 }
             }
         });
@@ -254,8 +279,6 @@ impl PlayList {
             notebook.emit_by_name::<()>("tab-changed", &[&tab_idx, &tab.uuid()]);
         });
         // End actions
-
-
 
         Self {
             uuid,

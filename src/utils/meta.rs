@@ -1,11 +1,11 @@
-use std::fs;
-use std::io::Write;
-use std::path::PathBuf;
+use crate::structs::track::Track;
+use crate::utils::format::time_str;
 use gettextrs::gettext;
 use gtk::glib;
 use lofty::{Accessor, AudioFile, ItemKey};
-use crate::structs::track::Track;
-use crate::utils::format::time_str;
+use std::fs;
+use std::io::Write;
+use std::path::PathBuf;
 
 fn get_cache_dir() -> PathBuf {
     glib::user_cache_dir().join("beat").join("covers")
@@ -14,8 +14,8 @@ fn get_cache_dir() -> PathBuf {
 fn get_tag(filepath: &str) -> Option<lofty::Tag> {
     if let Ok(tagged_file) = lofty::read_from_path(filepath) {
         return match tagged_file.primary_tag() {
-            Some(primary_tag) => { Some(primary_tag.clone()) }
-            None => { tagged_file.first_tag().as_deref().cloned() }
+            Some(primary_tag) => Some(primary_tag.clone()),
+            None => tagged_file.first_tag().as_deref().cloned(),
         };
     }
 
@@ -37,14 +37,14 @@ pub fn get_album_picture_path(path: &str) -> Option<PathBuf> {
                 fs::create_dir_all(cache_dir).expect("Can't create cache directory");
             }
             if let Ok(mut file) = fs::File::create(&cover_path) {
-                file.write_all(pic.data()).expect("Can't write cache for art");
+                file.write_all(pic.data())
+                    .expect("Can't write cache for art");
                 return Some(cover_path);
             } else {
                 println!("{}", gettext("Can't create cover cache"));
             }
         }
     }
-
 
     None
 }
@@ -73,11 +73,10 @@ pub fn get_track_from_path(filepath: &str) -> Option<Track> {
                 tag.get_string(&ItemKey::TrackTitle),
                 tag.get_string(&ItemKey::TrackArtist),
                 tag.year(),
-                Some(&time_str(duration.as_secs()))
+                Some(&time_str(duration.as_secs())),
             ));
         };
     }
-
 
     Some(Track::new(
         filename,
@@ -86,6 +85,6 @@ pub fn get_track_from_path(filepath: &str) -> Option<Track> {
         None,
         None,
         None,
-        None
+        None,
     ))
 }

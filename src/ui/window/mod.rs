@@ -1,15 +1,15 @@
-mod imp;
+mod files;
+mod footer;
 mod header;
+mod imp;
 mod notebook;
 mod progress;
-mod footer;
-mod files;
 mod spectrum;
 
-use std::rc::Rc;
-use gtk::{gio, glib};
-use gtk::subclass::prelude::ObjectSubclassIsExt;
 use crate::ui::window::notebook::Tab;
+use gtk::subclass::prelude::ObjectSubclassIsExt;
+use gtk::{gio, glib};
+use std::rc::Rc;
 
 pub use notebook::BeatNotebook;
 
@@ -28,4 +28,3 @@ impl BeatWindow {
         self.imp().notebook.imp().selected_tab()
     }
 }
-

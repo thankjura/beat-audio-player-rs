@@ -1,5 +1,5 @@
-mod window;
 pub mod cli;
+mod window;
 
-pub use window::BeatWindow;
 pub use window::BeatNotebook;
+pub use window::BeatWindow;

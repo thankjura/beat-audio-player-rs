@@ -1,7 +1,7 @@
-pub mod imp;
-mod bus;
-mod pipeline;
 mod actions;
+mod bus;
+pub mod imp;
+mod pipeline;
 
 use gstreamer::State;
 use gtk::glib;
@@ -48,9 +48,9 @@ impl BeatPlayer {
 
     fn get_track_queue_position(&self, tab_idx: u32, track_idx: u32) -> Option<usize> {
         let guard = self.imp().queue.lock().unwrap();
-        let cur_position = guard.iter().position(|t| {
-            t.tab_idx == tab_idx && t.track_idx == track_idx
-        });
+        let cur_position = guard
+            .iter()
+            .position(|t| t.tab_idx == tab_idx && t.track_idx == track_idx);
 
         cur_position
     }
@@ -59,7 +59,11 @@ impl BeatPlayer {
         //self.imp().queue.lock().unwrap().push_back(TrackRef { tab_idx, track_idx, filepath });
         if let None = self.get_track_queue_position(tab_idx, track_idx) {
             let mut guard = self.imp().queue.lock().unwrap();
-            guard.push_back(TrackRef { tab_idx, track_idx, filepath });
+            guard.push_back(TrackRef {
+                tab_idx,
+                track_idx,
+                filepath,
+            });
             let position = guard.len() as u32;
             self.emit_by_name::<()>("queue-changed", &[&tab_idx, &track_idx, &position]);
         }
@@ -76,7 +80,10 @@ impl BeatPlayer {
                 for (i, t) in queue.iter().enumerate() {
                     if i >= position {
                         let position = i as u32 + 1;
-                        self.emit_by_name::<()>("queue-changed", &[&t.tab_idx, &t.track_idx, &position]);
+                        self.emit_by_name::<()>(
+                            "queue-changed",
+                            &[&t.tab_idx, &t.track_idx, &position],
+                        );
                     }
                 }
             }
@@ -97,7 +104,10 @@ impl BeatPlayer {
                 i += 1;
                 if flag {
                     let position = i as u32;
-                    self.emit_by_name::<()>("queue-changed", &[&t.tab_idx, &t.track_idx, &position]);
+                    self.emit_by_name::<()>(
+                        "queue-changed",
+                        &[&t.tab_idx, &t.track_idx, &position],
+                    );
                 }
             }
         }
@@ -125,13 +135,19 @@ impl BeatPlayer {
             current_path = track.filepath.clone();
         }
 
-        self.emit_by_name::<()>("state-changed", &[&current_tab, &current_track, &current_path, &state]);
+        self.emit_by_name::<()>(
+            "state-changed",
+            &[&current_tab, &current_track, &current_path, &state],
+        );
     }
 
     fn __on_stream_start(&self) {
         if let Some(track_ref) = self.imp().current_track() {
             if let Some(duration) = self.imp().__get_duration() {
-                self.emit_by_name::<()>("duration-changed", &[&track_ref.tab_idx, &track_ref.track_idx, &duration]);
+                self.emit_by_name::<()>(
+                    "duration-changed",
+                    &[&track_ref.tab_idx, &track_ref.track_idx, &duration],
+                );
             }
         }
     }

@@ -1,10 +1,9 @@
-use std::cell::Ref;
+use crate::structs::track::Track;
 use gstreamer::State;
-use gtk::{glib, gio};
 use gtk::glib::BoxedAnyObject;
 use gtk::prelude::*;
-use crate::structs::track::Track;
-
+use gtk::{gio, glib};
+use std::cell::Ref;
 
 #[derive(Debug)]
 pub struct PlayListStore {
@@ -27,10 +26,7 @@ impl PlayListStore {
         let store = gio::ListStore::new(glib::BoxedAnyObject::static_type());
         let selector = gtk::MultiSelection::new(Some(&store));
 
-        Self {
-            store,
-            selector
-        }
+        Self { store, selector }
     }
 
     pub fn selector(&self) -> &gtk::MultiSelection {
@@ -60,7 +56,6 @@ impl PlayListStore {
 
         out
     }
-
 
     pub fn rm_track(&self, index: u32) {
         self.store.remove(index);
