@@ -1,6 +1,6 @@
 use gettextrs::gettext;
 use gtk::gdk::{BUTTON_PRIMARY, BUTTON_SECONDARY};
-use gtk::{ColumnView, gdk, gio, ListView, Orientation, PickFlags};
+use gtk::{gdk, gio, ListView, Orientation, PickFlags};
 use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use crate::BeatWindow;
@@ -12,12 +12,12 @@ use crate::ui::window::notebook::playlist::store::{get_track, PlayListStore};
 #[derive(Debug)]
 pub struct PlayList {
     uuid: String,
-    scrollbox: gtk::ScrolledWindow,
+    container: gtk::Box,
     store: PlayListStore,
-    view: ColumnView,
+    view: gtk::ColumnView,
 }
 
-fn get_clicked_row(view: &ColumnView, x: f64, y: f64) -> Option<u32> {
+fn get_clicked_row(view: &gtk::ColumnView, x: f64, y: f64) -> Option<u32> {
     if let Some(picked_widget) = view.pick(x, y, PickFlags::DEFAULT) {
         if let Some(parent) = picked_widget.ancestor(ListView::static_type()) {
             let mut child = parent.first_child().unwrap();
@@ -47,7 +47,7 @@ impl PlayList {
 
         let scrollbox = gtk::ScrolledWindow::new();
         let container = gtk::Box::new(Orientation::Vertical, 0);
-        scrollbox.set_child(Some(&container));
+        container.append(&scrollbox);
         let view = gtk::ColumnView::new(Some(store.selector()));
         view.set_show_row_separators(true);
         view.set_show_column_separators(true);
@@ -70,7 +70,8 @@ impl PlayList {
                 }
             }
         }
-        container.append(&view);
+        //container.append(&view);
+        scrollbox.set_child(Some(&view));
 
         view.connect_activate(move |view, row_index| {
             if let Some(notebook) = view.ancestor(BeatNotebook::static_type()) {
@@ -258,14 +259,14 @@ impl PlayList {
 
         Self {
             uuid,
-            scrollbox,
+            container,
             store,
             view,
         }
     }
 
-    pub fn scrollbox(&self) -> &gtk::ScrolledWindow {
-        &self.scrollbox
+    pub fn body(&self) -> &gtk::Box {
+        &self.container
     }
 
     pub fn store(&self) -> &PlayListStore {

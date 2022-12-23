@@ -1,7 +1,7 @@
 use std::borrow::Borrow;
 use gettextrs::gettext;
 use gtk::prelude::*;
-use gtk::{gdk, gio, glib, ScrolledWindow};
+use gtk::{gdk, gio, glib};
 use crate::ui::window::notebook::playlist::{PlayList, Track};
 
 #[derive(Debug)]
@@ -52,8 +52,8 @@ impl Tab {
         &self.widget
     }
 
-    pub fn scrollbox(&self) -> &ScrolledWindow {
-        self.playlist.scrollbox()
+    pub fn body(&self) -> &gtk::Box {
+        self.playlist.body()
     }
 
     pub fn add_track(&self, track: Track) {

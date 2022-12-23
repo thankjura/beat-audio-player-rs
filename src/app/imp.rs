@@ -55,7 +55,7 @@ impl ApplicationImpl for BeatAppImp {
         let mut settings = BeatSettings::load();
 
         for playlist in settings.playlists() {
-            let tab = window.imp().notebook.get().imp().add_tab_wth_uuid(&playlist.label, &playlist.uuid);
+            let tab = window.imp().notebook.get().imp().add_tab_with_uuid(&playlist.label, &playlist.uuid);
             for track in playlist.rows {
                 tab.add_track(track);
             }

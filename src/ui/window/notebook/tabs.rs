@@ -16,7 +16,7 @@ impl BeatNotebookImp {
         }
     }
 
-    pub fn add_tab_wth_uuid(&self, name: &str, uuid: &str) -> Rc<Tab> {
+    pub fn add_tab_with_uuid(&self, name: &str, uuid: &str) -> Rc<Tab> {
         let tab = Rc::new(Tab::new(name, uuid));
 
         // Actions
@@ -47,7 +47,7 @@ impl BeatNotebookImp {
         }));
         // End actions
 
-        let idx = self.notebook.append_page(tab.scrollbox(), Some(tab.widget()));
+        let idx = self.notebook.append_page(tab.body(), Some(tab.widget()));
 
         self.toggle_show_tabs();
         self.notebook.set_current_page(Some(idx));
@@ -88,7 +88,7 @@ impl BeatNotebookImp {
         }));
         // End actions
 
-        let idx = self.notebook.append_page(tab.scrollbox(), Some(tab.widget()));
+        let idx = self.notebook.append_page(tab.body(), Some(tab.widget()));
 
         self.toggle_show_tabs();
         self.notebook.set_current_page(Some(idx));
