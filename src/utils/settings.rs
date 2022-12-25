@@ -104,7 +104,7 @@ impl BeatSettings {
                         artist: track.get_by_name("artist").map(|s| s.to_string()),
                         album: track.get_by_name("album").map(|s| s.to_string()),
                         title: track.get_by_name("title").map(|s| s.to_string()),
-                        length: track.get_by_name("length").map(|s| s.to_string()),
+                        length: track.duration().map(|s| s.to_string()),
                     })
                     .unwrap();
             }
