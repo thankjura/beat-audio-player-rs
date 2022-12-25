@@ -26,7 +26,7 @@ impl BeatNotebook {
         let tab_idx = usize::try_from(tab_idx).unwrap();
 
         if let Some(tab) = self.imp().tabs.borrow().get(tab_idx) {
-            return Some(tab.label.label().as_str().to_string());
+            return Some(tab.label.text().to_string());
         }
 
         None

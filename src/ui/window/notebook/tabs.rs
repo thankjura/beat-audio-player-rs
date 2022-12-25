@@ -48,25 +48,22 @@ impl BeatNotebookImp {
             }
         }));
 
-        tab.input.connect_activate(glib::clone!(@weak tab => move |e| {
+        tab.label.connect_changed(glib::clone!(@weak tab => move |_e| {
             if let Some(notebook) = tab.widget().ancestor(BeatNotebook::static_type()) {
                 let notebook = notebook.downcast::<BeatNotebook>();
                 if let Ok(notebook) = &notebook {
-                    let text = e.text().to_string();
-                    if !text.is_empty() {
-                        tab.label.set_label(&text);
-                        tab.popover.popdown();
-                        let tab_idx = notebook.imp().notebook.page(tab.playlist().body()).position() as u32;
-                        notebook.emit_by_name::<()>("tab-changed", &[&tab_idx, &text]);
-                    }
+                    let uuid = tab.playlist().uuid();
+                    let tab_idx = notebook.imp().notebook.page(tab.playlist().body()).position() as u32;
+                    notebook.emit_by_name::<()>("tab-changed", &[&tab_idx, &uuid]);
                 }
             }
         }));
 
         rename_action.connect_activate(glib::clone!(@weak tab => move |_action, _value| {
-            tab.input.set_text(tab.label.label().as_str());
-            tab.popover.popup();
+            tab.label.set_editing(true);
         }));
+
+
 
         // End actions
 

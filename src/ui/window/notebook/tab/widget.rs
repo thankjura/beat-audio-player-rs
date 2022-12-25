@@ -8,15 +8,13 @@ use std::borrow::Borrow;
 #[derive(Debug)]
 pub struct Tab {
     widget: gtk::Box,
-    pub label: gtk::Label,
-    pub popover: gtk::Popover,
-    pub input: gtk::Entry,
+    pub label: gtk::EditableLabel,
     playlist: PlayList,
 }
 
 impl Tab {
     pub fn new(name: &str, uuid: &str) -> Self {
-        let label = gtk::Label::new(Some(name));
+        let label = gtk::EditableLabel::new(name);
         let playlist = PlayList::new_with_uuid(uuid);
         let widget = gtk::Box::new(gtk::Orientation::Horizontal, 10);
         let event_box = gtk::GestureClick::builder()
@@ -52,8 +50,6 @@ impl Tab {
         Self {
             widget,
             label,
-            popover,
-            input,
             playlist,
         }
     }
@@ -79,7 +75,7 @@ impl Tab {
     }
 
     pub fn clear_tab(&self) {
-        self.label.set_label(&gettext("new"));
+        self.label.set_text(&gettext("new"));
         self.playlist.store().borrow().clear();
     }
 
