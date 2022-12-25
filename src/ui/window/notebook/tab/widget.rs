@@ -4,10 +4,13 @@ use gtk::prelude::*;
 use gtk::{gdk, gio, glib};
 use std::borrow::Borrow;
 
+
 #[derive(Debug)]
 pub struct Tab {
     widget: gtk::Box,
     pub label: gtk::Label,
+    pub popover: gtk::Popover,
+    pub input: gtk::Entry,
     playlist: PlayList,
 }
 
@@ -24,7 +27,7 @@ impl Tab {
         widget.append(&label);
 
         let menu_data = gio::Menu::new();
-        let menu_item_rename = gio::MenuItem::new(Some(&gettext("Rename")), None);
+        let menu_item_rename = gio::MenuItem::new(Some(&gettext("Rename")), Some("tab.rename"));
         let menu_item_close = gio::MenuItem::new(Some(&gettext("Close")), Some("tab.close"));
         menu_data.append_item(&menu_item_rename);
         menu_data.append_item(&menu_item_close);
@@ -41,9 +44,16 @@ impl Tab {
             }
         ));
 
+        let popover = gtk::Popover::new();
+        let input = gtk::Entry::new();
+        popover.set_child(Some(&input));
+        widget.append(&popover);
+
         Self {
             widget,
             label,
+            popover,
+            input,
             playlist,
         }
     }
