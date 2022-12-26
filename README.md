@@ -2,9 +2,9 @@
 
 Simple audioplayer for GNOME.
 
-![](screenshots/1.png?raw=true&v=2)
+![](screenshots/1.png?raw=true&v=3)
 
-![](screenshots/2.png?raw=true&v=2)
+![](screenshots/2.png?raw=true&v=3)
 
 ## Build from source
 
