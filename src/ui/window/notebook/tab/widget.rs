@@ -15,6 +15,7 @@ pub struct Tab {
 impl Tab {
     pub fn new(name: &str, uuid: &str) -> Self {
         let label = gtk::EditableLabel::new(name);
+        label.set_editable(false);
         let playlist = PlayList::new_with_uuid(uuid);
         let widget = gtk::Box::new(gtk::Orientation::Horizontal, 10);
         let event_box = gtk::GestureClick::builder()

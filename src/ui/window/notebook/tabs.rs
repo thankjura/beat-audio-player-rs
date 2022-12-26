@@ -48,7 +48,10 @@ impl BeatNotebookImp {
             }
         }));
 
-        tab.label.connect_changed(glib::clone!(@weak tab => move |_e| {
+        tab.label.connect_editing_notify(glib::clone!(@weak tab => move |_e| {
+            if tab.label.is_editing() {
+                return ();
+            }
             if let Some(notebook) = tab.widget().ancestor(BeatNotebook::static_type()) {
                 let notebook = notebook.downcast::<BeatNotebook>();
                 if let Ok(notebook) = &notebook {
@@ -57,9 +60,11 @@ impl BeatNotebookImp {
                     notebook.emit_by_name::<()>("tab-changed", &[&tab_idx, &uuid]);
                 }
             }
+            tab.label.set_editable(false);
         }));
 
         rename_action.connect_activate(glib::clone!(@weak tab => move |_action, _value| {
+            tab.label.set_editable(true);
             tab.label.set_editing(true);
         }));
 
