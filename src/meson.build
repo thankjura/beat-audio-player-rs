@@ -3,7 +3,6 @@ pkgdatadir = join_paths(get_option('prefix'), get_option('datadir'), meson.proje
 conf = configuration_data()
 conf.set_quoted('GETTEXT_PACKAGE', 'beat')
 conf.set_quoted('LOCALEDIR', join_paths(get_option('prefix'), get_option('localedir')))
-conf.set_quoted('PKGDATADIR', pkgdatadir)
 
 configure_file(
     input: 'config.rs.in',

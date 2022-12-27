@@ -1,5 +1,4 @@
 use crate::structs::track::Track;
-use gettextrs::gettext;
 use gstreamer::glib::BoxedAnyObject;
 use gstreamer::State;
 use gtk::prelude::*;
@@ -7,8 +6,8 @@ use gtk::{ColumnViewColumn, Inscription, SignalListItemFactory};
 use std::cell::Ref;
 
 pub fn make_icon_column(_key: &str, name: &str) -> (SignalListItemFactory, ColumnViewColumn) {
-    let col_factory = gtk::SignalListItemFactory::new();
-    let col = gtk::ColumnViewColumn::new(Some(name), Some(&col_factory));
+    let col_factory = SignalListItemFactory::new();
+    let col = ColumnViewColumn::new(Some(name), Some(&col_factory));
     col.set_resizable(false);
     col.set_expand(false);
     col_factory.connect_setup(move |_factory, item| {
@@ -44,8 +43,8 @@ pub fn make_icon_column(_key: &str, name: &str) -> (SignalListItemFactory, Colum
 }
 
 pub fn make_position_column(_key: &str, name: &str) -> (SignalListItemFactory, ColumnViewColumn) {
-    let col_factory = gtk::SignalListItemFactory::new();
-    let col = gtk::ColumnViewColumn::new(Some(name), Some(&col_factory));
+    let col_factory = SignalListItemFactory::new();
+    let col = ColumnViewColumn::new(Some(name), Some(&col_factory));
     col.set_resizable(false);
     col.set_expand(false);
     col_factory.connect_setup(move |_factory, item| {
@@ -73,15 +72,10 @@ pub fn make_text_column(
     key: &str,
     name: &str,
     resizable: bool,
-    translate: bool,
-) -> (gtk::SignalListItemFactory, gtk::ColumnViewColumn) {
-    let col_factory = gtk::SignalListItemFactory::new();
+) -> (SignalListItemFactory, ColumnViewColumn) {
+    let col_factory = SignalListItemFactory::new();
     let col;
-    if translate {
-        col = ColumnViewColumn::new(Some(&gettext(name)), Some(&col_factory));
-    } else {
-        col = ColumnViewColumn::new(Some(name), Some(&col_factory));
-    }
+    col = ColumnViewColumn::new(Some(name), Some(&col_factory));
     col.set_resizable(resizable);
     col.set_expand(true);
     col_factory.connect_setup(move |_factory, item| {

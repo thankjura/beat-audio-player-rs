@@ -2,7 +2,7 @@ use crate::ui::window::notebook::playlist::cols::{
     make_icon_column, make_position_column, make_text_column,
 };
 use crate::ui::window::notebook::playlist::store::{get_track, PlayListStore};
-use crate::ui::window::notebook::playlist::{ColType, PLAY_LIST_COLS};
+use crate::ui::window::notebook::playlist::{ColType, get_cols};
 use crate::ui::BeatNotebook;
 use crate::BeatWindow;
 use gettextrs::gettext;
@@ -56,11 +56,13 @@ impl PlayList {
         view.set_enable_rubberband(true);
         view.set_vexpand(true);
 
-        for col in PLAY_LIST_COLS {
+        let cols = get_cols();
+
+        for col in cols {
             match col.col_type {
                 ColType::Text => {
                     let (_factory, column) =
-                        make_text_column(&col.key, &col.label, true, col.translate);
+                        make_text_column(&col.key, &col.label, true);
                     view.append_column(&column);
                 }
                 ColType::Icon => {
