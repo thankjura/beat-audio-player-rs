@@ -2,6 +2,7 @@ mod cols;
 mod store;
 mod widget;
 
+use gettextrs::gettext;
 pub use crate::structs::track::Track;
 pub use widget::PlayList;
 
@@ -13,46 +14,44 @@ enum ColType {
 
 struct PlayListCol {
     key: &'static str,
-    label: &'static str,
+    label: String,
     col_type: ColType,
-    translate: bool,
 }
 
-const PLAY_LIST_COLS: [PlayListCol; 6] = [
+fn get_cols() -> Vec<PlayListCol> {
+    let mut out = Vec::new();
+
+    out.push(
     PlayListCol {
         key: "",
-        label: "",
+        label: String::new(),
         col_type: ColType::Icon,
-        translate: false,
-    },
-    PlayListCol {
+    });
+    out.push(PlayListCol {
         key: "artist",
-        label: "Artist",
+        label: gettext("Artist"),
         col_type: ColType::Text,
-        translate: true,
-    },
-    PlayListCol {
+    });
+    out.push(PlayListCol {
         key: "album",
-        label: "Album",
+        label: gettext("Album"),
         col_type: ColType::Text,
-        translate: true,
-    },
-    PlayListCol {
+    });
+    out.push(PlayListCol {
         key: "title",
-        label: "Title",
+        label: gettext("Title"),
         col_type: ColType::Text,
-        translate: true,
-    },
-    PlayListCol {
+    });
+    out.push(PlayListCol {
         key: "duration",
-        label: "Duration",
+        label: gettext("Duration"),
         col_type: ColType::Text,
-        translate: true,
-    },
-    PlayListCol {
+    });
+    out.push(PlayListCol {
         key: "position",
-        label: "",
+        label: String::new(),
         col_type: ColType::Position,
-        translate: false,
-    },
-];
+    });
+
+    out
+}
