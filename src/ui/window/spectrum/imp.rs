@@ -1,4 +1,3 @@
-use crate::ui::window::spectrum::spectrum::{interpolate_colors, Color};
 use crate::ui::window::spectrum::BeatSpectrum;
 use gtk::glib;
 use gtk::prelude::{Cast, DrawingAreaExtManual};
@@ -8,14 +7,12 @@ use std::sync::Mutex;
 #[derive(Debug)]
 pub struct BeatSpectrumImp {
     pub specs: Mutex<Vec<f32>>,
-    pub colors: Mutex<Vec<Color>>,
 }
 
 impl Default for BeatSpectrumImp {
     fn default() -> Self {
         Self {
             specs: Mutex::new(vec![]),
-            colors: Mutex::new(interpolate_colors()),
         }
     }
 }

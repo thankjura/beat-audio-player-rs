@@ -4,6 +4,7 @@ use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassExt;
 use std::iter::zip;
 use std::mem;
+use lazy_static::lazy_static;
 
 pub type Color = [f64; 4];
 
@@ -12,7 +13,7 @@ pub const COLOR_UPPER: Color = [1.0, 0.0, 0.0, 1.0];
 pub const COL_BRICK_COUNT: u32 = 8;
 pub const GAP: f64 = 1.0;
 
-pub fn interpolate_colors() -> Vec<Color> {
+fn interpolate_colors() -> Vec<Color> {
     let mut out = vec![COLOR_LOWER];
     if COL_BRICK_COUNT < 2 {
         return out;
@@ -38,11 +39,14 @@ pub fn interpolate_colors() -> Vec<Color> {
     out
 }
 
+lazy_static! {
+    static ref COLORS: Vec<Color> = interpolate_colors();
+}
+
 pub fn draw_column(
     magnitude: f64,
     spec_min: f64,
     spec_max: f64,
-    colors: &Vec<Color>,
     col_width: f64,
     col_height: f64,
     cr: &cairo::Context,
@@ -58,7 +62,7 @@ pub fn draw_column(
         .round()
         .abs() as u64;
 
-    for (i, c) in colors.iter().enumerate() {
+    for (i, c) in COLORS.iter().enumerate() {
         if i as u64 >= upper {
             break;
         }
@@ -96,8 +100,6 @@ impl BeatSpectrumImp {
         let spec_max = *guard.iter().max_by(|a, b| a.total_cmp(b)).unwrap() as f64;
         let spec_min = *guard.iter().min_by(|a, b| a.total_cmp(b)).unwrap() as f64;
 
-        let colors = self.colors.lock().unwrap().clone();
-
         let w = w as f64;
         let h = h as f64;
         cr.push_group();
@@ -116,7 +118,6 @@ impl BeatSpectrumImp {
                 *spec as f64,
                 spec_min,
                 spec_max,
-                &colors,
                 col_width,
                 h,
                 cr,
