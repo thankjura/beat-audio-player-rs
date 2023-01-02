@@ -49,7 +49,7 @@ pub fn make_position_column(_key: &str, name: &str) -> (SignalListItemFactory, C
     col.set_expand(false);
     col_factory.connect_setup(move |_factory, item| {
         let item = item.downcast_ref::<gtk::ListItem>().unwrap();
-        let row = gtk::Inscription::new(None);
+        let row = Inscription::new(None);
         item.set_child(Some(&row));
     });
 
@@ -79,7 +79,7 @@ pub fn make_text_column(
     col.set_expand(true);
     col_factory.connect_setup(move |_factory, item| {
         let item = item.downcast_ref::<gtk::ListItem>().unwrap();
-        let row = gtk::Inscription::new(None);
+        let row = Inscription::new(None);
         item.set_child(Some(&row));
     });
 
