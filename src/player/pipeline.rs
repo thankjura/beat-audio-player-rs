@@ -59,8 +59,7 @@ impl BeatPlayerImp {
         let timer = glib::timeout_add_once(Duration::from_millis(300u64), move || {
             let player = player_ref.upgrade().unwrap();
             let mut guard = player.seek_timeout.lock().unwrap();
-            let value = mem::replace(&mut *guard, None);
-            drop(value);
+            let _value = mem::replace(&mut *guard, None);
             player.__set_position_percent(progress);
         });
 
@@ -70,10 +69,14 @@ impl BeatPlayerImp {
     pub fn __set_position_percent(&self, progress: f64) {
         if let Some(duration) = self.__get_duration() {
             let seek_value = ((duration as f64 / 100.0) * progress) as u64;
-            if let Err(_) = self.pipeline.seek_simple(
-                gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,
-                seek_value * gst::ClockTime::SECOND,
-            ) {
+            if self
+                .pipeline
+                .seek_simple(
+                    gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,
+                    seek_value * gst::ClockTime::SECOND,
+                )
+                .is_err()
+            {
                 println!("Can't seek");
             } else {
                 self.obj()

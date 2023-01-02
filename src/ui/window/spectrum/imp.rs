@@ -1,4 +1,3 @@
-use crate::ui::window::spectrum::BeatSpectrum;
 use gtk::glib;
 use gtk::prelude::{Cast, DrawingAreaExtManual};
 use gtk::subclass::prelude::*;
@@ -28,7 +27,7 @@ impl ObjectImpl for BeatSpectrumImp {
     fn constructed(&self) {
         self.parent_constructed();
         self.obj().set_draw_func(|area, cr, w, h| {
-            let area = area.downcast_ref::<BeatSpectrum>().unwrap();
+            let area = area.downcast_ref::<super::BeatSpectrum>().unwrap();
             BeatSpectrumImp::draw(area.imp(), cr, w, h);
         });
     }

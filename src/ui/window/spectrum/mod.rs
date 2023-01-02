@@ -1,5 +1,5 @@
+mod draw;
 mod imp;
-mod spectrum;
 
 use gtk::glib;
 

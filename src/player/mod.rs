@@ -57,7 +57,7 @@ impl BeatPlayer {
 
     pub fn add_to_queue(&self, tab_idx: u32, track_idx: u32, filepath: String) {
         //self.imp().queue.lock().unwrap().push_back(TrackRef { tab_idx, track_idx, filepath });
-        if let None = self.get_track_queue_position(tab_idx, track_idx) {
+        if self.get_track_queue_position(tab_idx, track_idx).is_none() {
             let mut guard = self.imp().queue.lock().unwrap();
             guard.push_back(TrackRef {
                 tab_idx,

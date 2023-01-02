@@ -94,6 +94,6 @@ impl Track {
     }
 
     pub fn state(&self) -> Option<State> {
-        self.state.borrow().clone()
+        *self.state.borrow()
     }
 }

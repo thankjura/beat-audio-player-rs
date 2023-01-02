@@ -26,7 +26,10 @@ fn load_resources() {
 
 #[cfg(debug_assertions)]
 fn load_resources() {
-    gio::resources_register_include!("beat.gresource").expect(&gettext("Could not load resources"));
+    Result::expect(
+        gio::resources_register_include!("beat.gresource"),
+        &gettext("Could not load resources"),
+    );
 }
 
 fn main() {

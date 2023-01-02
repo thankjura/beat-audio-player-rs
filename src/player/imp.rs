@@ -96,7 +96,7 @@ impl BeatPlayerImp {
     }
 
     pub fn has_current_track(&self) -> bool {
-        if let Some(_) = *self.current_track.lock().unwrap() {
+        if self.current_track.lock().unwrap().is_some() {
             return true;
         }
 

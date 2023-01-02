@@ -15,7 +15,7 @@ fn get_tag(filepath: &str) -> Option<lofty::Tag> {
     if let Ok(tagged_file) = lofty::read_from_path(filepath) {
         return match tagged_file.primary_tag() {
             Some(primary_tag) => Some(primary_tag.clone()),
-            None => tagged_file.first_tag().as_deref().cloned(),
+            None => tagged_file.first_tag().cloned(),
         };
     }
 

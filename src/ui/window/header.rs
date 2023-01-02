@@ -33,10 +33,8 @@ impl BeatWindowImp {
             if response == gtk::ResponseType::Ok {
                 let mut files = vec![];
 
-                for file in d.files().iter::<gio::File>().unwrap() {
-                    if let Ok(file) = file {
-                        files.push(file.path().unwrap().to_str().unwrap().to_string());
-                    }
+                for file in d.files().iter::<gio::File>().unwrap().flatten() {
+                    files.push(file.path().unwrap().to_str().unwrap().to_string());
                 }
                 window_ref.upgrade().unwrap().open_path(files, _keep_tab);
             }
@@ -81,24 +79,24 @@ impl BeatWindowImp {
     #[template_callback]
     fn on_stop(&self, _button: &gtk::Button) {
         self.instance()
-            .emit_by_name::<()>("action", &[&Action::STOP.get_value()]);
+            .emit_by_name::<()>("action", &[&Action::Stop.get_value()]);
     }
 
     #[template_callback]
     fn on_play(&self, _button: &gtk::Button) {
         self.instance()
-            .emit_by_name::<()>("action", &[&Action::PLAY.get_value()]);
+            .emit_by_name::<()>("action", &[&Action::Play.get_value()]);
     }
 
     #[template_callback]
     fn on_prev(&self, _button: &gtk::Button) {
         self.instance()
-            .emit_by_name::<()>("action", &[&Action::PREV.get_value()]);
+            .emit_by_name::<()>("action", &[&Action::Prev.get_value()]);
     }
 
     #[template_callback]
     fn on_next(&self, _button: &gtk::Button) {
         self.instance()
-            .emit_by_name::<()>("action", &[&Action::NEXT.get_value()]);
+            .emit_by_name::<()>("action", &[&Action::Next.get_value()]);
     }
 }

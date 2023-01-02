@@ -18,7 +18,7 @@ impl BeatWindowImp {
         }
 
         let page = self.notebook.imp().notebook.page(tab.playlist().body());
-        let position = page.position().abs() as u32;
+        let position = page.position().unsigned_abs();
         self.notebook
             .emit_by_name::<()>("tab-changed", &[&position, &tab.uuid()]);
     }

@@ -16,7 +16,7 @@ pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> 
     let mut append = false;
 
     if let Ok(val) = options.lookup::<bool>("append") {
-        if let Some(_) = val {
+        if val.is_some() {
             append = true;
         }
     }

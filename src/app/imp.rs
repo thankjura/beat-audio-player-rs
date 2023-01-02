@@ -72,7 +72,7 @@ impl ApplicationImpl for BeatAppImp {
         let window = Rc::new(window);
 
         self.window.replace(Some(window.clone()));
-        self.player.replace(Some(player.clone()));
+        self.player.replace(Some(player));
         self.settings.replace(Some(settings));
 
         window.present();

@@ -60,16 +60,16 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
         let player = player_weak.upgrade().unwrap();
         if let Some(action) = Action::from_value(values[1].get::<u8>().unwrap()) {
             match action {
-                Action::PLAY => {
+                Action::Play => {
                     player.toggle_play();
                 }
-                Action::STOP => {
+                Action::Stop => {
                     player.stop();
                 }
-                Action::NEXT => {
+                Action::Next => {
                     player.next();
                 }
-                Action::PREV => {
+                Action::Prev => {
                     player.prev();
                 }
             }
@@ -148,12 +148,12 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
         let track_path = values[3].get::<String>().unwrap();
         let state = values[4].get::<State>().unwrap();
 
-        let track_ref;
-        if tab_idx >= 0 && track_idx >= 0 {
-            track_ref = Some((tab_idx as u32, track_idx as u32, track_path));
+        let track_ref = if tab_idx >= 0 && track_idx >= 0 {
+            Some((tab_idx as u32, track_idx as u32, track_path))
         } else {
-            track_ref = None
-        }
+            None
+        };
+
         sender_ref
             .send(Msg::StateChanged(track_ref, state))
             .unwrap();
@@ -193,7 +193,7 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
         None
     });
 
-    let sender_ref = sender.clone();
+    let sender_ref = sender;
     player.connect("queue-changed", true, move |values| {
         let tab_idx = values[1].get::<u32>().unwrap();
         let track_idx = values[2].get::<u32>().unwrap();

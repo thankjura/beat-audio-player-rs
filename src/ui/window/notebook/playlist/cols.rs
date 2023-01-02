@@ -74,8 +74,7 @@ pub fn make_text_column(
     resizable: bool,
 ) -> (SignalListItemFactory, ColumnViewColumn) {
     let col_factory = SignalListItemFactory::new();
-    let col;
-    col = ColumnViewColumn::new(Some(name), Some(&col_factory));
+    let col = ColumnViewColumn::new(Some(name), Some(&col_factory));
     col.set_resizable(resizable);
     col.set_expand(true);
     col_factory.connect_setup(move |_factory, item| {

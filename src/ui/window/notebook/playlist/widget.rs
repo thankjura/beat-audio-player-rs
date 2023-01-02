@@ -2,7 +2,7 @@ use crate::ui::window::notebook::playlist::cols::{
     make_icon_column, make_position_column, make_text_column,
 };
 use crate::ui::window::notebook::playlist::store::{get_track, PlayListStore};
-use crate::ui::window::notebook::playlist::{ColType, get_cols};
+use crate::ui::window::notebook::playlist::{get_cols, ColType};
 use crate::ui::BeatNotebook;
 use crate::BeatWindow;
 use gettextrs::gettext;
@@ -61,16 +61,15 @@ impl PlayList {
         for col in cols {
             match col.col_type {
                 ColType::Text => {
-                    let (_factory, column) =
-                        make_text_column(&col.key, &col.label, true);
+                    let (_factory, column) = make_text_column(col.key, &col.label, true);
                     view.append_column(&column);
                 }
                 ColType::Icon => {
-                    let (_factory, column) = make_icon_column(&col.key, &col.label);
+                    let (_factory, column) = make_icon_column(col.key, &col.label);
                     view.append_column(&column);
                 }
                 ColType::Position => {
-                    let (_factory, column) = make_position_column(&col.key, &col.label);
+                    let (_factory, column) = make_position_column(col.key, &col.label);
                     view.append_column(&column);
                 }
             }
@@ -125,10 +124,10 @@ impl PlayList {
 
         clear_selection_box.connect_pressed(move |_event, n_press, x, y| {
             if n_press != 1 {
-                return ();
+                return;
             }
             let view = view_ref.upgrade().unwrap();
-            if let None = get_clicked_row(&view, x, y) {
+            if get_clicked_row(&view, x, y).is_none() {
                 view.model().unwrap().unselect_all();
             }
         });
@@ -159,7 +158,7 @@ impl PlayList {
 
         context_menu_box.connect_pressed(move |_event, n_press, x, y| {
             if n_press != 1 {
-                return ();
+                return;
             }
 
             let view = view_ref.upgrade().unwrap();

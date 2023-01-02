@@ -53,7 +53,7 @@ impl BeatPlayerImp {
 
     pub fn connect_spectrum<F>(&self, f: F)
     where
-        F: Fn(Vec<f32>) -> () + Send + Sync + 'static,
+        F: Fn(Vec<f32>) + Send + Sync + 'static,
     {
         let bus = self.pipeline.bus().unwrap();
 

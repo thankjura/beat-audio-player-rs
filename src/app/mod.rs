@@ -22,7 +22,7 @@ impl BeatApp {
 
     pub fn has_window(&self) -> bool {
         let obj = self.imp();
-        if let Some(_) = obj.window.borrow_mut().as_ref() {
+        if obj.window.borrow_mut().is_some() {
             return true;
         };
 
@@ -31,7 +31,7 @@ impl BeatApp {
 
     pub fn get_window(&self) -> Option<Rc<BeatWindow>> {
         let obj = self.imp();
-        if let Some(win) = obj.window.borrow_mut().as_ref().clone() {
+        if let Some(win) = obj.window.borrow_mut().as_ref() {
             return Some(win.clone());
         }
 

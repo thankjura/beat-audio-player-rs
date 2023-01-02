@@ -4,7 +4,6 @@ use gtk::prelude::*;
 use gtk::{gdk, gio, glib};
 use std::borrow::Borrow;
 
-
 #[derive(Debug)]
 pub struct Tab {
     widget: gtk::Box,
@@ -72,7 +71,7 @@ impl Tab {
     }
 
     pub fn playlist(&self) -> &PlayList {
-        return &self.playlist;
+        &self.playlist
     }
 
     pub fn clear_tab(&self) {

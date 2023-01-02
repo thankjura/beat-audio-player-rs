@@ -65,10 +65,8 @@ impl BeatSettings {
         if let Some(section) = self.config.remove_section(uuid) {
             if let Some(Some(filename)) = section.get("file") {
                 let path = PathBuf::from(filename);
-                if path.is_file() {
-                    if let Err(_) = fs::remove_file(path) {
-                        println!("Can't remove playlist file");
-                    }
+                if path.is_file() && fs::remove_file(path).is_err() {
+                    println!("Can't remove playlist file");
                 }
             }
         }
@@ -104,7 +102,7 @@ impl BeatSettings {
                         artist: track.get_by_name("artist").map(|s| s.to_string()),
                         album: track.get_by_name("album").map(|s| s.to_string()),
                         title: track.get_by_name("title").map(|s| s.to_string()),
-                        length: track.duration().map(|s| s.to_string()),
+                        length: track.duration().map(|s| String::to_string(&s)),
                     })
                     .unwrap();
             }
@@ -120,19 +118,19 @@ impl BeatSettings {
         let selected_tab = self
             .config
             .get("main", "selected")
-            .unwrap_or("000".to_string());
+            .unwrap_or_else(|| "000".to_string());
 
         for section in self.config.sections().iter() {
             if REGEXP.is_match(section) {
                 let section_map = self.config.get_map_ref()[section].clone();
 
                 if let Some(Some(playlist_path)) = &section_map.get("file").clone() {
-                    let playlist_path = PathBuf::from(self.config_dir.join(playlist_path));
+                    let playlist_path = self.config_dir.join(playlist_path);
                     if let Ok(_file) = File::open(&playlist_path) {
                         let mut tracks = vec![];
                         let position;
                         let label;
-                        if let Some(Some(pos)) = section_map.get("position").clone() {
+                        if let Some(Some(pos)) = section_map.get("position") {
                             if let Ok(pos) = pos.parse::<u32>() {
                                 position = pos;
                             } else {
@@ -142,31 +140,28 @@ impl BeatSettings {
                             position = 0;
                         }
 
-                        if let Some(Some(l)) = section_map.get("label").clone() {
+                        if let Some(Some(l)) = section_map.get("label") {
                             label = l.to_string();
                         } else {
                             label = "unknown".to_string();
                         }
 
                         if let Ok(mut reader) = csv::Reader::from_path(&playlist_path) {
-                            for r in reader.deserialize::<PlRow>() {
-                                if let Ok(r) = r {
-                                    let r: PlRow = r;
-                                    let path = PathBuf::from(r.src);
-                                    tracks.push(Track::new(
-                                        path.file_name().unwrap().to_str().unwrap(),
-                                        path.to_str().unwrap(),
-                                        r.album.as_ref().map(|s| &**s),
-                                        r.title.as_ref().map(|s| &**s),
-                                        r.artist.as_ref().map(|s| &**s),
-                                        None,
-                                        r.length.as_ref().map(|s| &**s),
-                                    ));
-                                }
+                            for r in reader.deserialize::<PlRow>().into_iter().flatten() {
+                                let path = PathBuf::from(r.src);
+                                tracks.push(Track::new(
+                                    path.file_name().unwrap().to_str().unwrap(),
+                                    path.to_str().unwrap(),
+                                    r.album.as_deref(),
+                                    r.title.as_deref(),
+                                    r.artist.as_deref(),
+                                    None,
+                                    r.length.as_deref(),
+                                ));
                             }
                         }
 
-                        if tracks.len() > 0 {
+                        if !tracks.is_empty() {
                             out.push(TabData {
                                 rows: tracks,
                                 uuid: section.to_string(),

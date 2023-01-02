@@ -2,9 +2,9 @@ use crate::ui::window::spectrum::imp::BeatSpectrumImp;
 use gtk::cairo;
 use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassExt;
+use lazy_static::lazy_static;
 use std::iter::zip;
 use std::mem;
-use lazy_static::lazy_static;
 
 pub type Color = [f64; 4];
 
@@ -28,7 +28,7 @@ fn interpolate_colors() -> Vec<Color> {
 
         for _s in 0..(COL_BRICK_COUNT - 2) {
             let mut c = vec![];
-            for (index, value) in out.last().unwrap().into_iter().enumerate() {
+            for (index, value) in out.last().unwrap().iter().enumerate() {
                 c.push(value + step_details[index]);
             }
             out.push([c[0], c[1], c[2], c[3]]);
@@ -106,7 +106,7 @@ impl BeatSpectrumImp {
 
         let cols_count = guard.len() as f64;
 
-        let col_width = (w - (GAP * (cols_count as f64 - 1.0))) / cols_count;
+        let col_width = (w - (GAP * (cols_count - 1.0))) / cols_count;
         let mut x_pos = w - GAP - col_width;
 
         for (i, spec) in guard.iter().enumerate() {
@@ -114,15 +114,7 @@ impl BeatSpectrumImp {
                 x_pos -= GAP + col_width;
             }
 
-            draw_column(
-                *spec as f64,
-                spec_min,
-                spec_max,
-                col_width,
-                h,
-                cr,
-                x_pos,
-            );
+            draw_column(*spec as f64, spec_min, spec_max, col_width, h, cr, x_pos);
         }
 
         cr.pop_group_to_source().unwrap();

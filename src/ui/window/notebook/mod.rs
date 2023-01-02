@@ -88,12 +88,10 @@ impl BeatNotebook {
                 let mut rng = rand::thread_rng();
                 let random = rng.gen_range(0..tab.playlist().store().size());
                 next_index = Some(random);
-            } else {
-                if let Some(_) = tab.playlist().store().get_track(track_idx + 1) {
-                    next_index = Some(track_idx + 1);
-                } else if repeat {
-                    next_index = Some(0);
-                }
+            } else if tab.playlist().store().get_track(track_idx + 1).is_some() {
+                next_index = Some(track_idx + 1);
+            } else if repeat {
+                next_index = Some(0);
             }
 
             if let Some(next_index) = next_index {
