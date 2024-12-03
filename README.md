@@ -18,4 +18,4 @@ sudo ninja -C build install
 
 ## Gentoo
 
-install from overlay https://github.com/thankjura/overlay
+install from overlay https://github.com/thankjura/masterlay
