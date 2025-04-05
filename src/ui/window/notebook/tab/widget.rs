@@ -2,9 +2,8 @@ use crate::ui::window::notebook::playlist::{PlayList, Track};
 use gettextrs::gettext;
 use gtk::prelude::*;
 use gtk::{gdk, gio, glib};
-use std::borrow::Borrow;
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub struct Tab {
     widget: gtk::Box,
     pub label: gtk::EditableLabel,
@@ -76,7 +75,7 @@ impl Tab {
 
     pub fn clear_tab(&self) {
         self.label.set_text(&gettext("new"));
-        self.playlist.store().borrow().clear();
+        self.playlist.store().clear();
     }
 
     pub fn active_track(&self) -> Option<u32> {

@@ -31,7 +31,7 @@ pub struct BeatWindowImp {
     pub duration_label: TemplateChild<gtk::Label>,
 
     #[template_child(id = "cover")]
-    pub cover: TemplateChild<gtk::Picture>,
+    pub cover: TemplateChild<gtk::Image>,
 
     #[template_child(id = "spectrum")]
     pub spectrum: TemplateChild<BeatSpectrum>,

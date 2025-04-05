@@ -11,7 +11,7 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::ObjectSubclassIsExt;
 use gtk::{gdk, gio, ListView, Orientation, PickFlags};
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub struct PlayList {
     uuid: String,
     container: gtk::Box,

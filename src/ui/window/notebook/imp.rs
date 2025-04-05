@@ -8,7 +8,7 @@ use gtk::subclass::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
 
-#[derive(Default, Debug)]
+#[derive(Default)]
 pub struct BeatNotebookImp {
     pub notebook: gtk::Notebook,
     pub tabs: RefCell<Vec<Rc<Tab>>>,

@@ -5,7 +5,7 @@ use gtk::prelude::*;
 use gtk::{gio, glib};
 use std::cell::Ref;
 
-#[derive(Debug)]
+#[derive(Clone)]
 pub struct PlayListStore {
     store: gio::ListStore,
     selector: gtk::MultiSelection,
