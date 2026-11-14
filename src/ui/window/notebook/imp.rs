@@ -1,12 +1,12 @@
 use crate::ui::window::notebook::tab::Tab;
 use gtk::glib;
-use gtk::glib::once_cell::sync::Lazy;
 use gtk::glib::subclass::Signal;
 use gtk::glib::Type;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::OnceLock;
 
 #[derive(Default)]
 pub struct BeatNotebookImp {
@@ -27,7 +27,8 @@ impl ObjectSubclass for BeatNotebookImp {
 
 impl ObjectImpl for BeatNotebookImp {
     fn signals() -> &'static [Signal] {
-        static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
+        static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
+        SIGNALS.get_or_init(|| {
             vec![
                 Signal::builder("track-activated")
                     .param_types([u32::static_type(), u32::static_type(), Type::STRING])
@@ -45,9 +46,7 @@ impl ObjectImpl for BeatNotebookImp {
                     .param_types([u32::static_type(), u32::static_type()])
                     .build(),
             ]
-        });
-
-        SIGNALS.as_ref()
+        })
     }
 
     fn constructed(&self) {

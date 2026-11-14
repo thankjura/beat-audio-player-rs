@@ -14,10 +14,10 @@ glib::wrapper! {
 
 impl BeatApp {
     pub fn new(app_id: &str) -> Self {
-        glib::Object::new(&[
-            ("application-id", &app_id),
-            ("flags", &gio::ApplicationFlags::HANDLES_COMMAND_LINE),
-        ])
+        glib::Object::builder()
+            .property("application-id", app_id)
+            .property("flags", gio::ApplicationFlags::HANDLES_COMMAND_LINE)
+            .build()
     }
 
     pub fn has_window(&self) -> bool {

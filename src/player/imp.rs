@@ -1,15 +1,14 @@
 use crate::player::TrackRef;
 use crate::structs::{SPECTRUM_BANDS, SPECTRUM_INTERVAL, SPECTRUM_THRESHOLD};
 use gst::prelude::*;
+use gstreamer as gst;
 use gstreamer::prelude::{ElementExtManual, GstBinExtManual};
 use gstreamer::{Element, Pipeline, State};
-use gstreamer_player::gst;
 use gtk::glib;
-use gtk::glib::once_cell::sync::Lazy;
 use gtk::glib::subclass::Signal;
 use gtk::subclass::prelude::*;
 use std::collections::VecDeque;
-use std::sync::Mutex;
+use std::sync::{Mutex, OnceLock};
 
 pub struct BeatPlayerImp {
     pub pipeline: Pipeline,
@@ -51,7 +50,7 @@ impl BeatPlayerImp {
             &volume,
             &sink,
         ];
-        pipeline.add_many(&elements).unwrap();
+        pipeline.add_many(elements).unwrap();
         file_src.link(&decode_bin).unwrap();
         audio_convert.link(&spectrum).unwrap();
         spectrum.link(&volume).unwrap();
@@ -121,7 +120,8 @@ impl ObjectSubclass for BeatPlayerImp {
 
 impl ObjectImpl for BeatPlayerImp {
     fn signals() -> &'static [Signal] {
-        static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
+        static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
+        SIGNALS.get_or_init(|| {
             vec![
                 Signal::builder("state-changed")
                     .param_types([
@@ -146,9 +146,7 @@ impl ObjectImpl for BeatPlayerImp {
                 Signal::builder("query-next").build(),
                 Signal::builder("query-prev").build(),
             ]
-        });
-
-        SIGNALS.as_ref()
+        })
     }
 
     fn constructed(&self) {

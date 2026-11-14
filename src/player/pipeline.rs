@@ -1,10 +1,9 @@
 use crate::player::imp::BeatPlayerImp;
+use gstreamer as gst;
 use gstreamer::prelude::*;
 use gstreamer::State;
-use gstreamer_player::gst;
 use gtk::glib;
 use gtk::subclass::prelude::*;
-use std::mem;
 use std::time::Duration;
 
 impl BeatPlayerImp {
@@ -49,18 +48,16 @@ impl BeatPlayerImp {
     }
 
     pub fn set_position_percent_smooth(&self, progress: f64) {
-        if self.seek_timeout.lock().unwrap().is_some() {
-            let mut guard = self.seek_timeout.lock().unwrap();
-            let timer_id = mem::replace(&mut *guard, None);
-            timer_id.unwrap().remove();
+        if let Some(timer_id) = self.seek_timeout.lock().unwrap().take() {
+            timer_id.remove();
         }
 
         let player_ref = self.downgrade();
-        let timer = glib::timeout_add_once(Duration::from_millis(300u64), move || {
-            let player = player_ref.upgrade().unwrap();
-            let mut guard = player.seek_timeout.lock().unwrap();
-            let _value = mem::replace(&mut *guard, None);
-            player.__set_position_percent(progress);
+        let timer = glib::timeout_add_once(Duration::from_millis(300), move || {
+            if let Some(player) = player_ref.upgrade() {
+                player.seek_timeout.lock().unwrap().take();
+                player.__set_position_percent(progress);
+            }
         });
 
         self.seek_timeout.lock().unwrap().replace(timer);

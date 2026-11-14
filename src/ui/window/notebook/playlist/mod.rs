@@ -47,7 +47,7 @@ fn get_cols() -> Vec<PlayListCol> {
         },
         PlayListCol {
             key: "position",
-            label: String::new(),
+            label: "#".to_string(),
             col_type: ColType::Position,
         },
     ]

@@ -21,7 +21,7 @@ glib::wrapper! {
 
 impl Default for BeatPlayer {
     fn default() -> Self {
-        glib::Object::new(&[])
+        glib::Object::new()
     }
 }
 
@@ -152,13 +152,13 @@ impl BeatPlayer {
         }
     }
 
-    fn __tick(&self) -> glib::Continue {
+    fn __tick(&self) -> glib::ControlFlow {
         if self.imp().seek_timeout.lock().unwrap().is_none() {
             if let Some((position, progress)) = self.imp().__get_position_progress() {
                 self.emit_by_name::<()>("progress-changed", &[&position, &progress]);
             }
         }
-        glib::Continue(true)
+        glib::ControlFlow::Continue
     }
 
     fn __on_error(&self) {

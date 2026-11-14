@@ -65,6 +65,13 @@ impl Track {
         }
     }
 
+    pub fn display_title(&self) -> &str {
+        self.title
+            .as_deref()
+            .filter(|title| !title.trim().is_empty())
+            .unwrap_or(&self.filename)
+    }
+
     pub fn filepath(&self) -> &str {
         &self.filepath
     }
@@ -95,5 +102,41 @@ impl Track {
 
     pub fn state(&self) -> Option<State> {
         *self.state.borrow()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::Track;
+
+    fn track_with_title(title: Option<&str>) -> Track {
+        Track::new(
+            "NINETRAUMA_-_Pain_Movement_(SkySound.cc).mp3",
+            "/home/jura/Music/NINETRAUMA_-_Pain_Movement_(SkySound.cc).mp3",
+            None,
+            title,
+            None,
+            None,
+            None,
+        )
+    }
+
+    #[test]
+    fn display_title_prefers_metadata() {
+        let track = track_with_title(Some("Pain Movement"));
+
+        assert_eq!(track.display_title(), "Pain Movement");
+    }
+
+    #[test]
+    fn display_title_falls_back_to_filename() {
+        for title in [None, Some(""), Some("   ")] {
+            let track = track_with_title(title);
+
+            assert_eq!(
+                track.display_title(),
+                "NINETRAUMA_-_Pain_Movement_(SkySound.cc).mp3"
+            );
+        }
     }
 }

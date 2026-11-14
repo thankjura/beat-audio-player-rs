@@ -33,7 +33,8 @@ fn load_resources() {
 }
 
 fn main() {
-    setlocale(LocaleCategory::LcAll, "");
+    // SAFETY: locale initialization happens at startup, before GTK/GStreamer spawn threads.
+    unsafe { setlocale(LocaleCategory::LcAll, "") };
     bindtextdomain(GETTEXT_PACKAGE, LOCALEDIR).expect("Unable to bind the text domain");
     bind_textdomain_codeset(GETTEXT_PACKAGE, "UTF-8")
         .expect("Unable to set the text domain encoding");
@@ -45,5 +46,5 @@ fn main() {
     let app = BeatApp::new(APP_ID);
     ui::cli::make_cli(&app);
 
-    std::process::exit(app.run());
+    std::process::exit(app.run().into());
 }

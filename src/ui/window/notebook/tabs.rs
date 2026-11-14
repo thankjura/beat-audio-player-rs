@@ -27,46 +27,67 @@ impl BeatNotebookImp {
         action_group.add_action(&close_action);
         tab.widget().insert_action_group("tab", Some(&action_group));
 
-        close_action.connect_activate(glib::clone!(@weak tab => move |_action, _value| {
-            if let Some(notebook) = tab.widget().ancestor(BeatNotebook::static_type()) {
-                let notebook = notebook.downcast::<BeatNotebook>();
-                if let Ok(notebook) = &notebook {
-                    let tabs_count = notebook.imp().tabs.borrow().len();
+        close_action.connect_activate(glib::clone!(
+            #[weak]
+            tab,
+            move |_action, _value| {
+                if let Some(notebook) = tab.widget().ancestor(BeatNotebook::static_type()) {
+                    let notebook = notebook.downcast::<BeatNotebook>();
+                    if let Ok(notebook) = &notebook {
+                        let tabs_count = notebook.imp().tabs.borrow().len();
 
-                    let value = notebook.imp().tabs.borrow().iter().position(|item| Rc::ptr_eq(item, &tab));
-                    if let Some(value) = value {
-                        let tab_idx = value as u32;
-                        notebook.emit_by_name::<()>("tab-removed", &[&tab_idx, &tab.uuid()]);
-                        if tabs_count > 1 {
-                            notebook.imp().notebook.remove_page(Some(tab_idx));
-                            notebook.imp().tabs.borrow_mut().remove(value);
-                        } else {
-                            tab.clear_tab();
+                        let value = notebook
+                            .imp()
+                            .tabs
+                            .borrow()
+                            .iter()
+                            .position(|item| Rc::ptr_eq(item, &tab));
+                        if let Some(value) = value {
+                            let tab_idx = value as u32;
+                            notebook.emit_by_name::<()>("tab-removed", &[&tab_idx, &tab.uuid()]);
+                            if tabs_count > 1 {
+                                notebook.imp().notebook.remove_page(Some(tab_idx));
+                                notebook.imp().tabs.borrow_mut().remove(value);
+                            } else {
+                                tab.clear_tab();
+                            }
                         }
                     }
                 }
             }
-        }));
+        ));
 
-        tab.label.connect_editing_notify(glib::clone!(@weak tab => move |_e| {
-            if tab.label.is_editing() {
-                return;
-            }
-            if let Some(notebook) = tab.widget().ancestor(BeatNotebook::static_type()) {
-                let notebook = notebook.downcast::<BeatNotebook>();
-                if let Ok(notebook) = &notebook {
-                    let uuid = tab.playlist().uuid();
-                    let tab_idx = notebook.imp().notebook.page(tab.playlist().body()).position() as u32;
-                    notebook.emit_by_name::<()>("tab-changed", &[&tab_idx, &uuid]);
+        tab.label.connect_editing_notify(glib::clone!(
+            #[weak]
+            tab,
+            move |_e| {
+                if tab.label.is_editing() {
+                    return;
                 }
+                if let Some(notebook) = tab.widget().ancestor(BeatNotebook::static_type()) {
+                    let notebook = notebook.downcast::<BeatNotebook>();
+                    if let Ok(notebook) = &notebook {
+                        let uuid = tab.playlist().uuid();
+                        let tab_idx = notebook
+                            .imp()
+                            .notebook
+                            .page(tab.playlist().body())
+                            .position() as u32;
+                        notebook.emit_by_name::<()>("tab-changed", &[&tab_idx, &uuid]);
+                    }
+                }
+                tab.label.set_editable(false);
             }
-            tab.label.set_editable(false);
-        }));
+        ));
 
-        rename_action.connect_activate(glib::clone!(@weak tab => move |_action, _value| {
-            tab.label.set_editable(true);
-            tab.label.set_editing(true);
-        }));
+        rename_action.connect_activate(glib::clone!(
+            #[weak]
+            tab,
+            move |_action, _value| {
+                tab.label.set_editable(true);
+                tab.label.set_editing(true);
+            }
+        ));
 
         // End actions
 

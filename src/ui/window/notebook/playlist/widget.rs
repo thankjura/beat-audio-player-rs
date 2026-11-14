@@ -50,7 +50,7 @@ impl PlayList {
         let scrollbox = gtk::ScrolledWindow::new();
         let container = gtk::Box::new(Orientation::Vertical, 0);
         container.append(&scrollbox);
-        let view = gtk::ColumnView::new(Some(store.selector()));
+        let view = gtk::ColumnView::new(Some(store.selector().clone()));
         view.set_show_row_separators(true);
         view.set_show_column_separators(true);
         view.set_enable_rubberband(true);
@@ -61,15 +61,15 @@ impl PlayList {
         for col in cols {
             match col.col_type {
                 ColType::Text => {
-                    let (_factory, column) = make_text_column(col.key, &col.label, true);
+                    let column = make_text_column(col.key, &col.label, true);
                     view.append_column(&column);
                 }
                 ColType::Icon => {
-                    let (_factory, column) = make_icon_column(col.key, &col.label);
+                    let column = make_icon_column(col.key, &col.label);
                     view.append_column(&column);
                 }
                 ColType::Position => {
-                    let (_factory, column) = make_position_column(col.key, &col.label);
+                    let column = make_position_column(col.key, &col.label);
                     view.append_column(&column);
                 }
             }
@@ -116,7 +116,7 @@ impl PlayList {
             }
             true
         });
-        view.add_controller(&drag_box);
+        view.add_controller(drag_box);
 
         let clear_selection_box = gtk::GestureClick::builder().button(BUTTON_PRIMARY).build();
         let view_ref = view.downgrade();
@@ -132,7 +132,7 @@ impl PlayList {
             }
         });
 
-        view.add_controller(&clear_selection_box);
+        view.add_controller(clear_selection_box);
 
         let context_menu_box = gtk::GestureClick::builder()
             .button(BUTTON_SECONDARY)
@@ -208,7 +208,7 @@ impl PlayList {
             }
         });
 
-        view.add_controller(&context_menu_box);
+        view.add_controller(context_menu_box);
 
         // Actions
         let action_group = gio::SimpleActionGroup::new();
@@ -257,7 +257,7 @@ impl PlayList {
                 let index = selection.nth(i);
                 notebook.emit_by_name::<()>("queue-rm", &[&tab_idx, &index]);
             }
-            notebook.emit_by_name::<()>("tab-changed", &[&tab.uuid()]);
+            notebook.emit_by_name::<()>("tab-changed", &[&tab_idx, &tab.uuid()]);
         });
 
         let view_ref = view.downgrade();
@@ -270,9 +270,10 @@ impl PlayList {
             let tab = notebook.imp().selected_tab();
 
             let selection = tab.playlist().view.model().unwrap().selection();
-            let select_count = selection.size() as u32;
-            for i in 0..select_count {
-                let index = selection.nth(i);
+            let indices: Vec<u32> = (0..selection.size() as u32)
+                .map(|i| selection.nth(i))
+                .collect();
+            for index in indices.into_iter().rev() {
                 tab.playlist().store.rm_track(index);
                 notebook.emit_by_name::<()>("queue-rm", &[&tab_idx, &index]);
             }

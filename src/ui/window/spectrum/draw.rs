@@ -2,9 +2,9 @@ use crate::ui::window::spectrum::imp::BeatSpectrumImp;
 use gtk::cairo;
 use gtk::prelude::WidgetExt;
 use gtk::subclass::prelude::ObjectSubclassExt;
-use lazy_static::lazy_static;
 use std::iter::zip;
 use std::mem;
+use std::sync::LazyLock;
 
 pub type Color = [f64; 4];
 
@@ -21,8 +21,8 @@ fn interpolate_colors() -> Vec<Color> {
 
     if COL_BRICK_COUNT > 2 {
         let mut step_details = vec![];
-        for (left, right) in zip(COLOR_LOWER.into_iter(), COLOR_UPPER.into_iter()) {
-            let delta = right - left / ((COL_BRICK_COUNT - 1) as f64);
+        for (left, right) in zip(COLOR_LOWER, COLOR_UPPER) {
+            let delta = (right - left) / ((COL_BRICK_COUNT - 1) as f64);
             step_details.push(delta);
         }
 
@@ -39,9 +39,7 @@ fn interpolate_colors() -> Vec<Color> {
     out
 }
 
-lazy_static! {
-    static ref COLORS: Vec<Color> = interpolate_colors();
-}
+static COLORS: LazyLock<Vec<Color>> = LazyLock::new(interpolate_colors);
 
 pub fn draw_column(
     magnitude: f64,

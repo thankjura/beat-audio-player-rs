@@ -20,7 +20,7 @@ impl Tab {
             .button(gdk::BUTTON_SECONDARY)
             .propagation_phase(gtk::PropagationPhase::Capture)
             .build();
-        widget.add_controller(&event_box);
+        widget.add_controller(event_box.clone());
         widget.append(&label);
 
         let menu_data = gio::Menu::new();
@@ -32,7 +32,9 @@ impl Tab {
         let menu = gtk::PopoverMenu::builder().menu_model(&menu_model).build();
         widget.append(&menu);
 
-        event_box.connect_pressed(glib::clone!(@strong menu =>
+        event_box.connect_pressed(glib::clone!(
+            #[strong]
+            menu,
             move |gesture, count, _x, _y| {
                 if count == 1 {
                     gesture.set_state(gtk::EventSequenceState::Claimed);

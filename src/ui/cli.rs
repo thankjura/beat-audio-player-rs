@@ -3,9 +3,10 @@ use crate::BeatApp;
 use gettextrs::gettext;
 use gtk::gio::ApplicationCommandLine;
 use gtk::glib;
+use gtk::glib::ExitCode;
 use gtk::prelude::*;
 
-pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> i32 {
+pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> ExitCode {
     if let Some(win) = app.get_window() {
         win.present();
     } else {
@@ -38,7 +39,7 @@ pub fn on_command_line(app: &BeatApp, command_line: &ApplicationCommandLine) -> 
             .open_path(paths, append);
     }
 
-    0
+    ExitCode::SUCCESS
 }
 
 pub fn make_cli(app: &BeatApp) {

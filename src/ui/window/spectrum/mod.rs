@@ -5,5 +5,6 @@ use gtk::glib;
 
 glib::wrapper! {
     pub struct BeatSpectrum(ObjectSubclass<imp::BeatSpectrumImp>)
-        @extends gtk::Widget, gtk::DrawingArea;
+        @extends gtk::Widget, gtk::DrawingArea,
+        @implements gtk::Accessible, gtk::Buildable, gtk::ConstraintTarget;
 }

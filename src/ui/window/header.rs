@@ -6,54 +6,55 @@ use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 
 impl BeatWindowImp {
-    fn choose_files(&self, _keep_tab: bool) {
-        let binding = self.instance();
-        let w = binding.as_ref();
-        let dialog = gtk::FileChooserDialog::new(
-            Some(&gettext("Choose audio files or folder")),
-            Some(w),
-            gtk::FileChooserAction::Open,
-            &[
-                (&gettext("Open"), gtk::ResponseType::Ok),
-                (&gettext("Cancel"), gtk::ResponseType::Cancel),
-            ],
-        );
-
-        dialog.set_select_multiple(true);
-        dialog.set_modal(true);
+    fn choose_files(&self, keep_tab: bool) {
+        let window = self.obj();
+        let dialog = gtk::FileDialog::builder()
+            .title(gettext("Choose audio files or folder"))
+            .accept_label(gettext("Open"))
+            .modal(true)
+            .build();
 
         let audio_filter = gtk::FileFilter::new();
         audio_filter.add_mime_type("audio/*");
         audio_filter.add_mime_type("inode/directory");
         audio_filter.set_name(Some("Audio files or directory"));
-        dialog.add_filter(&audio_filter);
+
+        let filters = gio::ListStore::new::<gtk::FileFilter>();
+        filters.append(&audio_filter);
+        dialog.set_filters(Some(&filters));
+        dialog.set_default_filter(Some(&audio_filter));
 
         let window_ref = self.downgrade();
-        dialog.connect_response(move |d, response: gtk::ResponseType| {
-            if response == gtk::ResponseType::Ok {
-                let mut files = vec![];
+        dialog.open_multiple(
+            Some(window.as_ref()),
+            None::<&gio::Cancellable>,
+            move |result| {
+                let Ok(files) = result else {
+                    return;
+                };
+                let paths = files
+                    .iter::<gio::File>()
+                    .filter_map(Result::ok)
+                    .filter_map(|file| file.path())
+                    .filter_map(|path| path.into_os_string().into_string().ok())
+                    .collect();
 
-                for file in d.files().iter::<gio::File>().unwrap().flatten() {
-                    files.push(file.path().unwrap().to_str().unwrap().to_string());
+                if let Some(window) = window_ref.upgrade() {
+                    window.open_path(paths, keep_tab);
                 }
-                window_ref.upgrade().unwrap().open_path(files, _keep_tab);
-            }
-
-            d.close();
-        });
-
-        dialog.show();
+            },
+        );
     }
 
     pub fn set_playing_icon(&self, value: bool) {
         if value {
             self.button_play_img
                 .get()
-                .set_from_icon_name(Some("media-playback-pause-symbolic"))
+                .set_icon_name(Some("media-playback-pause-symbolic"))
         } else {
             self.button_play_img
                 .get()
-                .set_from_icon_name(Some("media-playback-start-symbolic"));
+                .set_icon_name(Some("media-playback-start-symbolic"));
         }
     }
 }
@@ -67,8 +68,7 @@ impl BeatWindowImp {
 
     #[template_callback]
     fn on_volume_changed(&self, value: f64) {
-        self.instance()
-            .emit_by_name::<()>("volume-changed", &[&value]);
+        self.obj().emit_by_name::<()>("volume-changed", &[&value]);
     }
 
     #[template_callback]
@@ -78,25 +78,25 @@ impl BeatWindowImp {
 
     #[template_callback]
     fn on_stop(&self, _button: &gtk::Button) {
-        self.instance()
+        self.obj()
             .emit_by_name::<()>("action", &[&Action::Stop.get_value()]);
     }
 
     #[template_callback]
     fn on_play(&self, _button: &gtk::Button) {
-        self.instance()
+        self.obj()
             .emit_by_name::<()>("action", &[&Action::Play.get_value()]);
     }
 
     #[template_callback]
     fn on_prev(&self, _button: &gtk::Button) {
-        self.instance()
+        self.obj()
             .emit_by_name::<()>("action", &[&Action::Prev.get_value()]);
     }
 
     #[template_callback]
     fn on_next(&self, _button: &gtk::Button) {
-        self.instance()
+        self.obj()
             .emit_by_name::<()>("action", &[&Action::Next.get_value()]);
     }
 }

@@ -40,11 +40,18 @@ impl ApplicationImpl for BeatAppImp {
     fn activate(&self) {
         self.parent_activate();
 
+        let display = gtk::gdk::Display::default().expect("GTK display must be available");
+        gtk::IconTheme::for_display(&display).add_resource_path("/ru/slie/beat/icons");
+
         let obj = self.obj();
         let window = BeatWindow::new(&*obj);
         window.set_title(Some(&gettext("Beat")));
         let player = Arc::new(BeatPlayer::default());
-        obj.connect_shutdown(glib::clone!(@weak window, @weak player =>
+        obj.connect_shutdown(glib::clone!(
+            #[weak]
+            window,
+            #[weak]
+            player,
             move |_| {
                 player.destroy();
                 window.destroy();

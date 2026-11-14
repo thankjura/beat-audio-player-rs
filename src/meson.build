@@ -18,13 +18,12 @@ run_command(
   check: true
 )
 
-cargo_bin  = find_program('cargo')
-cargo_opt  = [ '--manifest-path', meson.project_source_root() / 'Cargo.toml' ]
-cargo_opt += [ '--target-dir', meson.project_build_root()  / 'src' ]
-cargo_env  = [ 'CARGO_HOME=' + meson.project_build_root()  / 'cargo-home' ]
+cargo_bin = find_program('cargo')
+cargo_target_dir = meson.project_build_root() / 'src'
 
+cargo_release_opt = ''
 if get_option('buildtype') == 'release'
-  cargo_options += [ '--release' ]
+  cargo_release_opt = '--release'
   rust_target = 'release'
 else
   rust_target = 'debug'
@@ -39,8 +38,15 @@ cargo_build = custom_target(
   install: true,
   install_dir: get_option('bindir'),
   command: [
-    'env', cargo_env,
-    cargo_bin, 'build',
-    cargo_opt, '&&', 'cp', 'src' / rust_target / meson.project_name(), '@OUTPUT@',
+    'sh', '-c',
+    'env CARGO_HOME="$1" "$2" build --manifest-path "$3" --target-dir "$4" $5 && cp "$6" "$7"',
+    'sh',
+    meson.project_build_root() / 'cargo-home',
+    cargo_bin.full_path(),
+    meson.project_source_root() / 'Cargo.toml',
+    cargo_target_dir,
+    cargo_release_opt,
+    cargo_target_dir / rust_target / meson.project_name(),
+    '@OUTPUT@',
   ]
 )

@@ -2,7 +2,8 @@ use crate::structs::track::Track;
 use crate::utils::format::time_str;
 use gettextrs::gettext;
 use gtk::glib;
-use lofty::{Accessor, AudioFile, ItemKey};
+use lofty::prelude::{Accessor, AudioFile, ItemKey, TaggedFileExt};
+use lofty::tag::Tag;
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
@@ -11,7 +12,7 @@ fn get_cache_dir() -> PathBuf {
     glib::user_cache_dir().join("beat").join("covers")
 }
 
-fn get_tag(filepath: &str) -> Option<lofty::Tag> {
+fn get_tag(filepath: &str) -> Option<Tag> {
     if let Ok(tagged_file) = lofty::read_from_path(filepath) {
         return match tagged_file.primary_tag() {
             Some(primary_tag) => Some(primary_tag.clone()),
@@ -32,7 +33,7 @@ pub fn get_album_picture_path(path: &str) -> Option<PathBuf> {
 
     if let Some(tag) = get_tag(path) {
         let pictures = tag.pictures();
-        if let Some(pic) = pictures.get(0) {
+        if let Some(pic) = pictures.first() {
             if !cache_dir.exists() {
                 fs::create_dir_all(cache_dir).expect("Can't create cache directory");
             }
@@ -57,7 +58,7 @@ pub fn get_track_from_path(filepath: &str) -> Option<Track> {
 
     let filename = filepath.file_name().unwrap().to_str().unwrap();
 
-    if let Ok(tagged_file) = lofty::Probe::open(&filepath).unwrap().read() {
+    if let Ok(tagged_file) = lofty::read_from_path(&filepath) {
         let tag = match tagged_file.primary_tag() {
             Some(primary_tag) => Some(primary_tag),
             None => tagged_file.first_tag(),
@@ -69,10 +70,10 @@ pub fn get_track_from_path(filepath: &str) -> Option<Track> {
             return Some(Track::new(
                 filename,
                 filepath.to_str().unwrap(),
-                tag.get_string(&ItemKey::AlbumTitle),
-                tag.get_string(&ItemKey::TrackTitle),
-                tag.get_string(&ItemKey::TrackArtist),
-                tag.year(),
+                tag.get_string(ItemKey::AlbumTitle),
+                tag.get_string(ItemKey::TrackTitle),
+                tag.get_string(ItemKey::TrackArtist),
+                tag.date().map(|date| u32::from(date.year)),
                 Some(&time_str(duration.as_secs())),
             ));
         };

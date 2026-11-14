@@ -5,11 +5,8 @@ use gtk::prelude::*;
 use gtk::{ColumnViewColumn, Inscription, SignalListItemFactory};
 use std::cell::Ref;
 
-pub fn make_icon_column(_key: &str, name: &str) -> (SignalListItemFactory, ColumnViewColumn) {
+pub fn make_icon_column(_key: &str, name: &str) -> ColumnViewColumn {
     let col_factory = SignalListItemFactory::new();
-    let col = ColumnViewColumn::new(Some(name), Some(&col_factory));
-    col.set_resizable(false);
-    col.set_expand(false);
     col_factory.connect_setup(move |_factory, item| {
         let item = item.downcast_ref::<gtk::ListItem>().unwrap();
         let row = gtk::Image::new();
@@ -25,28 +22,31 @@ pub fn make_icon_column(_key: &str, name: &str) -> (SignalListItemFactory, Colum
         if let Some(state) = r.state() {
             match state {
                 State::Playing => {
-                    child.set_resource(Some("/ru/slie/beat/icons/play.svg"));
+                    child.set_icon_name(Some("beat-play-symbolic"));
                 }
                 State::Paused => {
-                    child.set_resource(Some("/ru/slie/beat/icons/pause.svg"));
+                    child.set_icon_name(Some("beat-pause-symbolic"));
                 }
                 _ => {
-                    child.set_resource(Some("/ru/slie/beat/icons/active.svg"));
+                    child.set_icon_name(Some("beat-active-symbolic"));
                 }
             }
         } else {
-            child.set_resource(None);
+            child.set_icon_name(None);
         }
     });
 
-    (col_factory, col)
-}
-
-pub fn make_position_column(_key: &str, name: &str) -> (SignalListItemFactory, ColumnViewColumn) {
-    let col_factory = SignalListItemFactory::new();
-    let col = ColumnViewColumn::new(Some(name), Some(&col_factory));
+    let col = ColumnViewColumn::new(Some(name), Some(col_factory));
     col.set_resizable(false);
     col.set_expand(false);
+    col.set_fixed_width(40);
+
+    col
+}
+
+pub fn make_position_column(_key: &str, name: &str) -> ColumnViewColumn {
+    let col_factory = SignalListItemFactory::new();
+
     col_factory.connect_setup(move |_factory, item| {
         let item = item.downcast_ref::<gtk::ListItem>().unwrap();
         let row = Inscription::new(None);
@@ -65,18 +65,17 @@ pub fn make_position_column(_key: &str, name: &str) -> (SignalListItemFactory, C
         }
     });
 
-    (col_factory, col)
+    let col = ColumnViewColumn::new(Some(name), Some(col_factory));
+    col.set_resizable(false);
+    col.set_expand(false);
+    col.set_fixed_width(48);
+
+    col
 }
 
-pub fn make_text_column(
-    key: &str,
-    name: &str,
-    resizable: bool,
-) -> (SignalListItemFactory, ColumnViewColumn) {
+pub fn make_text_column(key: &str, name: &str, resizable: bool) -> ColumnViewColumn {
     let col_factory = SignalListItemFactory::new();
-    let col = ColumnViewColumn::new(Some(name), Some(&col_factory));
-    col.set_resizable(resizable);
-    col.set_expand(true);
+
     col_factory.connect_setup(move |_factory, item| {
         let item = item.downcast_ref::<gtk::ListItem>().unwrap();
         let row = Inscription::new(None);
@@ -92,11 +91,17 @@ pub fn make_text_column(
         let r: Ref<Track> = entry.borrow();
         if field == "duration" {
             child.set_text(r.duration().as_deref());
+        } else if field == "title" {
+            child.set_text(Some(r.display_title()));
         } else {
             let value = r.get_by_name(&field);
             child.set_text(value);
         }
     });
 
-    (col_factory, col)
+    let col = ColumnViewColumn::new(Some(name), Some(col_factory));
+    col.set_resizable(resizable);
+    col.set_expand(true);
+
+    col
 }

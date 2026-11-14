@@ -13,12 +13,14 @@ impl BeatPlayerImp {
         let obj_ref = self.obj().downgrade();
 
         bus.connect_message(None, move |_bus, msg| {
-            let obj = &obj_ref.upgrade().unwrap();
+            let Some(obj) = obj_ref.upgrade() else {
+                return;
+            };
 
             match msg.view() {
                 MessageView::StateChanged(value) => {
                     if let Some(src) = msg.src() {
-                        if src != pipeline.upgrade().unwrap() {
+                        if src != &pipeline.upgrade().unwrap() {
                             return;
                         }
                     }
@@ -28,7 +30,7 @@ impl BeatPlayerImp {
                 MessageView::StreamStart(_state) => {
                     if let Some(src) = msg.src() {
                         let pipeline = pipeline.upgrade().unwrap();
-                        if src == pipeline {
+                        if src == &pipeline {
                             obj.__on_stream_start();
                         }
                     }
@@ -46,7 +48,9 @@ impl BeatPlayerImp {
         let obj_ref = self.obj().downgrade();
 
         glib::timeout_add_seconds(1, move || {
-            let obj = obj_ref.upgrade().unwrap();
+            let Some(obj) = obj_ref.upgrade() else {
+                return glib::ControlFlow::Break;
+            };
             obj.__tick()
         });
     }

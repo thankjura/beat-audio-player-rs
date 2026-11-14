@@ -4,6 +4,7 @@ use crate::structs::action::Action;
 use crate::utils::meta;
 use crate::utils::settings::BeatSettings;
 use crate::{BeatWindow, ObjectExt};
+use async_channel::unbounded;
 use gstreamer::State;
 use gtk::glib;
 use gtk::prelude::RangeExt;
@@ -18,6 +19,11 @@ enum Msg {
     RequestPrev,
     QueueChanged(u32, u32, u32),
     TabChanged(u32, String),
+}
+
+fn send_message(sender: &async_channel::Sender<Msg>, message: Msg) {
+    // The channel is unbounded, so sending never needs to block the GTK main loop.
+    let _ = sender.try_send(message);
 }
 
 pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mutex<BeatSettings>>) {
@@ -117,7 +123,7 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
             None
         });
 
-    let (sender, receiver) = glib::MainContext::channel(glib::PRIORITY_DEFAULT);
+    let (sender, receiver) = unbounded();
 
     let sender_ref = sender.clone();
     window
@@ -126,7 +132,7 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
         .connect("tab-changed", false, move |values| {
             let tab_idx = values[1].get::<u32>().unwrap();
             let tab_uuid = values[2].get::<String>().unwrap();
-            sender_ref.send(Msg::TabChanged(tab_idx, tab_uuid)).unwrap();
+            send_message(&sender_ref, Msg::TabChanged(tab_idx, tab_uuid));
             None
         });
 
@@ -135,9 +141,10 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
         let tab_idx = values[1].get::<u32>().unwrap();
         let track_idx = values[2].get::<u32>().unwrap();
         let duration = values[3].get::<u64>().unwrap();
-        sender_ref
-            .send(Msg::DurationChanged(tab_idx, track_idx, duration))
-            .unwrap();
+        send_message(
+            &sender_ref,
+            Msg::DurationChanged(tab_idx, track_idx, duration),
+        );
         None
     });
 
@@ -154,9 +161,7 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
             None
         };
 
-        sender_ref
-            .send(Msg::StateChanged(track_ref, state))
-            .unwrap();
+        send_message(&sender_ref, Msg::StateChanged(track_ref, state));
 
         None
     });
@@ -165,9 +170,7 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
     player.connect("progress-changed", true, move |values| {
         let position = values[1].get::<u64>().unwrap();
         let progress = values[2].get::<f64>().unwrap();
-        sender_ref
-            .send(Msg::ProgressChanged(position, progress))
-            .unwrap();
+        send_message(&sender_ref, Msg::ProgressChanged(position, progress));
         None
     });
 
@@ -175,21 +178,19 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
     player.connect("track-cleared", true, move |values| {
         let tab_idx = values[1].get::<u32>().unwrap();
         let track_idx = values[2].get::<u32>().unwrap();
-        sender_ref
-            .send(Msg::TrackCleared(tab_idx, track_idx))
-            .unwrap();
+        send_message(&sender_ref, Msg::TrackCleared(tab_idx, track_idx));
         None
     });
 
     let sender_ref = sender.clone();
     player.connect("query-next", true, move |_values| {
-        sender_ref.send(Msg::RequestNext).unwrap();
+        send_message(&sender_ref, Msg::RequestNext);
         None
     });
 
     let sender_ref = sender.clone();
     player.connect("query-prev", true, move |_values| {
-        sender_ref.send(Msg::RequestPrev).unwrap();
+        send_message(&sender_ref, Msg::RequestPrev);
         None
     });
 
@@ -198,80 +199,82 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
         let tab_idx = values[1].get::<u32>().unwrap();
         let track_idx = values[2].get::<u32>().unwrap();
         let position = values[3].get::<u32>().unwrap();
-        sender_ref
-            .send(Msg::QueueChanged(tab_idx, track_idx, position))
-            .unwrap();
+        send_message(&sender_ref, Msg::QueueChanged(tab_idx, track_idx, position));
         None
     });
 
     let spectrum = window.imp().spectrum.imp().downgrade();
     player.imp().connect_spectrum(move |value| {
-        let spectrum = spectrum.upgrade().unwrap();
-        spectrum.redraw(value);
+        if let Some(spectrum) = spectrum.upgrade() {
+            spectrum.redraw(value);
+        }
     });
 
     let window_ref = window.downgrade();
     let settings_ref = Arc::clone(settings);
 
-    receiver.attach(None, move |msg| {
-        let window = window_ref.upgrade().unwrap();
-        match msg {
-            Msg::DurationChanged(tab_idx, track_idx, duration) => {
-                window.imp().update_duration(tab_idx, track_idx, duration);
-            }
-            Msg::StateChanged(track_ref, state) => {
-                window.imp().set_playing_icon(State::Playing == state);
-                window.imp().spectrum.imp().clear();
+    glib::MainContext::default().spawn_local(async move {
+        while let Ok(msg) = receiver.recv().await {
+            let Some(window) = window_ref.upgrade() else {
+                break;
+            };
+            match msg {
+                Msg::DurationChanged(tab_idx, track_idx, duration) => {
+                    window.imp().update_duration(tab_idx, track_idx, duration);
+                }
+                Msg::StateChanged(track_ref, state) => {
+                    window.imp().set_playing_icon(State::Playing == state);
+                    window.imp().spectrum.imp().clear();
 
-                if let Some((tab_idx, track_idx, track_path)) = track_ref {
-                    if State::Playing == state {
-                        if let Some(path) = meta::get_album_picture_path(&track_path) {
-                            window.imp().set_cover(Some(path));
+                    if let Some((tab_idx, track_idx, track_path)) = track_ref {
+                        if State::Playing == state {
+                            if let Some(path) = meta::get_album_picture_path(&track_path) {
+                                window.imp().set_cover(Some(path));
+                            }
                         }
+                        window.imp().notebook.get().set_track_state(
+                            tab_idx,
+                            track_idx,
+                            Some(state),
+                        );
                     }
+                }
+                Msg::ProgressChanged(position, progress) => {
+                    let progress_element = &window.imp().progress;
+                    progress_element.block_signal(&handler_id);
+                    window.imp().update_progress(position, progress);
+                    progress_element.unblock_signal(&handler_id);
+                }
+                Msg::TrackCleared(tab_idx, track_idx) => {
                     window
                         .imp()
                         .notebook
                         .get()
-                        .set_track_state(tab_idx, track_idx, Some(state));
+                        .set_track_state(tab_idx, track_idx, None);
                 }
-            }
-            Msg::ProgressChanged(position, progress) => {
-                let progress_element = &window.imp().progress;
-                progress_element.block_signal(&handler_id);
-                window.imp().update_progress(position, progress);
-                progress_element.unblock_signal(&handler_id);
-            }
-            Msg::TrackCleared(tab_idx, track_idx) => {
-                window
-                    .imp()
-                    .notebook
-                    .get()
-                    .set_track_state(tab_idx, track_idx, None);
-            }
-            Msg::RequestNext => {
-                window.imp().notebook.get().activate_next();
-            }
-            Msg::RequestPrev => {
-                window.imp().notebook.get().activate_prev();
-            }
-            Msg::QueueChanged(tab_idx, track_idx, position) => {
-                window
-                    .imp()
-                    .notebook
-                    .get()
-                    .set_track_position(tab_idx, track_idx, position);
-            }
-            Msg::TabChanged(tab_idx, tab_uuid) => {
-                let mut settings = settings_ref.lock().unwrap();
-                let tracks = window.imp().notebook.get().get_tracks(tab_idx);
-                let mut tab_name = window.imp().notebook.get().tab_name(tab_idx);
-                if tab_name.is_none() {
-                    tab_name.replace("unknown".to_string());
+                Msg::RequestNext => {
+                    window.imp().notebook.get().activate_next();
                 }
-                settings.save_playlist(&tab_uuid, &tab_name.unwrap(), tracks)
+                Msg::RequestPrev => {
+                    window.imp().notebook.get().activate_prev();
+                }
+                Msg::QueueChanged(tab_idx, track_idx, position) => {
+                    window
+                        .imp()
+                        .notebook
+                        .get()
+                        .set_track_position(tab_idx, track_idx, position);
+                }
+                Msg::TabChanged(tab_idx, tab_uuid) => {
+                    let mut settings = settings_ref.lock().unwrap();
+                    let tracks = window.imp().notebook.get().get_tracks(tab_idx);
+                    let mut tab_name = window.imp().notebook.get().tab_name(tab_idx);
+                    if tab_name.is_none() {
+                        tab_name.replace("unknown".to_string());
+                    }
+                    settings.save_playlist(&tab_uuid, &tab_name.unwrap(), tracks)
+                }
             }
         }
-        glib::Continue(true)
     });
 }

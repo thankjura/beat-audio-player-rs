@@ -1,10 +1,10 @@
 use crate::ui::window::notebook::BeatNotebook;
 use crate::ui::window::spectrum::BeatSpectrum;
-use gtk::glib::once_cell::sync::Lazy;
 use gtk::glib::subclass::Signal;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
 use gtk::{glib, CompositeTemplate};
+use std::sync::OnceLock;
 
 #[derive(Default, CompositeTemplate)]
 #[template(resource = "/ru/slie/beat/ui/window.ui")]
@@ -61,7 +61,8 @@ impl ObjectSubclass for BeatWindowImp {
 
 impl ObjectImpl for BeatWindowImp {
     fn signals() -> &'static [Signal] {
-        static SIGNALS: Lazy<Vec<Signal>> = Lazy::new(|| {
+        static SIGNALS: OnceLock<Vec<Signal>> = OnceLock::new();
+        SIGNALS.get_or_init(|| {
             vec![
                 Signal::builder("action")
                     .param_types([u8::static_type()])
@@ -73,9 +74,7 @@ impl ObjectImpl for BeatWindowImp {
                     .param_types([Vec::<String>::static_type()])
                     .build(),
             ]
-        });
-
-        SIGNALS.as_ref()
+        })
     }
 
     fn constructed(&self) {

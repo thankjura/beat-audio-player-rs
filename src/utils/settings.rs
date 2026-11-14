@@ -1,9 +1,9 @@
 use configparser::ini::Ini;
 use gtk::glib;
-use lazy_static::lazy_static;
 use regex::Regex;
 use serde;
 use std::fs::File;
+use std::sync::LazyLock;
 use std::{fs, path::PathBuf};
 
 use crate::structs::track::Track;
@@ -14,11 +14,9 @@ pub struct BeatSettings {
     path: PathBuf,
 }
 
-lazy_static! {
-    static ref REGEXP: Regex =
-        Regex::new(r"^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}")
-            .unwrap();
-}
+static REGEXP: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}").unwrap()
+});
 
 #[derive(Debug)]
 pub struct TabData {
@@ -147,7 +145,7 @@ impl BeatSettings {
                         }
 
                         if let Ok(mut reader) = csv::Reader::from_path(&playlist_path) {
-                            for r in reader.deserialize::<PlRow>().into_iter().flatten() {
+                            for r in reader.deserialize::<PlRow>().flatten() {
                                 let path = PathBuf::from(r.src);
                                 tracks.push(Track::new(
                                     path.file_name().unwrap().to_str().unwrap(),
