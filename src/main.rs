@@ -14,7 +14,7 @@ use gettextrs::*;
 use gtk::gio;
 use gtk::prelude::*;
 
-const APP_ID: &str = "ru.slie.beat";
+pub const APP_ID: &str = "ru.slie.beat";
 
 #[cfg(not(debug_assertions))]
 fn load_resources() {

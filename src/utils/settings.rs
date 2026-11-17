@@ -8,6 +8,9 @@ use std::{fs, path::PathBuf};
 
 use crate::structs::track::Track;
 
+const MAIN_SECTION: &str = "main";
+const CLOSE_TO_TRAY_KEY: &str = "close_to_tray";
+
 pub struct BeatSettings {
     config: Ini,
     config_dir: PathBuf,
@@ -57,6 +60,21 @@ impl BeatSettings {
         self.config
             .write(&self.path)
             .expect("Can't save configuration");
+    }
+
+    /// Whether closing the main window hides it to the tray instead of quitting.
+    pub fn close_to_tray(&self) -> bool {
+        self.config
+            .getboolcoerce(MAIN_SECTION, CLOSE_TO_TRAY_KEY)
+            .ok()
+            .flatten()
+            .unwrap_or(true)
+    }
+
+    pub fn set_close_to_tray(&mut self, value: bool) {
+        self.config
+            .set(MAIN_SECTION, CLOSE_TO_TRAY_KEY, Some(value.to_string()));
+        self.save();
     }
 
     pub fn drop_playlist(&mut self, uuid: &str) {

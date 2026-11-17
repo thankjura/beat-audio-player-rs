@@ -1,3 +1,4 @@
+use crate::app::remote::Remote;
 use crate::gio::subclass::prelude::*;
 use crate::player::BeatPlayer;
 use crate::structs::action::Action;
@@ -8,6 +9,7 @@ use async_channel::unbounded;
 use gstreamer::State;
 use gtk::glib;
 use gtk::prelude::RangeExt;
+use std::rc::Rc;
 use std::sync::{Arc, Mutex};
 
 enum Msg {
@@ -19,6 +21,7 @@ enum Msg {
     RequestPrev,
     QueueChanged(u32, u32, u32),
     TabChanged(u32, String),
+    Seeked(u64),
 }
 
 fn send_message(sender: &async_channel::Sender<Msg>, message: Msg) {
@@ -26,7 +29,12 @@ fn send_message(sender: &async_channel::Sender<Msg>, message: Msg) {
     let _ = sender.try_send(message);
 }
 
-pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mutex<BeatSettings>>) {
+pub fn connect(
+    window: &BeatWindow,
+    player: &Arc<BeatPlayer>,
+    settings: &Arc<Mutex<BeatSettings>>,
+    remote: &Rc<Remote>,
+) {
     let player_weak = player.downgrade();
 
     window
@@ -183,6 +191,13 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
     });
 
     let sender_ref = sender.clone();
+    player.connect("seeked", true, move |values| {
+        let position = values[1].get::<u64>().unwrap();
+        send_message(&sender_ref, Msg::Seeked(position));
+        None
+    });
+
+    let sender_ref = sender.clone();
     player.connect("query-next", true, move |_values| {
         send_message(&sender_ref, Msg::RequestNext);
         None
@@ -212,12 +227,27 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
 
     let window_ref = window.downgrade();
     let settings_ref = Arc::clone(settings);
+    let remote = Rc::downgrade(remote);
 
     glib::MainContext::default().spawn_local(async move {
         while let Ok(msg) = receiver.recv().await {
             let Some(window) = window_ref.upgrade() else {
                 break;
             };
+            if let Some(remote) = remote.upgrade() {
+                match &msg {
+                    Msg::StateChanged(track_ref, state) => remote.on_state_changed(
+                        track_ref.as_ref().map(|(tab, track, _)| (*tab, *track)),
+                        *state,
+                    ),
+                    Msg::DurationChanged(tab_idx, track_idx, duration) => {
+                        remote.on_duration_changed(*tab_idx, *track_idx, *duration)
+                    }
+                    Msg::ProgressChanged(position, _) => remote.on_progress(*position),
+                    Msg::Seeked(position) => remote.on_seeked(*position),
+                    _ => {}
+                }
+            }
             match msg {
                 Msg::DurationChanged(tab_idx, track_idx, duration) => {
                     window.imp().update_duration(tab_idx, track_idx, duration);
@@ -265,6 +295,7 @@ pub fn connect(window: &BeatWindow, player: &Arc<BeatPlayer>, settings: &Arc<Mut
                         .get()
                         .set_track_position(tab_idx, track_idx, position);
                 }
+                Msg::Seeked(_) => {}
                 Msg::TabChanged(tab_idx, tab_uuid) => {
                     let mut settings = settings_ref.lock().unwrap();
                     let tracks = window.imp().notebook.get().get_tracks(tab_idx);

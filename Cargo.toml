@@ -1,6 +1,6 @@
 [package]
 name = "beat"
-version = "0.1.0"
+version = "1.0.0"
 edition = "2021"
 rust-version = "1.92"
 
@@ -12,8 +12,10 @@ csv = "1.4.0"
 gettext-rs = { version = "0.8.0", features = ["gettext-system"] }
 gstreamer = { version = "0.25.4", features = ["v1_20"] }
 gtk = { version = "0.11.5", package = "gtk4", features = ["v4_20"] }
+ksni = { version = "0.3.7", default-features = false, features = ["async-io"] }
 lofty = "0.25.5"
 md5 = "0.8.1"
+mpris-server = "0.10"
 rand = "0.10.3"
 regex = "1.13.1"
 serde = { version = "1.0.229", features = ["derive"] }

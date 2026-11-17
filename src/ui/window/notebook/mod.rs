@@ -98,6 +98,25 @@ impl BeatNotebook {
                     );
                 }
             }
+        } else if let Some(tab_idx) = self.imp().selected_tab_id() {
+            // Nothing has been played yet: start from the selected row of the
+            // current tab, or from its beginning.
+            let tab = self.imp().selected_tab();
+            let store = tab.playlist().store();
+            if !store.has_tracks() {
+                return;
+            }
+            let selection = store.selector().selection();
+            let index = if !selection.is_empty() {
+                selection.minimum()
+            } else if shuffle {
+                rand::random_range(0..store.size())
+            } else {
+                0
+            };
+            if let Some(track) = store.get_track(index) {
+                self.emit_by_name::<()>("track-activated", &[&tab_idx, &index, &track.filepath()]);
+            }
         }
     }
 

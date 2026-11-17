@@ -1,12 +1,13 @@
 use crate::app::connector;
+use crate::app::remote::Remote;
 use crate::player::BeatPlayer;
 use crate::utils::settings::BeatSettings;
 use crate::BeatWindow;
 use adw::subclass::prelude::AdwApplicationImpl;
 use gettextrs::gettext;
-use gtk::glib;
 use gtk::prelude::*;
 use gtk::subclass::prelude::*;
+use gtk::{gio, glib};
 use std::cell::RefCell;
 use std::rc::Rc;
 use std::sync::{Arc, Mutex};
@@ -15,6 +16,7 @@ pub struct BeatAppImp {
     pub window: RefCell<Option<Rc<BeatWindow>>>,
     pub player: RefCell<Option<Arc<BeatPlayer>>>,
     pub settings: RefCell<Option<Arc<Mutex<BeatSettings>>>>,
+    pub remote: RefCell<Option<Rc<Remote>>>,
 }
 
 impl Default for BeatAppImp {
@@ -23,6 +25,7 @@ impl Default for BeatAppImp {
             window: RefCell::new(None),
             player: RefCell::new(None),
             settings: RefCell::new(None),
+            remote: RefCell::new(None),
         }
     }
 }
@@ -37,6 +40,18 @@ impl ObjectSubclass for BeatAppImp {
 impl ObjectImpl for BeatAppImp {}
 
 impl ApplicationImpl for BeatAppImp {
+    fn startup(&self) {
+        self.parent_startup();
+
+        // With "close to tray" the window close button no longer quits.
+        let obj = self.obj();
+        let quit = gio::ActionEntry::builder("quit")
+            .activate(|app: &super::BeatApp, _, _| app.quit())
+            .build();
+        obj.add_action_entries([quit]);
+        obj.set_accels_for_action("app.quit", &["<Control>q"]);
+    }
+
     fn activate(&self) {
         self.parent_activate();
 
@@ -74,7 +89,8 @@ impl ApplicationImpl for BeatAppImp {
 
         let settings = Arc::new(Mutex::new(settings));
 
-        connector::connect(&window, &player, &settings);
+        let remote = Remote::new(&obj);
+        connector::connect(&window, &player, &settings, &remote);
 
         let window = Rc::new(window);
 
@@ -83,6 +99,10 @@ impl ApplicationImpl for BeatAppImp {
         self.settings.replace(Some(settings));
 
         window.present();
+
+        // Needs the window and settings registered above.
+        remote.start();
+        self.remote.replace(Some(remote));
     }
 }
 

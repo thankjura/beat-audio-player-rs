@@ -65,21 +65,37 @@ impl BeatPlayerImp {
 
     pub fn __set_position_percent(&self, progress: f64) {
         if let Some(duration) = self.__get_duration() {
-            let seek_value = ((duration as f64 / 100.0) * progress) as u64;
-            if self
-                .pipeline
-                .seek_simple(
-                    gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,
-                    seek_value * gst::ClockTime::SECOND,
-                )
-                .is_err()
-            {
-                println!("Can't seek");
-            } else {
-                self.obj()
-                    .emit_by_name::<()>("progress-changed", &[&seek_value, &progress]);
-            }
+            self.seek_to(((duration as f64 / 100.0) * progress) as u64);
         }
+    }
+
+    /// Seeks to `seconds` from the start of the current track and notifies
+    /// listeners through `progress-changed` and `seeked`.
+    pub fn seek_to(&self, seconds: u64) {
+        let Some(duration) = self.__get_duration() else {
+            return;
+        };
+        let seconds = seconds.min(duration);
+        if self
+            .pipeline
+            .seek_simple(
+                gst::SeekFlags::FLUSH | gst::SeekFlags::KEY_UNIT,
+                seconds * gst::ClockTime::SECOND,
+            )
+            .is_err()
+        {
+            println!("Can't seek");
+            return;
+        }
+
+        let progress = if duration > 0 {
+            seconds as f64 / duration as f64 * 100.0
+        } else {
+            0.0
+        };
+        self.obj()
+            .emit_by_name::<()>("progress-changed", &[&seconds, &progress]);
+        self.obj().emit_by_name::<()>("seeked", &[&seconds]);
     }
 
     pub fn __get_position_progress(&self) -> Option<(u64, f64)> {

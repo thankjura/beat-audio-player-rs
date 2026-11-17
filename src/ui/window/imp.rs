@@ -36,6 +36,9 @@ pub struct BeatWindowImp {
     #[template_child(id = "spectrum")]
     pub spectrum: TemplateChild<BeatSpectrum>,
 
+    #[template_child(id = "button_volume")]
+    pub button_volume: TemplateChild<gtk::ScaleButton>,
+
     #[template_child(id = "button_shuffle")]
     pub button_shuffle: TemplateChild<gtk::ToggleButton>,
 
@@ -80,7 +83,6 @@ impl ObjectImpl for BeatWindowImp {
     fn constructed(&self) {
         self.parent_constructed();
         self.set_cover(None);
-        // self.obj().set_hide_on_close(true);
     }
 }
 

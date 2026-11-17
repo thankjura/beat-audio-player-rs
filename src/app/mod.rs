@@ -1,9 +1,11 @@
 mod connector;
 mod imp;
+mod remote;
 
 use crate::BeatWindow;
 use gtk::subclass::prelude::*;
 use gtk::{gio, glib};
+pub use remote::{Command, CLI_ACTIONS};
 use std::rc::Rc;
 
 glib::wrapper! {
@@ -36,5 +38,13 @@ impl BeatApp {
         }
 
         None
+    }
+
+    /// Runs a playback or window command, as if it came from MPRIS or the tray.
+    pub fn run_command(&self, command: Command) {
+        let remote = self.imp().remote.borrow().clone();
+        if let Some(remote) = remote {
+            remote.handle(command);
+        }
     }
 }

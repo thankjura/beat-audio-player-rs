@@ -1,9 +1,8 @@
 use crate::structs::track::Track;
+use crate::ui::window::notebook::playlist::item::TrackItem;
 use gstreamer::State;
-use gtk::glib::BoxedAnyObject;
+use gtk::gio;
 use gtk::prelude::*;
-use gtk::{gio, glib};
-use std::cell::Ref;
 
 #[derive(Clone)]
 pub struct PlayListStore {
@@ -12,18 +11,16 @@ pub struct PlayListStore {
 }
 
 pub fn get_track(store: &gio::ListStore, index: u32) -> Option<Track> {
-    if let Some(item) = store.item(index) {
-        let entry = item.downcast::<BoxedAnyObject>().unwrap();
-        let r: Ref<Track> = entry.borrow();
-        return Some(r.clone());
-    }
+    track_item(store, index).map(|item| item.track().clone())
+}
 
-    None
+fn track_item(store: &gio::ListStore, index: u32) -> Option<TrackItem> {
+    store.item(index).and_downcast::<TrackItem>()
 }
 
 impl PlayListStore {
     pub fn new() -> Self {
-        let store = gio::ListStore::new::<BoxedAnyObject>();
+        let store = gio::ListStore::new::<TrackItem>();
         let selector = gtk::MultiSelection::new(Some(store.clone()));
 
         Self { store, selector }
@@ -38,7 +35,7 @@ impl PlayListStore {
     }
 
     pub fn add_track(&self, track: Track) {
-        self.store.append(&glib::BoxedAnyObject::new(track));
+        self.store.append(&TrackItem::new(track));
     }
 
     pub fn get_track(&self, index: u32) -> Option<Track> {
@@ -81,31 +78,24 @@ impl PlayListStore {
         self.store.remove_all();
     }
 
-    fn update_track(&self, index: u32, update: impl FnOnce(&Track)) {
-        let Some(track) = self.get_track(index) else {
-            return;
-        };
-        update(&track);
-
-        // BoxedAnyObject cannot notify GTK about changes inside Track. Replace the
-        // wrapper so ColumnView sees a new item and binds the row again.
-        let was_selected = self.selector.is_selected(index);
-        self.store.splice(index, 1, &[BoxedAnyObject::new(track)]);
-        if was_selected {
-            self.selector.select_item(index, true);
+    // Update the item in place: replacing it in the store would make the
+    // ColumnView drop the focused row and jump back to the top.
+    pub fn set_track_state(&self, index: u32, state: Option<State>) {
+        if let Some(item) = track_item(&self.store, index) {
+            item.set_state(state);
         }
     }
 
-    pub fn set_track_state(&self, index: u32, state: Option<State>) {
-        self.update_track(index, |track| track.set_state(state));
-    }
-
     pub fn set_track_duration(&self, index: u32, duration: u64) {
-        self.update_track(index, |track| track.set_duration(duration));
+        if let Some(item) = track_item(&self.store, index) {
+            item.set_duration(duration);
+        }
     }
 
     pub fn set_track_position(&self, index: u32, position: u32) {
-        self.update_track(index, |track| track.set_queue_pos(position));
+        if let Some(item) = track_item(&self.store, index) {
+            item.set_queue_pos(position);
+        }
     }
 
     pub fn size(&self) -> u32 {
@@ -123,11 +113,13 @@ impl Default for PlayListStore {
 mod tests {
     use super::PlayListStore;
     use crate::structs::track::Track;
+    use gstreamer::State;
     use gtk::prelude::*;
-    use std::sync::mpsc;
+    use std::cell::RefCell;
+    use std::rc::Rc;
 
     #[test]
-    fn queue_position_is_updated_and_cleared() {
+    fn track_updates_keep_item_and_notify_properties() {
         gtk::init().expect("GTK must be available for the playlist test");
         let store = PlayListStore::new();
         store.add_track(Track::new(
@@ -140,27 +132,44 @@ mod tests {
             None,
         ));
 
-        let (changed_tx, changed_rx) = mpsc::channel();
+        let items_changed = Rc::new(RefCell::new(0));
+        let counter = items_changed.clone();
         store
             .store()
-            .connect_items_changed(move |_, position, removed, added| {
-                changed_tx.send((position, removed, added)).unwrap();
-            });
+            .connect_items_changed(move |_, _, _, _| *counter.borrow_mut() += 1);
+
+        let item = store.store().item(0).unwrap();
+        let notified = Rc::new(RefCell::new(Vec::<String>::new()));
+        let log = notified.clone();
+        item.connect_notify_local(None, move |_, pspec| {
+            log.borrow_mut().push(pspec.name().to_string())
+        });
         assert!(store.selector().select_item(0, true));
-        let previous_item = store.store().item(0).unwrap();
 
         store.set_track_position(0, 1);
         assert_eq!(
             store.get_track(0).unwrap().queue_pos().as_deref(),
             Some("1")
         );
-        assert_eq!(changed_rx.recv().unwrap(), (0, 1, 1));
-        assert_ne!(store.store().item(0).unwrap(), previous_item);
-        assert!(store.selector().is_selected(0));
+        assert_eq!(
+            item.property::<Option<String>>("queue-pos").as_deref(),
+            Some("1")
+        );
+
+        store.set_track_state(0, Some(State::Playing));
+        assert_eq!(
+            item.property::<Option<String>>("icon-name").as_deref(),
+            Some("beat-play-symbolic")
+        );
 
         store.set_track_position(0, 0);
         assert_eq!(store.get_track(0).unwrap().queue_pos(), None);
-        assert_eq!(changed_rx.recv().unwrap(), (0, 1, 1));
+        assert_eq!(item.property::<Option<String>>("queue-pos"), None);
+
+        assert_eq!(*notified.borrow(), ["queue-pos", "icon-name", "queue-pos"]);
+        // The row object is never replaced, so the view keeps focus and scroll.
+        assert_eq!(*items_changed.borrow(), 0);
+        assert_eq!(store.store().item(0).unwrap(), item);
         assert!(store.selector().is_selected(0));
     }
 }

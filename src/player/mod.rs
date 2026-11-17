@@ -3,6 +3,7 @@ mod bus;
 pub mod imp;
 mod pipeline;
 
+use gstreamer::prelude::ElementExtManual;
 use gstreamer::State;
 use gtk::glib;
 use gtk::prelude::ObjectExt;
@@ -115,6 +116,22 @@ impl BeatPlayer {
 
     pub fn seek_position(&self, percent: f64) {
         self.imp().set_position_percent_smooth(percent);
+    }
+
+    pub fn seek_to(&self, seconds: u64) {
+        self.imp().seek_to(seconds);
+    }
+
+    /// Current position in seconds, if a track is loaded.
+    pub fn position(&self) -> Option<u64> {
+        self.imp()
+            .__get_position_progress()
+            .map(|(position, _)| position)
+    }
+
+    pub fn is_playing(&self) -> bool {
+        // current_state() does not wait for a pending async state change.
+        self.imp().pipeline.current_state() == State::Playing
     }
 
     pub fn set_volume(&self, value: f64) {

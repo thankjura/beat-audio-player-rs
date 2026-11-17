@@ -114,3 +114,35 @@ msgstr "Отменить"
 #: src/ui/cli.rs:50
 msgid "Append to current playlist instead of create new"
 msgstr "Добавить в текущую вкладку, вместо создания новой"
+
+#: src/app/remote/tray.rs
+msgid "Previous"
+msgstr "Предыдущий"
+
+#: src/app/remote/tray.rs
+msgid "Show window"
+msgstr "Показать окно"
+
+#: src/app/remote/tray.rs
+msgid "Hide window"
+msgstr "Скрыть окно"
+
+#: src/app/remote/tray.rs
+msgid "Close to tray"
+msgstr "Сворачивать в трей при закрытии"
+
+#: src/app/remote/tray.rs
+msgid "Quit"
+msgstr "Выход"
+
+#: src/ui/cli.rs
+msgid "Unknown action"
+msgstr "Неизвестное действие"
+
+#: src/ui/cli.rs
+msgid "Available actions"
+msgstr "Доступные действия"
+
+#: src/ui/cli.rs
+msgid "Control playback of the running player"
+msgstr "Управлять воспроизведением запущенного плеера"

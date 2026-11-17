@@ -143,6 +143,9 @@ impl ObjectImpl for BeatPlayerImp {
                 Signal::builder("queue-changed")
                     .param_types([u32::static_type(), u32::static_type(), u32::static_type()])
                     .build(),
+                Signal::builder("seeked")
+                    .param_types([u64::static_type()])
+                    .build(),
                 Signal::builder("query-next").build(),
                 Signal::builder("query-prev").build(),
             ]

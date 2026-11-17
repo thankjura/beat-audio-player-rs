@@ -15,3 +15,4 @@ src/ui/window/header.rs
 src/ui/window/files.rs
 src/ui/cli.rs
 src/app/imp.rs
+src/app/remote/tray.rs
